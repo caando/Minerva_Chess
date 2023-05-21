@@ -1,0 +1,13 @@
+{
+  "name": "Minerva_Chess_Bot",
+  "version": "1.0.0",
+  "description": "Telegram Bot for Minvera Chess engine",
+  "main": "index.js",
+  "repository": "https://github.com/caando/Minerva_Chess.git",
+  "author": "Woo Jia Hao, Zhang Jikun",
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "tslint": "^6.1.3",
+    "typescript": "^5.0.4"
+  }
+}
