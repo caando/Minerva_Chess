@@ -1,12 +1,14 @@
 import { spawn } from "node:child_process";
 
-export default class EngineService {
+const COMPUTING_TIME_PER_MOVE = 500; // milliseconds
+
+class EngineService {
   private executable: string;
   constructor(executable: string) {
     this.executable = executable;
   }
 
-  async getMove(FEN: string, computingTime: number): Promise<string> {
+  async getMove(FEN: string): Promise<string> {
     const engine = await spawn(this.executable); // does not have a defined type yet
 
     let lastMessage: Buffer = Buffer.alloc(0);
@@ -17,9 +19,13 @@ export default class EngineService {
     engine.stdin.write(`position ${FEN}\n`);
     engine.stdin.write(`go\n`);
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    await sleep(computingTime);
+    await sleep(COMPUTING_TIME_PER_MOVE);
     engine.stdin.write(`stop\n`);
     await sleep(10);
-    return lastMessage.toString();
+    return lastMessage.toString().split(' ')[1];
   }
 }
+
+const engine = new EngineService("./dependencies/Stockfish/src/stockfish");
+
+export { EngineService, engine }
