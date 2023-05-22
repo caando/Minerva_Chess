@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-cd bot && npx lint-staged
+cd ./bot && npx lint-staged

@@ -12,7 +12,7 @@
     "format:prettier": "prettier --config .prettierrc --write *.ts",
     "format:lint": "eslint . --ext .ts",
     "format": "yarn format:prettier && yarn format:lint",
-    "husky": "cd ../ && npx husky install && npx husky add .husky/pre-commit"
+    "husky": "cd ../ && npx husky install && npx husky add .husky/pre-commit \"cd ./bot && npx lint-staged\""
   },
   "devDependencies": {
     "@types/node": "^20.2.3",
@@ -32,7 +32,9 @@
     "telegraf": "^4.12.2"
   },
   "lint-staged": {
-    "**/*.{js,jsx,ts,tson}": ["yarn format"]
+    "**/*.{js,jsx,ts,tson}": [
+      "yarn format"
+    ]
   },
   "husky": {
     "hooks": {
