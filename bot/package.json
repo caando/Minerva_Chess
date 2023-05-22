@@ -11,7 +11,7 @@
     "start": "node dist/index.js",
     "format:prettier": "prettier --config .prettierrc --write *.ts",
     "format:lint": "eslint . --ext .ts",
-    "format": ""
+    "format": "yarn format:prettier && yarn format:lint"
   },
   "devDependencies": {
     "@types/node": "^20.2.3",
@@ -20,6 +20,7 @@
     "eslint": "^8.41.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
     "prettier": "^2.8.8",
     "tslint": "^6.1.3",
     "typescript": "^5.0.4"
@@ -27,5 +28,8 @@
   "dependencies": {
     "dotenv": "^16.0.3",
     "telegraf": "^4.12.2"
+  },
+  "husky": {
+    "pre-commit": "yarn format"
   }
 }

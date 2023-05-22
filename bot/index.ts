@@ -1,5 +1,5 @@
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv'
 
-dotenv.config();
+dotenv.config()
 
 console.log(process.env.TELEGRAM_BOT_TOKEN);
