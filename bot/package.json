@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "bot": "yarn build && yarn start",
     "format:prettier": "prettier --config .prettierrc --write *.ts",
     "format:lint": "eslint . --ext .ts",
     "format": "yarn format:prettier && yarn format:lint",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.2.3",
+    "@types/sqlite3": "^3.1.8",
     "@typescript-eslint/eslint-plugin": "^5.59.6",
     "@typescript-eslint/parser": "^5.59.6",
     "eslint": "^8.41.0",
@@ -28,7 +30,12 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "axios": "^1.4.0",
+    "axios-retry": "^3.5.0",
     "dotenv": "^16.0.3",
+    "https": "^1.0.0",
+    "sequelize": "^6.31.1",
+    "sqlite3": "^5.1.6",
     "telegraf": "^4.12.2"
   },
   "lint-staged": {
