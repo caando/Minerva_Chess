@@ -1,13 +1,14 @@
 import * as dotenv from "dotenv";
-import { Context, Telegraf } from "telegraf";
+import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { Update } from "typegram";
 import {
   addGame,
   getGames,
+  getUserOngoingGame,
   testConnection,
   userHasExistingGame
 } from "./database";
-import { challenge, healthCheck } from "./lichess";
+import { challenge, getGame, healthCheck } from "./lichess";
 import { Message } from "telegraf/typings/core/types/typegram";
 dotenv.config();
 
@@ -16,13 +17,21 @@ const bot: Telegraf<Context<Update>> = new Telegraf(
   process.env.TELEGRAM_BOT_TOKEN as string
 );
 
-function editMessage(message: Message, text: string) {
-  bot.telegram.editMessageText(
-    message.chat.id,
-    message.message_id,
-    undefined,
-    text
-  );
+async function sendEditableMessage(
+  context: NarrowedContext<
+    Context<Update>,
+    {
+      message: Update.New & Update.NonChannel & Message.TextMessage;
+      update_id: number;
+    }
+  >,
+  message: string
+): Promise<[Message.TextMessage, (text: string) => void]> {
+  const msg = await context.reply(message);
+  const editMessage = function (text: string) {
+    bot.telegram.editMessageText(msg.chat.id, msg.message_id, undefined, text);
+  };
+  return [msg, editMessage];
 }
 
 bot.command("ping", (ctx) => {
@@ -42,18 +51,19 @@ bot.help((ctx) => {
 
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
-  const statusMsg = await ctx.reply("Processing your challenge...");
+  const [_, editCreateMessage] = await sendEditableMessage(
+    ctx,
+    "Processing your challenge..."
+  );
   if (!username) {
-    editMessage(
-      statusMsg,
-      "Something happened, contact @woojiahao to receive support"
+    editCreateMessage(
+      "Something went wrong, contact @woojiahao to receive support"
     );
     return;
   }
 
   if (await userHasExistingGame(username)) {
-    editMessage(
-      statusMsg,
+    editCreateMessage(
       "You already have an existing game, finish that game first. Use /me to view the board state of that game"
     );
     return;
@@ -61,15 +71,39 @@ bot.command("start", async (ctx) => {
 
   const game = await challenge();
   if (game instanceof Error) {
-    editMessage(
-      statusMsg,
+    editCreateMessage(
       "Failed to create a new challenge, contact @woojiahao to receive support"
     );
     return;
   }
 
   await addGame(game.id, username);
-  editMessage(statusMsg, `Game started, you are ${game.side}`);
+  editCreateMessage(`Game started, you are ${game.userSide}`);
+});
+
+bot.command("me", async (ctx) => {
+  const username = ctx.from.username;
+  const [_, editMessage] = await sendEditableMessage(
+    ctx,
+    `Retrieving your current game...`
+  );
+  if (!username) {
+    editMessage("Something went wrong, contact @woojiahao to receive support");
+    return;
+  }
+
+  const game = await getUserOngoingGame(username);
+  if (!game) {
+    editMessage("You do not have any ongoing games, use /start to create one");
+    return;
+  }
+
+  let hasLoaded = false;
+  await getGame(game.id, async (fen) => {
+    if (!hasLoaded)
+      await ctx.sendPhoto(`https://fen2image.chessvision.ai/${fen}`);
+    hasLoaded = true;
+  });
 });
 
 async function main() {

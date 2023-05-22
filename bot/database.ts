@@ -1,5 +1,6 @@
 import { timeStamp } from "console";
 import { DataTypes, Op, Sequelize } from "sequelize";
+import { Game as BotGame } from "./models";
 
 export const db = new Sequelize({
   dialect: "sqlite",
@@ -69,11 +70,22 @@ export async function addGame(gameId: string, username: string) {
 }
 
 export async function userHasExistingGame(username: string) {
+  const game = await getUserOngoingGame(username);
+  return game !== null;
+}
+
+export async function getUserOngoingGame(
+  username: string
+): Promise<BotGame | null> {
   const game = await Game.findOne({
     where: {
       username: username,
       [Op.not]: [{ status: "ENDED" }]
     }
   });
-  return game !== null;
+  if (!game) return null;
+  return {
+    id: game.dataValues.gameId,
+    userSide: null
+  };
 }
