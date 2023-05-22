@@ -10,3 +10,5 @@ const bot: Telegraf<Context<Update>> = new Telegraf(
 bot.start((ctx) => {
   ctx.reply("Hello " + ctx.from.first_name + "!");
 });
+
+bot.launch();
