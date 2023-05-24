@@ -22,10 +22,10 @@ class EngineService {
     await sleep(COMPUTING_TIME_PER_MOVE);
     engine.stdin.write(`stop\n`);
     await sleep(10);
-    return lastMessage.toString().split(' ')[1];
+    return lastMessage.toString().split(" ")[1];
   }
 }
 
 const engine = new EngineService("./dependencies/Stockfish/src/stockfish");
 
-export { EngineService, engine }
+export { EngineService, engine };

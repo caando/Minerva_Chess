@@ -10,8 +10,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "bot": "yarn build && yarn start",
-    "format:prettier": "prettier --config .prettierrc ./**/*.ts --write",
-    "format:lint": "eslint ./**/*.ts --fix",
+    "format:prettier": "prettier --config .prettierrc **/*.ts --write",
+    "format:lint": "eslint **/*.ts --fix",
     "format": "yarn format:prettier && yarn format:lint",
     "husky": "cd ../ && npx husky install && npx husky add .husky/pre-commit \"cd ./bot && npx lint-staged\"",
     "migrate": "npx sequelize-cli db:migrate"
