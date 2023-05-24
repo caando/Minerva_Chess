@@ -173,7 +173,7 @@ bot.command("move", async (ctx) => {
 });
 
 bot.command('teabag', async (ctx) => {
-  await ctx.sendPhoto(`https://tenor.com/view/halo-teabag-gif-12948320`);
+  await ctx.sendAnimation(`https://tenor.com/view/halo-teabag-gif-12948320`);
 })
 
 export default bot;
