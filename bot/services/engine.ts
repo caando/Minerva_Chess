@@ -8,19 +8,24 @@ class EngineService {
     this.executable = executable;
   }
 
-  async getMove(FEN: string): Promise<string> {
+  private sleep(ms: number) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  async getMove(FEN: string): Promise<string | null> {
     const engine = await spawn(this.executable); // does not have a defined type yet
 
     let lastMessage: Buffer = Buffer.alloc(0);
     engine.stdout.on("data", (data: Buffer) => {
-      console.log(data);
       lastMessage = data;
     });
     engine.stdin.write(`ucinewgame\n`);
     engine.stdin.write(`position ${FEN}\n`);
     engine.stdin.write(`go movetime 1000\n`);
     engine.stdin.write(`stop\n`);
-    return lastMessage.toString().split(" ")[1];
+    await this.sleep(1080);
+    const match = lastMessage.toString().match(/bestmove (.+)/);
+    return match ? match[1] : null;
   }
 }
 

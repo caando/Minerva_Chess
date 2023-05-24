@@ -50,7 +50,7 @@ export async function addGame(userId: number): Promise<Game> {
       playerIsWhite: playerIsWhite,
       userId: userId,
       userSide: playerIsWhite ? "WHITE" : "BLACK",
-      fen: playerIsWhite ? whiteStartPos : blackStartPos
+      fen: whiteStartPos
     },
     {
       fields: ["status", "playerIsWhite", "userId", "userSide", "fen"]
