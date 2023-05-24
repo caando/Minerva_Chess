@@ -86,7 +86,6 @@ bot.command("start", async (ctx) => {
   editCreateMessage(`Game started, you are ${game.userSide}`);
 
   if (game.userSide === UserSide.BLACK) {
-    console.log(game.fen);
     const chess = new Chess(game.fen);
     const move: string | null = await engine.getMove(chess.fen());
     if (!move) {
@@ -94,11 +93,10 @@ bot.command("start", async (ctx) => {
       return;
     }
     chess.move(move);
-    game.fen = chess.fen();
+    await game.set("fen", chess.fen())
     game.save();
   }
 
-  console.log(game.fen);
   await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
 });
 
@@ -142,10 +140,11 @@ bot.command("move", async (ctx) => {
     return;
   }
 
-  const move = ctx.state.command;
+  const move = ctx.update.message.text.slice(6);
   const chess = new Chess(game.fen);
   try {
     chess.move(move);
+    console.log(chess.fen())
     const engineMove: string | null = await engine.getMove(chess.fen());
     if (!engineMove) {
       editMessage("Something wrong happened internally");
@@ -156,6 +155,7 @@ bot.command("move", async (ctx) => {
     game.save();
     await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
   } catch (e) {
+    console.log(e)
     editMessage("Invalid move!");
     return;
   }
