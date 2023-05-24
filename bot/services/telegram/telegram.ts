@@ -68,13 +68,6 @@ bot.command("start", async (ctx) => {
 
   const user = await getUser(username);
 
-  if (await userHasExistingGame(user)) {
-    editCreateMessage(
-      "You already have an existing game, finish that game first. Use /me to view the board state of that game"
-    );
-    return;
-  }
-
   const game = await addGame(user.id);
   if (game instanceof Error) {
     editCreateMessage(
