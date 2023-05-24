@@ -48,6 +48,7 @@ bot.help((ctx) => {
   /start to start a new game with the chess engine
   /move <move> play the move in game (in chess notation)
   /me to view the board state of your current game
+  /teabag teabag
   `.replace(/  +/g, "");
   ctx.reply(helpMsg);
 });
@@ -170,5 +171,9 @@ bot.command("move", async (ctx) => {
     return;
   }
 });
+
+bot.command('teabag', async (ctx) => {
+  await ctx.sendPhoto(`https://tenor.com/view/halo-teabag-gif-12948320`);
+})
 
 export default bot;
