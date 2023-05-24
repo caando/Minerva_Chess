@@ -48,7 +48,8 @@ bot.help((ctx) => {
   /start to start a new game with the chess engine
   /move <move> play the move in game (in chess notation)
   /me to view the board state of your current game
-  /teabag teabag
+  /teabag
+  /google
   `.replace(/  +/g, "");
   ctx.reply(helpMsg);
 });
@@ -174,6 +175,15 @@ bot.command("move", async (ctx) => {
 
 bot.command('teabag', async (ctx) => {
   await ctx.sendAnimation(`https://tenor.com/view/halo-teabag-gif-12948320`);
+})
+
+bot.command('google', async (ctx) => {
+  if (ctx.update.message.text === "/google en passant") {
+    await sendEditableMessage(
+      ctx,
+      `Holy hell`
+    );
+  }
 })
 
 export default bot;
