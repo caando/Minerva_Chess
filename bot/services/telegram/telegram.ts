@@ -117,7 +117,11 @@ bot.command("me", async (ctx) => {
     editMessage("You do not have any ongoing games, use /start to create one");
     return;
   }
-  await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+  if (game.userSide === "BLACK") {
+    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}?pov=black`);
+  } else {
+    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+  }
 });
 
 bot.command("move", async (ctx) => {
@@ -151,7 +155,11 @@ bot.command("move", async (ctx) => {
     chess.move(engineMove);
     game.fen = chess.fen();
     game.save();
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+    if (game.userSide === "BLACK") {
+      await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}?pov=black`);
+    } else {
+      await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+    }
   } catch (e) {
     console.log(e)
     editMessage("Invalid move!");
