@@ -1,10 +1,14 @@
 import * as dotenv from "dotenv";
-import bot from './services/telegram'
-
 dotenv.config();
 
+import bot from "./services/telegram/telegram";
+
 async function main() {
-  bot.launch();
+  await bot.launch();
+
+  // Enable graceful stop
+  process.once("SIGINT", () => bot.stop("SIGINT"));
+  process.once("SIGTERM", () => bot.stop("SIGTERM"));
 }
 
 (async () => {

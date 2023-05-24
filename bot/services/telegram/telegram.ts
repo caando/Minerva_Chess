@@ -1,9 +1,9 @@
 import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { Update } from "typegram";
 import { Message } from "telegraf/typings/core/types/typegram";
-import { engine } from "./engine";
-import { Chess } from "chess.js"
-import { UserSide } from "./models/game"
+import { engine } from "../engine";
+import { Chess } from "chess.js";
+import { UserSide } from "../models/game";
 import {
   getUser,
   addGame,
@@ -11,12 +11,15 @@ import {
   getUserOngoingGame,
   testConnection,
   userHasExistingGame
-} from "./database";
+} from "../database";
+import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
   process.env.TELEGRAM_BOT_TOKEN as string
 );
+
+bot.use(IgnoreOldMiddleWare);
 
 async function sendEditableMessage(
   context: NarrowedContext<
@@ -52,6 +55,7 @@ bot.help((ctx) => {
 
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
+  console.log(username);
   const [_, editCreateMessage] = await sendEditableMessage(
     ctx,
     "Processing your challenge..."
@@ -63,7 +67,7 @@ bot.command("start", async (ctx) => {
     return;
   }
 
-  const user = await getUser(username)
+  const user = await getUser(username);
 
   if (await userHasExistingGame(user)) {
     editCreateMessage(
@@ -83,11 +87,11 @@ bot.command("start", async (ctx) => {
   editCreateMessage(`Game started, you are ${game.userSide}`);
 
   if (game.userSide === UserSide.BLACK) {
-    const chess = new Chess(game.fen)
-    const move: string = await engine.getMove(chess.fen())
-    chess.move(move)
-    game.fen = chess.fen()
-    game.save()
+    const chess = new Chess(game.fen);
+    const move: string = await engine.getMove(chess.fen());
+    chess.move(move);
+    game.fen = chess.fen();
+    game.save();
   }
   await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
 });
@@ -103,9 +107,9 @@ bot.command("me", async (ctx) => {
     return;
   }
 
-  const user = await getUser(username)
+  const user = await getUser(username);
   const game = await getUserOngoingGame(user);
-  
+
   if (!game) {
     editMessage("You do not have any ongoing games, use /start to create one");
     return;
@@ -113,8 +117,7 @@ bot.command("me", async (ctx) => {
   await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
 });
 
-bot.command("move", async(ctx) => {
-
+bot.command("move", async (ctx) => {
   const username = ctx.from.username;
   const [_, editMessage] = await sendEditableMessage(
     ctx,
@@ -125,7 +128,7 @@ bot.command("move", async(ctx) => {
     return;
   }
 
-  const user = await getUser(username)
+  const user = await getUser(username);
   const game = await getUserOngoingGame(user);
 
   if (!game) {
@@ -134,13 +137,13 @@ bot.command("move", async(ctx) => {
   }
 
   const move = ctx.state.command;
-  const chess = new Chess(game.fen)
+  const chess = new Chess(game.fen);
   try {
     chess.move(move);
-    const engineMove: string = await engine.getMove(chess.fen())
-    chess.move(engineMove)
-    game.fen = chess.fen()
-    game.save()
+    const engineMove: string = await engine.getMove(chess.fen());
+    chess.move(engineMove);
+    game.fen = chess.fen();
+    game.save();
     await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
   } catch (e) {
     editMessage("Invalid move!");

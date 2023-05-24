@@ -1,5 +1,5 @@
-import { DataType, Column, Model, Table, HasMany } from "sequelize-typescript"
-import { Game } from './game';
+import { DataType, Column, Model, Table, HasMany } from "sequelize-typescript";
+import { Game } from "./game";
 
 @Table({ tableName: "users", paranoid: true })
 export class User extends Model {
@@ -7,18 +7,17 @@ export class User extends Model {
     autoIncrement: true,
     primaryKey: true,
     allowNull: false,
-    type: DataType.BIGINT,
+    type: DataType.BIGINT
   })
-  id!: number
+  id!: number;
 
   @Column({
     allowNull: false,
     unique: true,
-    type: DataType.TEXT,
+    type: DataType.TEXT
   })
-  username!: string
+  username!: string;
 
   @HasMany(() => Game)
-  games?: Game[]
-
+  games?: Game[];
 }

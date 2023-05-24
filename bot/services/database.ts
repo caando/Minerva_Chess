@@ -1,18 +1,17 @@
-import { Sequelize } from 'sequelize-typescript';
+import { Sequelize } from "sequelize-typescript";
 import { Op } from "sequelize";
 import { Game } from "./models/game";
 import { User } from "./models/user";
 
-
-const models = [Game, User]
+const models = [Game, User];
 
 const db = new Sequelize({
-  database: 'database_development',
-  dialect: 'sqlite',
-  username: 'root',
-  password: '',
-  storage: './minerva_chess.db',
-  models: models,
+  database: "database_development",
+  dialect: "sqlite",
+  username: "root",
+  password: "",
+  storage: "./minerva_chess.db",
+  models: models
 });
 
 export async function testConnection() {
@@ -42,7 +41,7 @@ export async function addGame(userId: number): Promise<Game> {
   return await Game.create(
     {
       status: "STARTED",
-      playerIsWhite: playerIsWhite, 
+      playerIsWhite: playerIsWhite,
       userId: userId
     },
     {
@@ -56,12 +55,12 @@ export async function addUser(username: string): Promise<User> {
 }
 
 export async function getUser(username: string): Promise<User> {
-  const user = User.findOne({ 
+  const user = User.findOne({
     where: {
       username: username
     }
-  })
-  return user === null ? user : addUser(username)
+  });
+  return user === null ? user : addUser(username);
 }
 
 export async function userHasExistingGame(user: User) {
@@ -69,9 +68,7 @@ export async function userHasExistingGame(user: User) {
   return game !== null;
 }
 
-export async function getUserOngoingGame(
-  user: User
-): Promise<Game | null> {
+export async function getUserOngoingGame(user: User): Promise<Game | null> {
   return await Game.findOne({
     where: {
       userId: user.id,

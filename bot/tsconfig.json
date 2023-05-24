@@ -3,13 +3,12 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "target": "es2021",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "moduleResolution": "node",
     "strict": true,
     "sourceMap": true,
-    "lib": [
-      "es2021",
-      "dom"
-    ],
+    "lib": ["es2021", "dom"],
     "skipLibCheck": true,
     "rootDir": "./",
     "outDir": "dist"
