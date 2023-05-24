@@ -46,8 +46,7 @@ bot.help((ctx) => {
   const helpMsg = `
   /ping to test the bot online status
   /start to start a new game with the chess engine
-  /games to list the games currently being played
-  /board <game id> to view the board state of a previous or ongoing match
+  /move <move> play the move in game (in chess notation)
   /me to view the board state of your current game
   `.replace(/  +/g, "");
   ctx.reply(helpMsg);
@@ -68,7 +67,14 @@ bot.command("start", async (ctx) => {
 
   const user = await getUser(username);
 
-  const game = await addGame(user.id);
+  let prevGame = await getUserOngoingGame(user);
+  if (prevGame !== null) {
+    prevGame.set("status", "ENDED");
+    prevGame.save();
+  }
+
+  const game = await addGame(user.id)
+
   if (game instanceof Error) {
     editCreateMessage(
       "Failed to create a new challenge, contact @woojiahao to receive support"
