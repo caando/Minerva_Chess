@@ -1,17 +1,24 @@
+import {
+  DataType,
+  Column,
+  Model,
+  Table,
+  ForeignKey,
+  CreatedAt,
+  UpdatedAt,
+  BelongsTo
+} from "sequelize-typescript";
 
-
-import { DataType, Column, Model, Table, ForeignKey, CreatedAt, UpdatedAt, BelongsTo } from "sequelize-typescript"
-
-import { User } from './user'
+import { User } from "./user";
 
 export enum GameStatus {
   STARTED = "STARTED",
-  ENDED = "ENDED",
+  ENDED = "ENDED"
 }
 
 export enum UserSide {
   WHITE = "WHITE",
-  BLACK = "BLACK",
+  BLACK = "BLACK"
 }
 
 @Table({ tableName: "games" })
@@ -20,35 +27,34 @@ export class Game extends Model {
     autoIncrement: true,
     primaryKey: true,
     allowNull: false,
-    type: DataType.BIGINT,
+    type: DataType.BIGINT
   })
-  id!: number
+  id!: number;
 
   @Column({
     allowNull: false,
     unique: false,
-    type: DataType.TEXT,
-    defaultValue: "startpos",
+    type: DataType.TEXT
   })
-  fen!: string
+  fen!: string;
 
   @Column({
     allowNull: false,
     unique: false,
-    type: DataType.ENUM(...Object.values(UserSide)),
+    type: DataType.ENUM(...Object.values(UserSide))
   })
-  userSide!: UserSide
+  userSide!: UserSide;
 
   @Column({
     allowNull: false,
     type: DataType.ENUM(...Object.values(GameStatus)),
-    defaultValue: GameStatus.STARTED,
+    defaultValue: GameStatus.STARTED
   })
-  status!: GameStatus
+  status!: GameStatus;
 
   @ForeignKey(() => User)
-  userId!: number
+  userId!: number;
 
   @BelongsTo(() => User)
-  player!: User
+  player!: User;
 }

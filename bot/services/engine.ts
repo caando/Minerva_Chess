@@ -13,15 +13,13 @@ class EngineService {
 
     let lastMessage: Buffer = Buffer.alloc(0);
     engine.stdout.on("data", (data: Buffer) => {
+      console.log(data);
       lastMessage = data;
     });
     engine.stdin.write(`ucinewgame\n`);
     engine.stdin.write(`position ${FEN}\n`);
-    engine.stdin.write(`go\n`);
-    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-    await sleep(COMPUTING_TIME_PER_MOVE);
+    engine.stdin.write(`go movetime 1000\n`);
     engine.stdin.write(`stop\n`);
-    await sleep(10);
     return lastMessage.toString().split(" ")[1];
   }
 }

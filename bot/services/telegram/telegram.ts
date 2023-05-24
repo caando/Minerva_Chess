@@ -55,7 +55,6 @@ bot.help((ctx) => {
 
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
-  console.log(username);
   const [_, editCreateMessage] = await sendEditableMessage(
     ctx,
     "Processing your challenge..."
@@ -87,6 +86,7 @@ bot.command("start", async (ctx) => {
   editCreateMessage(`Game started, you are ${game.userSide}`);
 
   if (game.userSide === UserSide.BLACK) {
+    console.log(game.fen);
     const chess = new Chess(game.fen);
     const move: string = await engine.getMove(chess.fen());
     chess.move(move);

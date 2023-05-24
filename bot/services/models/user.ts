@@ -1,7 +1,7 @@
 import { DataType, Column, Model, Table, HasMany } from "sequelize-typescript";
 import { Game } from "./game";
 
-@Table({ tableName: "users", paranoid: true })
+@Table({ tableName: "users" })
 export class User extends Model {
   @Column({
     autoIncrement: true,

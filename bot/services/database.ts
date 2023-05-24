@@ -14,6 +14,11 @@ const db = new Sequelize({
   models: models
 });
 
+const whiteStartPos =
+  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+const blackStartPos =
+  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
+
 export async function testConnection() {
   try {
     await db.authenticate();
@@ -37,15 +42,18 @@ export async function getGames() {
 }
 
 export async function addGame(userId: number): Promise<Game> {
-  const playerIsWhite: boolean = Math.random() >= 0.5;
+  // const playerIsWhite: boolean = Math.random() >= 0.5;
+  const playerIsWhite = false;
   return await Game.create(
     {
       status: "STARTED",
       playerIsWhite: playerIsWhite,
-      userId: userId
+      userId: userId,
+      userSide: playerIsWhite ? "WHITE" : "BLACK",
+      fen: playerIsWhite ? whiteStartPos : blackStartPos
     },
     {
-      fields: ["status", "playerIsWhite", userId]
+      fields: ["status", "playerIsWhite", "userId", "userSide", "fen"]
     }
   );
 }
@@ -55,21 +63,21 @@ export async function addUser(username: string): Promise<User> {
 }
 
 export async function getUser(username: string): Promise<User> {
-  const user = User.findOne({
+  const user = await User.findOne({
     where: {
       username: username
     }
   });
-  return user === null ? user : addUser(username);
+  return user || addUser(username);
 }
 
 export async function userHasExistingGame(user: User) {
   const game = await getUserOngoingGame(user);
-  return game !== null;
+  return !!game;
 }
 
 export async function getUserOngoingGame(user: User): Promise<Game | null> {
-  return await Game.findOne({
+  return Game.findOne({
     where: {
       userId: user.id,
       [Op.not]: [{ status: "ENDED" }]
