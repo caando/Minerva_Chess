@@ -20,13 +20,10 @@ class EngineService {
       lastMessage = data;
     });
     engine.stdin.write(`ucinewgame\n`);
-    console.log(FEN)
     engine.stdin.write(`position fen ${FEN}\n`);
     engine.stdin.write(`go movetime ${COMPUTING_TIME_PER_MOVE}\n`);
     await this.sleep(COMPUTING_TIME_PER_MOVE * 2);
     const match = lastMessage.toString().match(/bestmove ([+a-zA-Z0-9]+)/);
-    console.log(lastMessage.toString())
-    console.log(match)
     return match ? match[1] : null;
   }
 }

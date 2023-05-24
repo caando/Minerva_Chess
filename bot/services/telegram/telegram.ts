@@ -143,7 +143,6 @@ bot.command("move", async (ctx) => {
   const chess = new Chess(game.fen);
   try {
     chess.move(move);
-    console.log(chess.fen())
     const engineMove: string | null = await engine.getMove(chess.fen());
     if (!engineMove) {
       editMessage("Something wrong happened internally");
