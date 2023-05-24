@@ -96,7 +96,11 @@ bot.command("start", async (ctx) => {
     game.save();
   }
 
-  await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+  if (game.userSide === "BLACK") {
+    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}?pov=black`);
+  } else {
+    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+  }
 });
 
 bot.command("me", async (ctx) => {
