@@ -4,14 +4,7 @@ import { Message } from "telegraf/typings/core/types/typegram";
 import { engine } from "../engine";
 import { Chess } from "chess.js";
 import { UserSide } from "../models/game";
-import {
-  getUser,
-  addGame,
-  getGames,
-  getUserOngoingGame,
-  testConnection,
-  userHasExistingGame
-} from "../database";
+import { getUser, addGame, getUserOngoingGame } from "../database";
 import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
 import { message } from "telegraf/filters";
 
@@ -69,7 +62,7 @@ bot.command("ping", (ctx) => {
 bot.help((ctx) => {
   ctx.reply(
     `
-      ello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
+      Hello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
 
       To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
 
@@ -90,6 +83,7 @@ bot.help((ctx) => {
 
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
+  await ctx.reply("If you want to get more help, use /help");
   const [_, editCreateMessage] = await sendEditableMessage(
     ctx,
     "Processing your challenge..."
