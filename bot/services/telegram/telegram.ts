@@ -13,6 +13,7 @@ import {
   userHasExistingGame
 } from "../database";
 import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
+import { message } from "telegraf/filters";
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
@@ -20,6 +21,29 @@ const bot: Telegraf<Context<Update>> = new Telegraf(
 );
 
 bot.use(IgnoreOldMiddleWare);
+
+bot.on(message("new_chat_members"), (ctx) => {
+  if (!ctx.botInfo || ctx.botInfo.username !== bot.botInfo?.username) return;
+  ctx.reply(
+    `
+      Hello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
+
+      To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
+
+      /ping to test the bot online status
+      /start to start a new game
+      /move \\<AN\\> to play a move in your game in either Algebraic Notation or Long Algebraic Notation
+      /me to view your current active game
+
+      Notation: For example, if you wish to move the pawn from e2 to e4 square, you can send \`/move e2e4\`\\.
+
+      Good luck\\!
+    `.replace(/  +/g, ""),
+    {
+      parse_mode: "MarkdownV2"
+    }
+  );
+});
 
 async function sendEditableMessage(
   context: NarrowedContext<
@@ -43,15 +67,25 @@ bot.command("ping", (ctx) => {
 });
 
 bot.help((ctx) => {
-  const helpMsg = `
-  /ping to test the bot online status
-  /start to start a new game with the chess engine
-  /move <move> play the move in game (in chess notation)
-  /me to view the board state of your current game
-  /teabag
-  /google
-  `.replace(/  +/g, "");
-  ctx.reply(helpMsg);
+  ctx.reply(
+    `
+      ello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
+
+      To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
+
+      /ping to test the bot online status
+      /start to start a new game
+      /move \\<AN\\> to play a move in your game in either Algebraic Notation or Long Algebraic Notation
+      /me to view your current active game
+
+      Notation: For example, if you wish to move the pawn from e2 to e4 square, you can send \`/move e2e4\`\\.
+
+      Good luck\\!
+    `.replace(/  +/g, ""),
+    {
+      parse_mode: "MarkdownV2"
+    }
+  );
 });
 
 bot.command("start", async (ctx) => {
@@ -69,13 +103,13 @@ bot.command("start", async (ctx) => {
 
   const user = await getUser(username);
 
-  let prevGame = await getUserOngoingGame(user);
+  const prevGame = await getUserOngoingGame(user);
   if (prevGame !== null) {
     prevGame.set("status", "ENDED");
     prevGame.save();
   }
 
-  const game = await addGame(user.id)
+  const game = await addGame(user.id);
 
   if (game instanceof Error) {
     editCreateMessage(
@@ -94,12 +128,14 @@ bot.command("start", async (ctx) => {
       return;
     }
     chess.move(move);
-    await game.set("fen", chess.fen())
+    await game.set("fen", chess.fen());
     game.save();
   }
 
   if (game.userSide === "BLACK") {
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}?pov=black`);
+    await ctx.sendPhoto(
+      `https://fen2image.chessvision.ai/${game.fen}?pov=black`
+    );
   } else {
     await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
   }
@@ -124,7 +160,9 @@ bot.command("me", async (ctx) => {
     return;
   }
   if (game.userSide === "BLACK") {
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}?pov=black`);
+    await ctx.sendPhoto(
+      `https://fen2image.chessvision.ai/${game.fen}?pov=black`
+    );
   } else {
     await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
   }
@@ -162,28 +200,27 @@ bot.command("move", async (ctx) => {
     game.fen = chess.fen();
     game.save();
     if (game.userSide === "BLACK") {
-      await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}?pov=black`);
+      await ctx.sendPhoto(
+        `https://fen2image.chessvision.ai/${game.fen}?pov=black`
+      );
     } else {
       await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
     editMessage("Invalid move!");
     return;
   }
 });
 
-bot.command('teabag', async (ctx) => {
+bot.command("teabag", async (ctx) => {
   await ctx.sendAnimation(`https://tenor.com/view/halo-teabag-gif-12948320`);
-})
+});
 
-bot.command('google', async (ctx) => {
+bot.command("google", async (ctx) => {
   if (ctx.update.message.text === "/google en passant") {
-    await sendEditableMessage(
-      ctx,
-      `Holy hell`
-    );
+    await sendEditableMessage(ctx, `Holy hell`);
   }
-})
+});
 
 export default bot;
