@@ -72,3 +72,14 @@ We have deployed [@MinervaChessBot](https://t.me/MinervaChessBot) onto DigitalOc
 
 - Pre-commit hooks have been setup using Husky to automatically format staged files to ensure consistent formatting across teammate commits
 - While the current bot uses Stockfish as the engine, once we've built Minerva Chess engine, we will only have to replace the process that's called per move as the bot uses a UCI that can be adapted to a custom engine like Minerva Chess
+
+### System architecture
+
+Minerva Chess uses the following system architecture:
+
+![](./res/Architecture.drawio.png)
+
+It relies on the Universal Chess Interface to act as a bridge between the Telegram bot and the backend chess engine.
+This makes it very easy to change the underlying chess engine while maintaining the same behavior on the Telegram bot.
+
+![](./res/UCI.drawio.png)
