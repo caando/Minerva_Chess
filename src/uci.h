@@ -11,11 +11,21 @@
 namespace uci {
     void start();
 
-    class UCIHandler {
+    struct Command {
+        std::string command;
+        std::vector<std::string> args;
+    };
+
+    class Handler {
     public:
         static void handleHelp();
 
         static void handlePosition(std::string &fen, const std::vector<std::string> &moves = {});
+    };
+
+    class CommandParser {
+    public:
+        static Command parseLine(std::string &line);
     };
 }
 

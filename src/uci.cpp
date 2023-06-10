@@ -30,20 +30,21 @@ namespace uci {
         std::string input;
         do {
             std::cout << "> ";
-            std::cin >> input;
-            if (!commands.contains(input)) {
+            std::getline(std::cin, input);
+            Command command = CommandParser::parseLine(input);
+            if (!commands.contains(command.command)) {
                 std::cout << "Unknown command: '" << input << "'. Type help for more information";
             }
 
-            if (input == help_command) {
-                UCIHandler::handleHelp();
-            } else if (input == position_command) {
-                UCIHandler::handlePosition(input);
+            if (command.command == help_command) {
+                Handler::handleHelp();
+            } else if (command.command == position_command) {
+                Handler::handlePosition(command.args[0], command.args);
             }
         } while (input != "quit");
     }
 
-    void UCIHandler::handleHelp() {
+    void Handler::handleHelp() {
         std::cout << "Supported commands:\n";
         std::cout << "quit > quit the program\n";
         std::cout << "position [fen <fenstring> | startpos] moves <move1> ... <movei> > setup board state\n";
@@ -54,7 +55,35 @@ namespace uci {
         std::cout << "eval > evaluate current position\n";
     }
 
-    void UCIHandler::handlePosition(std::string &fen, const std::vector<std::string> &moves) {
+    void Handler::handlePosition(std::string &fen, const std::vector<std::string> &moves) {
         std::cout << fen << '\n';
+
+        for (auto &arg: moves) {
+            std::cout << arg << std::endl;
+        }
+    }
+
+    Command CommandParser::parseLine(std::string &line) {
+        char delimiter{' '};
+        int start{0};
+        std::vector<std::string> parts{};
+
+        for (int i{0}; i < line.size(); i++) {
+            if (line[i] == delimiter) {
+                parts.push_back(line.substr(start, i - start));
+                start = i + 1;
+            }
+        }
+
+        if (start != line.size()) parts.push_back(line.substr(start, line.size()));
+
+        std::string command{parts[0]};
+        std::vector<std::string> args{};
+
+        for (int i{1}; i < parts.size(); i++) {
+            args.push_back(parts[i]);
+        }
+
+        return {command, args};
     }
 }
