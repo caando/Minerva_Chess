@@ -2,10 +2,11 @@
 
 Following Stockfish UCI commands found [here](https://github.com/official-stockfish/Stockfish/wiki/Commands)
 
+The CLI automatically runs in UCI mode so `uci` is not necessary.
+
 ## Supported commands
 
 - `quit` > quit the program
-- `uci` > toggle UCI mode
 - `position [fen <fenstring> | startpos] moves <move1> ... <movei>` > setup board state with moves played
 - `go movetime <x>` > search for `x` ms
 - `go mate <x>` > search for mate in `x` moves

@@ -3,7 +3,10 @@
 //
 
 #include <iostream>
+#include <string>
+#include "uci.h"
 
 int main() {
-    std::cout << "Hello world";
+    uci::start();
+    return 0;
 };
