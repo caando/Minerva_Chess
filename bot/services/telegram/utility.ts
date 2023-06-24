@@ -1,6 +1,6 @@
 import { Context, NarrowedContext } from "telegraf";
 import { Message, Update } from "telegraf/typings/core/types/typegram";
-import { UserSide } from "../models/game";
+import { Game, UserSide } from "../models/game";
 import bot from "./telegram";
 
 export const helpText = `
@@ -94,5 +94,28 @@ export async function sendPhotoWithCaption<T extends Update>(
   context.sendPhoto(photoUrl, {
     caption: caption,
     parse_mode: "Markdown"
+  });
+}
+
+export async function sendChessboard<T extends Update>(
+  context: NarrowedContext<Context<Update>, T>,
+  game: Game,
+  title: string,
+  body: string
+) {
+  context.sendPhoto(getBoardImage(game.fen, game.userSide), {
+    caption: `
+        *${title}*
+
+        ${body}
+
+        Make moves using messages like \`e2e4\`. Receive more help using /help
+      `.replace(/  +/g, ""),
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Forfeit game 🏳", callback_data: "forfeit-game" }]
+      ]
+    }
   });
 }

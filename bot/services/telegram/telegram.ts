@@ -18,6 +18,7 @@ import {
   editMessage,
   getBoardImage,
   helpText,
+  sendChessboard,
   sendEditableMessage,
   sendPhotoWithCaption,
   tutorText
@@ -105,10 +106,12 @@ bot.action("start-game", async (ctx) => {
     }
   } else {
     ctx.deleteMessage(message.message_id);
-    await ctx.sendPhoto(getBoardImage(game.fen, game.userSide), {
-      caption: `Your challenge against the engine has started. You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`,
-      parse_mode: "Markdown"
-    });
+    await sendChessboard(
+      ctx,
+      game,
+      "Game started!",
+      `You are ${game.userSide}`
+    );
   }
 });
 
@@ -137,10 +140,11 @@ bot.command("start", async (ctx) => {
     }
   } else {
     ctx.deleteMessage(createMessage.message_id);
-    await sendPhotoWithCaption(
+    await sendChessboard(
       ctx,
-      getBoardImage(game.fen, game.userSide),
-      `Your challenge against the engine has started. You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`
+      game,
+      "Game started!",
+      `You are ${game.userSide}`
     );
   }
 });
@@ -167,10 +171,11 @@ bot.action("view-current", async (ctx) => {
   }
 
   ctx.deleteMessage(message.message_id);
-  await sendPhotoWithCaption(
+  await sendChessboard(
     ctx,
-    getBoardImage(game.fen, game.userSide),
-    `You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`
+    game,
+    "Ongoing game found!",
+    `You are ${game.userSide}`
   );
 });
 
@@ -192,10 +197,11 @@ bot.command("me", async (ctx) => {
   }
 
   ctx.deleteMessage(message.message_id);
-  await sendPhotoWithCaption(
+  await sendChessboard(
     ctx,
-    getBoardImage(game.fen, game.userSide),
-    `You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`
+    game,
+    "Ongoing game found!",
+    `You are ${game.userSide}`
   );
 });
 
@@ -231,21 +237,20 @@ bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
       }
     } else {
       ctx.deleteMessage(message.message_id);
-      sendPhotoWithCaption(
+      await sendChessboard(
         ctx,
-        getBoardImage(game.game.fen, game.game.userSide),
-        `
-      *Your move!*
-
-      Minerva Chess played *${game.engineMove}*
-
-      Make moves using messages like \`e2e4\`. Receive more help using /help
-      `.replace(/  +/g, "")
+        game.game,
+        "Your move!",
+        `Minerva Chess played *${game.engineMove}*`
       );
     }
   } catch (e) {
     return;
   }
+});
+
+bot.action("forfeit-game", (ctx) => {
+  console.log("Forfeiting game");
 });
 
 bot.command("teabag", async (ctx) => {
