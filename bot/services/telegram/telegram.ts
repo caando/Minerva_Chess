@@ -1,12 +1,19 @@
-import { Context, NarrowedContext, Telegraf } from "telegraf";
-import { Update } from "typegram";
-import { Message } from "telegraf/typings/core/types/typegram";
-import { engine } from "../engine";
 import { Chess } from "chess.js";
-import { UserSide } from "../models/game";
-import { getUser, addGame, getUserOngoingGame } from "../database";
-import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
+import { Context, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
+import { Update } from "typegram";
+import { getUser, getUserOngoingGame } from "../database";
+import { engine } from "../engine";
+import { chessEngineError, createGameError } from "./errors";
+import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
+import { getHelpTextConfiguration, startGame } from "./service";
+import {
+  editMessage,
+  getBoardImage,
+  helpText,
+  sendEditableMessage,
+  tutorText
+} from "./utility";
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
@@ -17,74 +24,95 @@ bot.use(IgnoreOldMiddleWare);
 
 bot.on(message("new_chat_members"), (ctx) => {
   if (!ctx.botInfo || ctx.botInfo.username !== bot.botInfo?.username) return;
-  ctx.reply(
-    `
-      Hello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
-
-      To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
-
-      /ping to test the bot online status
-      /start to start a new game
-      /move \\<AN\\> to play a move in your game in either Algebraic Notation or Long Algebraic Notation
-      /me to view your current active game
-
-      Notation: For example, if you wish to move the pawn from e2 to e4 square, you can send \`/move e2e4\`\\.
-
-      Good luck\\!
-    `.replace(/  +/g, ""),
-    {
-      parse_mode: "MarkdownV2"
-    }
-  );
+  ctx.reply(helpText, getHelpTextConfiguration());
 });
-
-async function sendEditableMessage(
-  context: NarrowedContext<
-    Context<Update>,
-    {
-      message: Update.New & Update.NonChannel & Message.TextMessage;
-      update_id: number;
-    }
-  >,
-  message: string
-): Promise<[Message.TextMessage, (text: string) => void]> {
-  const msg = await context.reply(message);
-  const editMessage = function (text: string) {
-    bot.telegram.editMessageText(msg.chat.id, msg.message_id, undefined, text);
-  };
-  return [msg, editMessage];
-}
 
 bot.command("ping", (ctx) => {
   ctx.reply(`Hello ${ctx.from.first_name}!`);
 });
 
-bot.help((ctx) => {
-  ctx.reply(
-    `
-      Hello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
+// bot.action("view-game", (ctx) => {
+// })
 
-      To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
-
-      /ping to test the bot online status
-      /start to start a new game
-      /move \\<AN\\> to play a move in your game in either Algebraic Notation or Long Algebraic Notation
-      /me to view your current active game
-
-      Notation: For example, if you wish to move the pawn from e2 to e4 square, you can send \`/move e2e4\`\\.
-
-      Good luck\\!
-    `.replace(/  +/g, ""),
+bot.action("tutor", (ctx) => {
+  const message = ctx.update.callback_query.message;
+  if (!message) return;
+  bot.telegram.editMessageText(
+    message.chat.id,
+    message.message_id,
+    undefined,
+    tutorText,
     {
-      parse_mode: "MarkdownV2"
+      parse_mode: "Markdown",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "Back to main guide ⏪", callback_data: "show-help" }]
+        ]
+      }
     }
   );
 });
 
+// bot.action("view-games", (ctx) => {
+// })
+
+bot.help((ctx) => {
+  ctx.reply(helpText, getHelpTextConfiguration());
+});
+
+bot.action("show-help", (ctx) => {
+  const message = ctx.update.callback_query.message;
+  if (!message) return;
+  bot.telegram.editMessageText(
+    message.chat.id,
+    message.message_id,
+    undefined,
+    helpText,
+    getHelpTextConfiguration()
+  );
+});
+
+bot.action("start-game", async (ctx) => {
+  const message = ctx.update.callback_query.message;
+  if (!message) return;
+  bot.telegram.editMessageText(
+    message.chat.id,
+    message.message_id,
+    undefined,
+    "We will start a new game!"
+  );
+  const username = ctx.from?.username;
+  if (!username) {
+    editMessage(
+      message,
+      "Something went wrong internally, contact @woojiahao for assistance"
+    );
+    return;
+  }
+
+  const game = await startGame(username);
+
+  if (game instanceof Error) {
+    if (game === createGameError) {
+      editMessage(
+        message,
+        "Failed to create a new challenge, contact @woojiahao to receive support"
+      );
+    } else if (game === chessEngineError) {
+      editMessage(message, "Something went wrong internally");
+    }
+  } else {
+    ctx.deleteMessage(message.message_id);
+    await ctx.sendPhoto(getBoardImage(game.fen, game.userSide), {
+      caption: `Your challenge against the engine has started. You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`,
+      parse_mode: "Markdown"
+    });
+  }
+});
+
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
-  await ctx.reply("If you want to get more help, use /help");
-  const [_, editCreateMessage] = await sendEditableMessage(
+  const [createMessage, editCreateMessage] = await sendEditableMessage(
     ctx,
     "Processing your challenge..."
   );
@@ -95,43 +123,22 @@ bot.command("start", async (ctx) => {
     return;
   }
 
-  const user = await getUser(username);
-
-  const prevGame = await getUserOngoingGame(user);
-  if (prevGame !== null) {
-    prevGame.set("status", "ENDED");
-    prevGame.save();
-  }
-
-  const game = await addGame(user.id);
+  const game = await startGame(username);
 
   if (game instanceof Error) {
-    editCreateMessage(
-      "Failed to create a new challenge, contact @woojiahao to receive support"
-    );
-    return;
-  }
-
-  editCreateMessage(`Game started, you are ${game.userSide}`);
-
-  if (game.userSide === UserSide.BLACK) {
-    const chess = new Chess(game.fen);
-    const move: string | null = await engine.getMove(chess.fen());
-    if (!move) {
+    if (game === createGameError) {
+      editCreateMessage(
+        "Failed to create a new challenge, contact @woojiahao to receive support"
+      );
+    } else if (game === chessEngineError) {
       editCreateMessage("Something went wrong internally");
-      return;
     }
-    chess.move(move);
-    await game.set("fen", chess.fen());
-    game.save();
-  }
-
-  if (game.userSide === "BLACK") {
-    await ctx.sendPhoto(
-      `https://fen2image.chessvision.ai/${game.fen}?pov=black`
-    );
   } else {
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+    ctx.deleteMessage(createMessage.message_id);
+    await ctx.sendPhoto(getBoardImage(game.fen, game.userSide), {
+      caption: `Your challenge against the engine has started. You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`,
+      parse_mode: "Markdown"
+    });
   }
 });
 
