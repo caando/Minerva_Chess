@@ -22,6 +22,8 @@ enum Square {
   SquareCount, no_sq
 };
 
+#define iterSquare() for (int square = 0; square < SquareCount; square++)
+
 enum Piece {
   WPawn,
   WKnight,
@@ -38,6 +40,8 @@ enum Piece {
   PieceCount = 12
 };
 
+#define iterPiece() for (int piece = 0; piece < PieceCount; piece++)
+
 enum Colour {
   White,
   Black,
@@ -51,6 +55,8 @@ enum Castle {
   BlackKingSide = 4,
   BlackQueenSide = 8,
 };
+
+#define iterCastle() for (int castle = 0; castle <= WhiteKingSide | WhiteQueenSide | BlackKingSide | BlackQueenSide; castle++)
 
 const char *SquareToCoordinates[] = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",

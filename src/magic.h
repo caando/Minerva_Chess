@@ -10,7 +10,7 @@
 // credits to BITBOARD CHESS ENGINE
 
 // rook magic numbers
-U64 rook_magic_numbers[64] = {
+U64 RookMagicNumbers[SquareCount] = {
     0x8a80104000800020ULL,
     0x140002000100040ULL,
     0x2801880a0017001ULL,
@@ -78,7 +78,7 @@ U64 rook_magic_numbers[64] = {
 };
 
 // bishop magic numbers
-U64 bishop_magic_numbers[64] = {
+U64 BishopMagicNumbers[SquareCount] = {
     0x40040844404084ULL,
     0x2004208a004208ULL,
     0x10190041080202ULL,
