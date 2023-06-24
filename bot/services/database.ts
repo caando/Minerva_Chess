@@ -2,8 +2,9 @@ import { Sequelize } from "sequelize-typescript";
 import { Op } from "sequelize";
 import { Game, GameStatus } from "./models/game";
 import { User } from "./models/user";
+import { History, HistoryPlayer } from "./models/history";
 
-const models = [Game, User];
+const models = [Game, User, History];
 
 const db = new Sequelize({
   database: "database_development",
@@ -36,7 +37,8 @@ export async function getGames() {
           status: "ENDED"
         }
       ]
-    }
+    },
+    include: History
   });
   return games.map((game) => game.toJSON());
 }
@@ -92,4 +94,21 @@ export async function endGame(game: Game) {
 export async function updateGameFen(game: Game, fen: string) {
   game.set("fen", fen);
   await game.save();
+}
+
+export async function addGameHistory(
+  game: Game,
+  fen: string,
+  player: HistoryPlayer
+) {
+  return await History.create(
+    {
+      gameId: game.id,
+      fen: fen,
+      player: player
+    },
+    {
+      fields: ["gameId", "fen", "player"]
+    }
+  );
 }

@@ -3,6 +3,7 @@
 import { Chess } from "chess.js";
 import {
   addGame,
+  addGameHistory,
   getUser,
   getUserOngoingGame,
   updateGameFen
@@ -16,6 +17,7 @@ import {
   missingGameError,
   ongoingGameError
 } from "./errors";
+import { HistoryPlayer } from "../models/history";
 
 export async function startGame(username: string) {
   const user = await getUser(username);
@@ -31,6 +33,7 @@ export async function startGame(username: string) {
     if (!move) return chessEngineError;
     chess.move(move);
     await updateGameFen(game, chess.fen());
+    await addGameHistory(game, chess.fen(), HistoryPlayer.BOT);
   }
 
   return game;
@@ -45,10 +48,12 @@ export async function makeMove(username: string, move: string) {
   const chess = new Chess(game.fen);
   try {
     chess.move(move);
+    await addGameHistory(game, chess.fen(), HistoryPlayer.USER);
     const engineMove: string | null = await engine.getMove(chess.fen());
     if (!engineMove) return chessEngineError;
     chess.move(engineMove);
     await updateGameFen(game, chess.fen());
+    await addGameHistory(game, chess.fen(), HistoryPlayer.BOT);
     return {
       game: game,
       engineMove: engineMove
