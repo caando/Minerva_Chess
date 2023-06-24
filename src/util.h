@@ -9,4 +9,6 @@
 
 U64 rand64();
 
+static inline int LSOneIdx(Bitboard bitboard);
+
 #endif //MINERVA_CHESS_SRC_UTIL_H_

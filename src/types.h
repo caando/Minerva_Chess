@@ -88,6 +88,10 @@ Piece AsciiToPieces[] = {
     ['k'] = Piece::BKing
 };
 
-typedef unsigned long long Bitboard;
+typedef U64 Bitboard;
+
+#define setBit(bitboard, square) ((bitboard) |= (1ULL << (square)))
+#define getBit(bitboard, square) ((bitboard) & (1ULL << (square)))
+#define remBit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
 
 #endif //MINERVA_CHESS_SRC_CONSTANTS_H_

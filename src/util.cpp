@@ -11,3 +11,8 @@ U64 rand64() {
   next = next * 1000000009 + 1234511;
   return next;
 }
+
+static inline int LSOneIdx(Bitboard bitboard) {
+  long long signedBitboard = bitboard;
+  return __builtin_ctz(signedBitboard & -(signedBitboard));
+}
