@@ -1,9 +1,6 @@
-import { Chess } from "chess.js";
 import { Context, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import { Update } from "typegram";
-import { getUser, getUserOngoingGame } from "../database";
-import { engine } from "../engine";
 import {
   chessEngineError,
   createGameError,
@@ -25,6 +22,7 @@ import {
   sendPhotoWithCaption,
   tutorText
 } from "./utility";
+import { Chess } from "chess.js";
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
@@ -241,7 +239,54 @@ bot.command("move", async (ctx) => {
   }
 });
 
-bot.hears();
+bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
+  const chess = new Chess();
+  try {
+    const move = ctx.message.text;
+    chess.move(move);
+
+    const username = ctx.from.username;
+    const [message, editMessage] = await sendEditableMessage(
+      ctx,
+      `Retrieving your current game...`
+    );
+    if (!username) {
+      editMessage(
+        "Something went wrong, contact @woojiahao to receive support"
+      );
+      return;
+    }
+    const game = await makeMove(username, move);
+
+    if (game instanceof Error) {
+      if (game === missingGameError) {
+        editMessage(
+          "You do not have any ongoing games, use /start to create one"
+        );
+      } else if (game === chessEngineError) {
+        editMessage("Something wrong happened internally");
+      } else if (game === invalidMoveError) {
+        // TODO: Potentially can ignore invalid moves instead
+        editMessage("Invalid move");
+      }
+    } else {
+      ctx.deleteMessage(message.message_id);
+      sendPhotoWithCaption(
+        ctx,
+        getBoardImage(game.game.fen, game.game.userSide),
+        `
+      *Your move!*
+
+      Minerva Chess played *${game.engineMove}*
+
+      Make moves using messages like \`e2e4\`. Receive more help using /help
+      `.replace(/  +/g, "")
+      );
+    }
+  } catch (e) {
+    return;
+  }
+});
 
 bot.command("teabag", async (ctx) => {
   await ctx.sendAnimation(`https://tenor.com/view/halo-teabag-gif-12948320`);
