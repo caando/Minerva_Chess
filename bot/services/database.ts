@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize-typescript";
 import { Op } from "sequelize";
-import { Game } from "./models/game";
+import { Game, GameStatus } from "./models/game";
 import { User } from "./models/user";
 
 const models = [Game, User];
@@ -82,4 +82,14 @@ export async function getUserOngoingGame(user: User): Promise<Game | null> {
       [Op.not]: [{ status: "ENDED" }]
     }
   });
+}
+
+export async function endGame(game: Game) {
+  game.set("status", "ENDED");
+  await game.save();
+}
+
+export async function updateGameFen(game: Game, fen: string) {
+  game.set("fen", fen);
+  await game.save();
 }

@@ -84,3 +84,15 @@ export async function editMessage(message: Message, text: string) {
     text
   );
 }
+
+// Helper function to send image with markdown caption
+export async function sendPhotoWithCaption<T extends Update>(
+  context: NarrowedContext<Context<Update>, T>,
+  photoUrl: string,
+  caption: string
+) {
+  context.sendPhoto(photoUrl, {
+    caption: caption,
+    parse_mode: "Markdown"
+  });
+}

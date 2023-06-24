@@ -4,14 +4,25 @@ import { message } from "telegraf/filters";
 import { Update } from "typegram";
 import { getUser, getUserOngoingGame } from "../database";
 import { engine } from "../engine";
-import { chessEngineError, createGameError } from "./errors";
+import {
+  chessEngineError,
+  createGameError,
+  invalidMoveError,
+  missingGameError
+} from "./errors";
 import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
-import { getHelpTextConfiguration, startGame } from "./service";
+import {
+  getHelpTextConfiguration,
+  getUserCurrentGame,
+  makeMove,
+  startGame
+} from "./service";
 import {
   editMessage,
   getBoardImage,
   helpText,
   sendEditableMessage,
+  sendPhotoWithCaption,
   tutorText
 } from "./utility";
 
@@ -30,9 +41,6 @@ bot.on(message("new_chat_members"), (ctx) => {
 bot.command("ping", (ctx) => {
   ctx.reply(`Hello ${ctx.from.first_name}!`);
 });
-
-// bot.action("view-game", (ctx) => {
-// })
 
 bot.action("tutor", (ctx) => {
   const message = ctx.update.callback_query.message;
@@ -72,15 +80,11 @@ bot.action("show-help", (ctx) => {
   );
 });
 
+// TODO: Abstract the behavior to work for both scenarios
 bot.action("start-game", async (ctx) => {
   const message = ctx.update.callback_query.message;
   if (!message) return;
-  bot.telegram.editMessageText(
-    message.chat.id,
-    message.message_id,
-    undefined,
-    "We will start a new game!"
-  );
+  editMessage(message, "Got it! We will try to start a game for you!");
   const username = ctx.from?.username;
   if (!username) {
     editMessage(
@@ -135,16 +139,46 @@ bot.command("start", async (ctx) => {
     }
   } else {
     ctx.deleteMessage(createMessage.message_id);
-    await ctx.sendPhoto(getBoardImage(game.fen, game.userSide), {
-      caption: `Your challenge against the engine has started. You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`,
-      parse_mode: "Markdown"
-    });
+    await sendPhotoWithCaption(
+      ctx,
+      getBoardImage(game.fen, game.userSide),
+      `Your challenge against the engine has started. You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`
+    );
   }
+});
+
+bot.action("view-current", async (ctx) => {
+  const username = ctx.from?.username;
+  const message = ctx.update.callback_query.message;
+  if (!message) return;
+  if (!username) {
+    editMessage(
+      message,
+      "Something went wrong, contact @woojiahao to receive support"
+    );
+    return;
+  }
+  const game = await getUserCurrentGame(username);
+
+  if (!game) {
+    editMessage(
+      message,
+      "You do not have any ongoing games, use /start to create one"
+    );
+    return;
+  }
+
+  ctx.deleteMessage(message.message_id);
+  await sendPhotoWithCaption(
+    ctx,
+    getBoardImage(game.fen, game.userSide),
+    `You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`
+  );
 });
 
 bot.command("me", async (ctx) => {
   const username = ctx.from.username;
-  const [_, editMessage] = await sendEditableMessage(
+  const [message, editMessage] = await sendEditableMessage(
     ctx,
     `Retrieving your current game...`
   );
@@ -152,26 +186,24 @@ bot.command("me", async (ctx) => {
     editMessage("Something went wrong, contact @woojiahao to receive support");
     return;
   }
-
-  const user = await getUser(username);
-  const game = await getUserOngoingGame(user);
+  const game = await getUserCurrentGame(username);
 
   if (!game) {
     editMessage("You do not have any ongoing games, use /start to create one");
     return;
   }
-  if (game.userSide === "BLACK") {
-    await ctx.sendPhoto(
-      `https://fen2image.chessvision.ai/${game.fen}?pov=black`
-    );
-  } else {
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
-  }
+
+  ctx.deleteMessage(message.message_id);
+  await sendPhotoWithCaption(
+    ctx,
+    getBoardImage(game.fen, game.userSide),
+    `You are ${game.userSide}. Make moves using messages like \`e2e4\`. Receive more help using /help`
+  );
 });
 
 bot.command("move", async (ctx) => {
   const username = ctx.from.username;
-  const [_, editMessage] = await sendEditableMessage(
+  const [message, editMessage] = await sendEditableMessage(
     ctx,
     `Retrieving your current game...`
   );
@@ -179,40 +211,37 @@ bot.command("move", async (ctx) => {
     editMessage("Something went wrong, contact @woojiahao to receive support");
     return;
   }
-
-  const user = await getUser(username);
-  const game = await getUserOngoingGame(user);
-
-  if (!game) {
-    editMessage("You do not have any ongoing games, use /start to create one");
-    return;
-  }
-
   const move = ctx.update.message.text.slice(6);
-  const chess = new Chess(game.fen);
-  try {
-    chess.move(move);
-    const engineMove: string | null = await engine.getMove(chess.fen());
-    if (!engineMove) {
-      editMessage("Something wrong happened internally");
-      return;
-    }
-    chess.move(engineMove);
-    game.fen = chess.fen();
-    game.save();
-    if (game.userSide === "BLACK") {
-      await ctx.sendPhoto(
-        `https://fen2image.chessvision.ai/${game.fen}?pov=black`
+  const game = await makeMove(username, move);
+
+  if (game instanceof Error) {
+    if (game === missingGameError) {
+      editMessage(
+        "You do not have any ongoing games, use /start to create one"
       );
-    } else {
-      await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+    } else if (game === chessEngineError) {
+      editMessage("Something wrong happened internally");
+    } else if (game === invalidMoveError) {
+      // TODO: Potentially can ignore invalid moves instead
+      editMessage("Invalid move");
     }
-  } catch (e) {
-    console.log(e);
-    editMessage("Invalid move!");
-    return;
+  } else {
+    ctx.deleteMessage(message.message_id);
+    sendPhotoWithCaption(
+      ctx,
+      getBoardImage(game.game.fen, game.game.userSide),
+      `
+      *Your move!*
+
+      Minerva Chess played *${game.engineMove}*
+
+      Make moves using messages like \`e2e4\`. Receive more help using /help
+      `.replace(/  +/g, "")
+    );
   }
 });
+
+bot.hears();
 
 bot.command("teabag", async (ctx) => {
   await ctx.sendAnimation(`https://tenor.com/view/halo-teabag-gif-12948320`);

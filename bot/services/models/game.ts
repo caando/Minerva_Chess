@@ -1,12 +1,10 @@
 import {
-  DataType,
+  BelongsTo,
   Column,
-  Model,
-  Table,
+  DataType,
   ForeignKey,
-  CreatedAt,
-  UpdatedAt,
-  BelongsTo
+  Model,
+  Table
 } from "sequelize-typescript";
 
 import { User } from "./user";

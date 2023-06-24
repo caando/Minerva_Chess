@@ -1,20 +1,27 @@
 // Service layer for Telegram <> Chess Engine <> Database interactions
 
 import { Chess } from "chess.js";
-import { addGame, getUser, getUserOngoingGame } from "../database";
+import {
+  addGame,
+  endGame,
+  getUser,
+  getUserOngoingGame,
+  updateGameFen
+} from "../database";
 import { engine } from "../engine";
-import { UserSide } from "../models/game";
-import { chessEngineError, createGameError } from "./errors";
+import { GameStatus, UserSide } from "../models/game";
+import {
+  chessEngineError,
+  createGameError,
+  invalidMoveError,
+  missingGameError
+} from "./errors";
 
 export async function startGame(username: string) {
   const user = await getUser(username);
   const prevGame = await getUserOngoingGame(user);
   // TODO: Only allow single game
-  // TODO: Move behavior to database layer
-  if (prevGame !== null) {
-    prevGame.set("status", "ENDED");
-    prevGame.save();
-  }
+  if (prevGame !== null) await endGame(prevGame);
 
   const game = await addGame(user.id);
   if (game instanceof Error) return createGameError;
@@ -24,11 +31,37 @@ export async function startGame(username: string) {
     const move: string | null = await engine.getMove(chess.fen());
     if (!move) return chessEngineError;
     chess.move(move);
-    // TODO: Move this to database layer
-    game.set("fen", chess.fen());
-    game.save();
+    await updateGameFen(game, chess.fen());
   }
 
+  return game;
+}
+
+export async function makeMove(username: string, move: string) {
+  // TODO: Handle cases where chess engine/user has checkmate or is in check
+  const game = await getUserCurrentGame(username);
+
+  if (!game) return missingGameError;
+
+  const chess = new Chess(game.fen);
+  try {
+    chess.move(move);
+    const engineMove: string | null = await engine.getMove(chess.fen());
+    if (!engineMove) return chessEngineError;
+    chess.move(engineMove);
+    await updateGameFen(game, chess.fen());
+    return {
+      game: game,
+      engineMove: engineMove
+    };
+  } catch (e) {
+    return invalidMoveError;
+  }
+}
+
+export async function getUserCurrentGame(username: string) {
+  const user = await getUser(username);
+  const game = await getUserOngoingGame(user);
   return game;
 }
 
@@ -41,7 +74,7 @@ export function getHelpTextConfiguration(): Omit<
     reply_markup: {
       inline_keyboard: [
         [{ text: "Start a game! 🟢", callback_data: "start-game" }],
-        [{ text: "View current game 👀", callback_data: "view-game" }],
+        [{ text: "View current game 👀", callback_data: "view-current" }],
         [{ text: "More help ❓", callback_data: "tutor" }],
         [{ text: "Past games 👓", callback_data: "view-games" }]
       ]
