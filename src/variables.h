@@ -24,12 +24,12 @@ Square enpassant = no_sq;
 int castle;
 
 // hashed value of current position, with 1/2^64 chance of collision
-uint64_t hash_key;
+U64 hash_key;
 
 const int MAX_MOVES = 500;
 
 // positions repetition table
-uint64_t repetition_table[MAX_MOVES * 2];
+U64 repetition_table[MAX_MOVES * 2];
 
 // repetition index
 int repetition_index;

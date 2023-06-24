@@ -5,6 +5,8 @@
 #ifndef MINERVA_CHESS_SRC_CONSTANTS_H_
 #define MINERVA_CHESS_SRC_CONSTANTS_H_
 
+#define U64 unsigned long long
+
 #define EMPTY_BOARD "8/8/8/8/8/8/8/8 b - - "
 #define START_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
 
