@@ -3,11 +3,13 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasOne,
   Model,
   Table
 } from "sequelize-typescript";
 
 import { User } from "./user";
+import { History } from "./history";
 
 export enum GameStatus {
   STARTED = "STARTED",
@@ -58,4 +60,7 @@ export class Game extends Model {
 
   @BelongsTo(() => User)
   player!: User;
+
+  @HasOne(() => History, "gameId")
+  history!: History;
 }

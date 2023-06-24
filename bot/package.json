@@ -46,7 +46,7 @@
     "telegraf": "^4.12.2"
   },
   "lint-staged": {
-    "./**/*.{js,jsx,ts,json}": [
+    "./**/*.{ts,json}": [
       "yarn format"
     ]
   },
