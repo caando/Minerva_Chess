@@ -16,7 +16,8 @@ enum Square {
   a4, b4, c4, d4, e4, f4, g4, h4,
   a3, b3, c3, d3, e3, f3, g3, h3,
   a2, b2, c2, d2, e2, f2, g2, h2,
-  a1, b1, c1, d1, e1, f1, g1, h1, no_sq
+  a1, b1, c1, d1, e1, f1, g1, h1,
+  SquareCount, no_sq
 };
 
 enum Piece {
@@ -32,19 +33,21 @@ enum Piece {
   BRook,
   BQueen,
   BKing,
+  PieceCount = 12
 };
 
 enum Colour {
   White,
   Black,
-  both
+  both,
+  ColourCount = 3
 };
 
 enum Castle {
   WhiteKingSide = 1,
   WhiteQueenSide = 2,
   BlackKingSide = 4,
-  BlackQueenSide = 8
+  BlackQueenSide = 8,
 };
 
 const char *SquareToCoordinates[] = {
@@ -58,23 +61,23 @@ const char *SquareToCoordinates[] = {
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 };
 
-char PiecesToAscii[13] = "PNBRQKpnbrqk";
+char *PiecesToAscii[PieceCount] = {"P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k";
 
-char *PiecesToUnicode[12] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+char *PiecesToUnicode[PieceCount] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 
-int AsciiToPieces[] = {
-    ['P'] = WPawn,
-    ['N'] = WKnight,
-    ['B'] = WBishop,
-    ['R'] = WRook,
-    ['Q'] = WQueen,
-    ['K'] = WKing,
-    ['p'] = BPawn,
-    ['n'] = BKnight,
-    ['b'] = BBishop,
-    ['r'] = BRook,
-    ['q'] = BQueen,
-    ['k'] = BKing
+Piece AsciiToPieces[] = {
+    ['P'] = Piece::WPawn,
+    ['N'] = Piece::WKnight,
+    ['B'] = Piece::WBishop,
+    ['R'] = Piece::WRook,
+    ['Q'] = Piece::WQueen,
+    ['K'] = Piece::WKing,
+    ['p'] = Piece::BPawn,
+    ['n'] = Piece::BKnight,
+    ['b'] = Piece::BBishop,
+    ['r'] = Piece::BRook,
+    ['q'] = Piece::BQueen,
+    ['k'] = Piece::BKing
 };
 
 typedef unsigned long long Bitboard;
