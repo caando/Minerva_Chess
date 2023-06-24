@@ -103,10 +103,9 @@ bot.action("start-game", async (ctx) => {
     } else if (game === chessEngineError) {
       editMessage(message, "Something went wrong internally");
     } else if (game === ongoingGameError) {
-      editMessage(message, "You already have an ongoing game!");
+      await ctx.deleteMessage(message.message_id);
       const ongoingGame = await getUserCurrentGame(username);
       if (!ongoingGame) return;
-      await ctx.deleteMessage(message.message_id);
       sendChessboard(
         ctx,
         ongoingGame,
@@ -148,10 +147,9 @@ bot.command("start", async (ctx) => {
     } else if (game === chessEngineError) {
       editCreateMessage("Something went wrong internally");
     } else if (game === ongoingGameError) {
-      editCreateMessage("You already have an ongoing game!");
+      await ctx.deleteMessage(createMessage.message_id);
       const ongoingGame = await getUserCurrentGame(username);
       if (!ongoingGame) return;
-      await ctx.deleteMessage(createMessage.message_id);
       sendChessboard(
         ctx,
         ongoingGame,
