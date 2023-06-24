@@ -77,4 +77,6 @@ int AsciiToPieces[] = {
     ['k'] = BKing
 };
 
+typedef unsigned long long Bitboard;
+
 #endif //MINERVA_CHESS_SRC_CONSTANTS_H_
