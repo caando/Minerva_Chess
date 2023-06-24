@@ -1,0 +1,80 @@
+//
+// Created by Jikun on 21/6/23.
+//
+
+#ifndef MINERVA_CHESS_SRC_CONSTANTS_H_
+#define MINERVA_CHESS_SRC_CONSTANTS_H_
+
+#define EMPTY_BOARD "8/8/8/8/8/8/8/8 b - - "
+#define START_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 "
+
+enum Square {
+  a8, b8, c8, d8, e8, f8, g8, h8,
+  a7, b7, c7, d7, e7, f7, g7, h7,
+  a6, b6, c6, d6, e6, f6, g6, h6,
+  a5, b5, c5, d5, e5, f5, g5, h5,
+  a4, b4, c4, d4, e4, f4, g4, h4,
+  a3, b3, c3, d3, e3, f3, g3, h3,
+  a2, b2, c2, d2, e2, f2, g2, h2,
+  a1, b1, c1, d1, e1, f1, g1, h1, no_sq
+};
+
+enum Piece {
+  WPawn,
+  WKnight,
+  WBishop,
+  WRook,
+  WQueen,
+  WKing,
+  BPawn,
+  BKnight,
+  BBishop,
+  BRook,
+  BQueen,
+  BKing,
+};
+
+enum Colour {
+  White,
+  Black,
+  both
+};
+
+enum Castle {
+  WhiteKingSide = 1,
+  WhiteQueenSide = 2,
+  BlackKingSide = 4,
+  BlackQueenSide = 8
+};
+
+const char *SquareToCoordinates[] = {
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+};
+
+char PiecesToAscii[13] = "PNBRQKpnbrqk";
+
+char *PiecesToUnicode[12] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+
+int AsciiToPieces[] = {
+    ['P'] = WPawn,
+    ['N'] = WKnight,
+    ['B'] = WBishop,
+    ['R'] = WRook,
+    ['Q'] = WQueen,
+    ['K'] = WKing,
+    ['p'] = BPawn,
+    ['n'] = BKnight,
+    ['b'] = BBishop,
+    ['r'] = BRook,
+    ['q'] = BQueen,
+    ['k'] = BKing
+};
+
+#endif //MINERVA_CHESS_SRC_CONSTANTS_H_
