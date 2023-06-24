@@ -11,7 +11,10 @@ import { User } from "./user";
 
 export enum GameStatus {
   STARTED = "STARTED",
-  ENDED = "ENDED"
+  ENDED = "ENDED",
+  FORFEITED = "FORFEITED",
+  USER_WIN = "USER_WIN",
+  BOT_WIN = "BOT_WIN"
 }
 
 export enum UserSide {

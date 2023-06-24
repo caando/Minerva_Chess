@@ -3,25 +3,24 @@
 import { Chess } from "chess.js";
 import {
   addGame,
-  endGame,
   getUser,
   getUserOngoingGame,
   updateGameFen
 } from "../database";
 import { engine } from "../engine";
-import { GameStatus, UserSide } from "../models/game";
+import { UserSide } from "../models/game";
 import {
   chessEngineError,
   createGameError,
   invalidMoveError,
-  missingGameError
+  missingGameError,
+  ongoingGameError
 } from "./errors";
 
 export async function startGame(username: string) {
   const user = await getUser(username);
   const prevGame = await getUserOngoingGame(user);
-  // TODO: Only allow single game
-  if (prevGame !== null) await endGame(prevGame);
+  if (prevGame !== null) return ongoingGameError;
 
   const game = await addGame(user.id);
   if (game instanceof Error) return createGameError;

@@ -1,3 +1,4 @@
+import { Chess } from "chess.js";
 import { Context, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import { Update } from "typegram";
@@ -5,7 +6,8 @@ import {
   chessEngineError,
   createGameError,
   invalidMoveError,
-  missingGameError
+  missingGameError,
+  ongoingGameError
 } from "./errors";
 import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
 import {
@@ -16,14 +18,11 @@ import {
 } from "./service";
 import {
   editMessage,
-  getBoardImage,
   helpText,
   sendChessboard,
   sendEditableMessage,
-  sendPhotoWithCaption,
   tutorText
 } from "./utility";
-import { Chess } from "chess.js";
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
@@ -103,6 +102,17 @@ bot.action("start-game", async (ctx) => {
       );
     } else if (game === chessEngineError) {
       editMessage(message, "Something went wrong internally");
+    } else if (game === ongoingGameError) {
+      editMessage(message, "You already have an ongoing game!");
+      const ongoingGame = await getUserCurrentGame(username);
+      if (!ongoingGame) return;
+      await ctx.deleteMessage(message.message_id);
+      sendChessboard(
+        ctx,
+        ongoingGame,
+        "Existing ongoing game!",
+        `You are ${ongoingGame.userSide}`
+      );
     }
   } else {
     ctx.deleteMessage(message.message_id);
@@ -137,6 +147,17 @@ bot.command("start", async (ctx) => {
       );
     } else if (game === chessEngineError) {
       editCreateMessage("Something went wrong internally");
+    } else if (game === ongoingGameError) {
+      editCreateMessage("You already have an ongoing game!");
+      const ongoingGame = await getUserCurrentGame(username);
+      if (!ongoingGame) return;
+      await ctx.deleteMessage(createMessage.message_id);
+      sendChessboard(
+        ctx,
+        ongoingGame,
+        "Existing ongoing game!",
+        `You are ${ongoingGame.userSide}`
+      );
     }
   } else {
     ctx.deleteMessage(createMessage.message_id);
@@ -206,22 +227,26 @@ bot.command("me", async (ctx) => {
 });
 
 bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
-  const chess = new Chess();
+  // If username somehow invalid, we skip
+  const username = ctx.from.username;
+  if (!username) return;
+
+  // If no ongoing games, we skip
+  const userCurrentGame = await getUserCurrentGame(username);
+  if (!userCurrentGame) return;
+
   try {
+    // Attempt to make the move on the current board state
+    // If invalid move, immediately ignore
+    const chess = new Chess(userCurrentGame.fen);
     const move = ctx.message.text;
     chess.move(move);
 
-    const username = ctx.from.username;
+    // If move is valid SAN, permanently make the move in the DB
     const [message, editMessage] = await sendEditableMessage(
       ctx,
       `Retrieving your current game...`
     );
-    if (!username) {
-      editMessage(
-        "Something went wrong, contact @woojiahao to receive support"
-      );
-      return;
-    }
     const game = await makeMove(username, move);
 
     if (game instanceof Error) {
@@ -232,7 +257,6 @@ bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
       } else if (game === chessEngineError) {
         editMessage("Something wrong happened internally");
       } else if (game === invalidMoveError) {
-        // TODO: Potentially can ignore invalid moves instead
         editMessage("Invalid move");
       }
     } else {

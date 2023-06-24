@@ -4,3 +4,4 @@ export const chessEngineError = new Error(
 );
 export const missingGameError = new Error("No game found");
 export const invalidMoveError = new Error("Invalid move made");
+export const ongoingGameError = new Error("Another game is ongoing for a user");
