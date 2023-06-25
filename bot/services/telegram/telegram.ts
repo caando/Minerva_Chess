@@ -275,11 +275,15 @@ bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
       }
     } else {
       ctx.deleteMessage(message.message_id);
-      await sendChessboard(
+      await renderBoard(
         ctx,
-        game.game,
-        "Your move!",
-        `Minerva Chess played *${game.engineMove}*`
+        game.game.id,
+        -1,
+        `
+      *Your move!*
+
+      Minerva Chess played *${game.engineMove}*
+      `.replace(/  +/g, "")
       );
     }
   } catch (e) {

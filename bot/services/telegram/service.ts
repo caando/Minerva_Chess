@@ -106,7 +106,12 @@ export function getTutorTextConfiguration(): replyConfiguration {
 }
 
 // Renders the board state for historical look
-export async function renderBoard(ctx: Context, gameId: number, step: number) {
+export async function renderBoard(
+  ctx: Context,
+  gameId: number,
+  step: number,
+  caption = ""
+) {
   const game = await getGame(gameId);
   if (!game) {
     if ("callback_query" in ctx.update && ctx.update.callback_query.message) {
@@ -158,13 +163,16 @@ export async function renderBoard(ctx: Context, gameId: number, step: number) {
   actions.push([{ text: "Forfeit game 🏳", callback_data: "forfeit-game" }]);
 
   const boardUrl = getBoardImage(history[actualStep].fen, game.userSide);
-  const caption = `
+  const boardCaption =
+    caption === ""
+      ? `
   *Game History*
 
   *Move* ${history[actualStep].move}
   *Move number* ${actualStep}
   *Turn* ${actualStep === 0 ? "Starting" : history[actualStep].player}
-  `.replace(/  +/g, "");
+  `.replace(/  +/g, "")
+      : caption;
 
   if ("callback_query" in ctx.update && ctx.update.callback_query.message) {
     // Render triggered from callback query
@@ -178,7 +186,7 @@ export async function renderBoard(ctx: Context, gameId: number, step: number) {
         type: "photo",
         media: boardUrl
       });
-      await ctx.editMessageCaption(caption, {
+      await ctx.editMessageCaption(boardCaption, {
         parse_mode: "Markdown",
         reply_markup: {
           inline_keyboard: actions
@@ -191,7 +199,7 @@ export async function renderBoard(ctx: Context, gameId: number, step: number) {
     }
   }
   await ctx.sendPhoto(boardUrl, {
-    caption,
+    caption: boardCaption,
     parse_mode: "Markdown",
     reply_markup: {
       inline_keyboard: actions
