@@ -142,3 +142,14 @@ export async function forfeitGame(game: Game) {
   game.set("status", "FORFEITED");
   await game.save();
 }
+
+export async function getUserGames(username: string) {
+  const games = await Game.findAll({
+    where: {
+      "$player.username$": username
+    },
+    include: [User],
+    order: [["createdAt", "DESC"]]
+  });
+  return games.map((game) => game.toJSON());
+}

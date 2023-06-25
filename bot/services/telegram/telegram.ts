@@ -1,7 +1,11 @@
 import { Chess } from "chess.js";
 import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
-import { CallbackQuery, Message } from "telegraf/typings/core/types/typegram";
+import {
+  CallbackQuery,
+  InlineKeyboardButton,
+  Message
+} from "telegraf/typings/core/types/typegram";
 import { Update } from "typegram";
 import {
   chessEngineError,
@@ -26,7 +30,7 @@ import {
   sendEditableMessage,
   tutorText
 } from "./utility";
-import { forfeitGame } from "../database";
+import { forfeitGame, getGames, getUserGames } from "../database";
 
 // Explicitly type alias the two commonly used contexts for ease of use later on
 /**
@@ -349,6 +353,33 @@ bot.action("forfeit-game", async (ctx) => {
       ]
     }
   });
+});
+
+// TODO: Support history of more than 50 games
+bot.action("view-games", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+  const count = 50;
+  const games = await getUserGames(username);
+  const toDisplay: InlineKeyboardButton[][] = [];
+  const chunkSize = 4;
+  for (let i = 0; i < count; i += chunkSize) {
+    let j = i + 1;
+    toDisplay.push(
+      games.slice(i, i + chunkSize).map((game) => ({
+        text: `${j++}`,
+        callback_data: `render-board:${game.id}:${-1}`
+      }))
+    );
+  }
+  ctx.editMessageText(
+    `Review your play history of your most recent ${count} games`,
+    {
+      reply_markup: {
+        inline_keyboard: toDisplay
+      }
+    }
+  );
 });
 
 bot.command("teabag", async (ctx) => {
