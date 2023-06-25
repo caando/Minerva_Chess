@@ -29,10 +29,10 @@ U64 hashKey;
 constexpr int MAX_MOVES = 500;
 
 // positions repetition table
-U64 repetition_table[MAX_MOVES * 2];
+U64 repetitionTable[MAX_MOVES * 2];
 
 // repetition index
-int repetition_index;
+int repetitionIndex;
 
 // half move counter
 int ply;

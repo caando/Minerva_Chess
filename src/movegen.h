@@ -6,6 +6,7 @@
 #define MINERVA_CHESS_SRC_MOVEGEN_H_
 
 #include "types.h"
+#include <iostream>
 
 // encode move
 #define encodeMove(source, target, piece, promoted, capture, double, enpassant, castling) \
@@ -17,6 +18,26 @@
     (double << 21) |    \
     (enpassant << 22) | \
     (castling << 23)    \
+
+// preserve board state
+#define copyBoard()                                                      \
+    Bitboard bitboards_copy[12], occupancies_copy[3];                     \
+    Colour side_copy;                                                     \
+    Square enpassant_copy;                                                \
+    int castle_copy, fifty_copy;                                          \
+    memcpy(bitboards_copy, bitboards, 96);                                \
+    memcpy(occupancies_copy, occupancies, 24);                            \
+    side_copy = side, enpassant_copy = enpassant, castle_copy = castle;   \
+    fifty_copy = fifty;                                                   \
+    U64 hashKey_copy = hashKey;                                         \
+
+// restore board state
+#define takeBack()                                                       \
+    memcpy(bitboards, bitboards_copy, 96);                                \
+    memcpy(occupancies, occupancies_copy, 24);                            \
+    side = side_copy, enpassant = enpassant_copy, castle = castle_copy;   \
+    fifty = fifty_copy;                                                   \
+    hashKey = hashKey_copy;                                              \
 
 // extract source square
 #define getMoveSource(move) (move & 0x3f)
@@ -47,19 +68,13 @@ enum { all_moves, only_captures };
 
 static inline bool isSquareAttacked(Square square, Colour side);
 
-// move list structure
-typedef struct {
-  // moves
-  int moves[256];
+static inline void addMove(moves *move_list, int move);
 
-  // move count
-  int count;
-} moves;
-
-static inline void addMove(moves * move_list, int move);
-
-static inline int makeMove(int move, int move_flag);
+static inline int makeMove(int move, int moveFlag);
 
 static inline void generateMoves(moves *moveList);
+
+// print move (for UCI purposes)
+void printMove(int move);
 
 #endif //MINERVA_CHESS_SRC_MOVEGEN_H_

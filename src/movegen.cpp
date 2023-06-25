@@ -48,30 +48,10 @@ static inline void addMove(moves *moveList, int move) {
   moveList->count++;
 }
 
-// preserve board state
-#define copyBoard()                                                      \
-    Bitboard bitboards_copy[12], occupancies_copy[3];                     \
-    Colour side_copy;                                                     \
-    Square enpassant_copy;                                                \
-    int castle_copy, fifty_copy;                                          \
-    memcpy(bitboards_copy, bitboards, 96);                                \
-    memcpy(occupancies_copy, occupancies, 24);                            \
-    side_copy = side, enpassant_copy = enpassant, castle_copy = castle;   \
-    fifty_copy = fifty;                                                   \
-    U64 hashKey_copy = hashKey;                                         \
-
-// restore board state
-#define takeBack()                                                       \
-    memcpy(bitboards, bitboards_copy, 96);                                \
-    memcpy(occupancies, occupancies_copy, 24);                            \
-    side = side_copy, enpassant = enpassant_copy, castle = castle_copy;   \
-    fifty = fifty_copy;                                                   \
-    hashKey = hashKey_copy;                                             \
-
 // make move on chess board
-static inline int makeMove(int move, int move_flag) {
+static inline int makeMove(int move, int moveFlag) {
   // quiet moves
-  if (move_flag == all_moves) {
+  if (moveFlag == all_moves) {
     // preserve board state
     copyBoard();
 
@@ -702,4 +682,12 @@ static inline void generateMoves(moves *moveList) {
       }
     }
   }
+}
+
+void printMove(int move) {
+  if (getMovePromoted(move))
+    std::cout << squareToCoordinates[getMoveSource(move)] << squareToCoordinates[getMoveTarget(move)]
+              << promotedPieces[getMovePromoted(move)];
+  else
+    std::cout << squareToCoordinates[getMoveSource(move)] << squareToCoordinates[getMoveTarget(move)];
 }
