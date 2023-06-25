@@ -9,12 +9,10 @@
 
 // credits to BITBOARD CHESS ENGINE
 
-// Pawn file checks
-// A and H files affect the attack pattern of pawns since it cannot attack out of board
+// A and H files affect the attack pattern of pawns and knights since it cannot attack out of board
 const U64 NotAFile = 18374403900871474942ULL;
 const U64 NotHFile = 9187201950435737471ULL;
 
-// Knight file checks
 // AB and HG files affect the attack pattern of knights since it cannot attack out of board
 const U64 NotHGFile = 4557430888798830399ULL;
 const U64 NotABFile = 18229723555195321596ULL;
