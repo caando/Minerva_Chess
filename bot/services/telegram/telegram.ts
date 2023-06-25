@@ -77,21 +77,26 @@ bot.command("ping", (ctx) => {
 
 bot.action("tutor", (ctx) => {
   const message = ctx.update.callback_query.message;
-  if (!message) return;
-  bot.telegram.editMessageText(
-    message.chat.id,
-    message.message_id,
-    undefined,
-    tutorText,
-    {
+  if (!message) {
+    ctx.reply(tutorText, {
       parse_mode: "Markdown",
       reply_markup: {
         inline_keyboard: [
           [{ text: "Back to main guide ⏪", callback_data: "show-help" }]
         ]
       }
+    });
+    return;
+  }
+
+  ctx.editMessageText(tutorText, {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Back to main guide ⏪", callback_data: "show-help" }]
+      ]
     }
-  );
+  });
 });
 
 // bot.action("view-games", (ctx) => {
