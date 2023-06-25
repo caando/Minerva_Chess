@@ -45,7 +45,7 @@ enum Piece {
 enum Colour {
   White,
   Black,
-  both,
+  Both,
   ColourCount = 3
 };
 

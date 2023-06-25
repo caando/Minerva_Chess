@@ -177,4 +177,16 @@ const int rookRelevantBits[SquareCount] = {
     12, 11, 11, 11, 11, 11, 11, 12
 };
 
+// castling rights update constants
+const int castlingRights[SquareCount] = {
+    7, 15, 15, 15, 3, 15, 15, 11,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    15, 15, 15, 15, 15, 15, 15, 15,
+    13, 15, 15, 15, 12, 15, 15, 14
+};
+
 #endif //MINERVA_CHESS_SRC_MAGIC_CONSTANTS_H_

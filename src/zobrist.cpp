@@ -12,24 +12,24 @@ void InitialiseKeys() {
     // loop over board squares
     iterSquare() {
       // init random piece keys
-      PieceKey[piece][square] = rand64();
+      pieceKey[piece][square] = rand64();
     }
   }
 
   // loop over board squares
   iterSquare() {
     // init random enpassant keys
-    EnpassantKey[square] = rand64();
+    enpassantKey[square] = rand64();
   }
 
   // loop over castling keys
   iterCastle() {
     // init castling keys
-    CastlingKey[castle] = rand64();
+    castlingKey[castle] = rand64();
   }
 
   // init random side key
-  SideKey = rand64();
+  sideKey = rand64();
 }
 
 U64 GenerateHashkey() {
@@ -50,7 +50,7 @@ U64 GenerateHashkey() {
       int square = LSOneIdx(bitboard);
 
       // hash piece
-      final_key ^= PieceKey[piece][square];
+      final_key ^= pieceKey[piece][square];
 
       // pop LS1B
       remBit(bitboard, square);
@@ -60,13 +60,13 @@ U64 GenerateHashkey() {
   // if enpassant square is on board
   if (enpassant != no_sq)
     // hash enpassant
-    final_key ^= EnpassantKey[enpassant];
+    final_key ^= enpassantKey[enpassant];
 
   // hash castling rights
-  final_key ^= CastlingKey[castle];
+  final_key ^= castlingKey[castle];
 
   // hash the side only if black is to move
-  if (side == Black) final_key ^= SideKey;
+  if (side == Black) final_key ^= sideKey;
 
   // return generated hash key
   return final_key;

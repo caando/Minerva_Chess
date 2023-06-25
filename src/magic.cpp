@@ -9,13 +9,11 @@
 #include <cstring>
 #include <bitset>
 
-U64 generateMagicNumber()
-{
+U64 generateMagicNumber() {
   return rand64() & rand64() & rand64();
 }
 
-U64 findMagicNumber(Square square, int relevantBits, BishopRook isBishop)
-{
+U64 findMagicNumber(Square square, int relevantBits, BishopRook isBishop) {
   // init occupancies
   Bitboard occupancies[4096];
 
@@ -32,8 +30,7 @@ U64 findMagicNumber(Square square, int relevantBits, BishopRook isBishop)
   int occupancyIndices = 1 << relevantBits;
 
   // loop over occupancy indices
-  for (int index = 0; index < occupancyIndices; index++)
-  {
+  for (int index = 0; index < occupancyIndices; index++) {
     // init occupancies
     occupancies[index] = setOccupancy(index, relevantBits, attackMask);
 
@@ -43,8 +40,7 @@ U64 findMagicNumber(Square square, int relevantBits, BishopRook isBishop)
   }
 
   // test magic numbers loop
-  for (int random_count = 0; random_count < 100000000; random_count++)
-  {
+  for (int random_count = 0; random_count < 100000000; random_count++) {
     // generate magic number candidate
     U64 magic_number = generateMagicNumber();
 
@@ -58,10 +54,9 @@ U64 findMagicNumber(Square square, int relevantBits, BishopRook isBishop)
     int index, fail;
 
     // test magic index loop
-    for (index = 0, fail = 0; !fail && index < occupancyIndices; index++)
-    {
+    for (index = 0, fail = 0; !fail && index < occupancyIndices; index++) {
       // init magic index
-      int magicIndex = (int)((occupancies[index] * magic_number) >> (64 - relevantBits));
+      int magicIndex = (int) ((occupancies[index] * magic_number) >> (64 - relevantBits));
 
       // if magic index works
       if (usedAttacks[magicIndex] == 0ULL)
