@@ -16,6 +16,7 @@ import {
 } from "./errors";
 import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
 import {
+  chunkSelectGamesAction,
   getMenuTextConfiguration,
   getTutorTextConfiguration,
   getUserCurrentGame,
@@ -62,7 +63,6 @@ const bot: Telegraf<Context<Update>> = new Telegraf(
 bot.use(IgnoreOldMiddleWare);
 
 bot.telegram.setMyCommands([
-  { command: "ping", description: "Check if the bot is online" },
   {
     command: "menu",
     description: "Display a menu to navigate using Minerva Chess bot"
@@ -355,31 +355,29 @@ bot.action("forfeit-game", async (ctx) => {
   });
 });
 
-// TODO: Support history of more than 50 games
 bot.action("view-games", async (ctx) => {
   const username = ctx.from?.username;
   if (!username) return;
-  const count = 50;
-  const games = await getUserGames(username);
-  const toDisplay: InlineKeyboardButton[][] = [];
-  const chunkSize = 4;
-  for (let i = 0; i < count; i += chunkSize) {
-    let j = i + 1;
-    toDisplay.push(
-      games.slice(i, i + chunkSize).map((game) => ({
-        text: `${j++}`,
-        callback_data: `render-board:${game.id}:${-1}`
-      }))
-    );
-  }
+  const toDisplay = await chunkSelectGamesAction(username, 8, 50);
   ctx.editMessageText(
-    `Review your play history of your most recent ${count} games`,
+    `Review your play history of your most recent ${50} games`,
     {
       reply_markup: {
         inline_keyboard: toDisplay
       }
     }
   );
+});
+
+bot.command("games", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+  const toDisplay = await chunkSelectGamesAction(username, 8, 50);
+  ctx.reply(`Review your play history of your most recent ${50} games`, {
+    reply_markup: {
+      inline_keyboard: toDisplay
+    }
+  });
 });
 
 bot.command("teabag", async (ctx) => {

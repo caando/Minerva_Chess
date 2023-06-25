@@ -17,18 +17,14 @@ export const menuText = `
 
     The chess engine is built with C++ and this Telegram bot is built using Typescript.
 
-    To get started, I have prepared a few actions you can take!
+    To get started, I have prepared a few actions you can take! As a part of our move to improve the user experience with this Telegram bot, we have decided to move away from the use of commands and focus on user interaction through buttons per message.
 
     If you want more help on using this bot, click on the _"More help"_ button below!
 
     *Command glossary*
-
-    1. /help to get this prompt again
+    1. /menu to get this prompt again
     2. /start to start a game
-    3. /me to view your currently active game
-    4. /forfeit to forfeit your currently active game
-    5. /games to view all your past games
-    6. /history <game> to retrieve the game history of a game played
+    3. /board to view your currently active game
 
     Enjoy!
   `.replace(/  +/g, "");

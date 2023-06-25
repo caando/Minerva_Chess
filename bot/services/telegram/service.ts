@@ -9,6 +9,7 @@ import {
   getGame,
   getGameHistory,
   getUser,
+  getUserGames,
   getUserOngoingGame,
   updateGameFen
 } from "../database";
@@ -211,4 +212,24 @@ export async function renderBoard(
       inline_keyboard: actions
     }
   });
+}
+
+// TODO: Support history of more than 50 games
+export async function chunkSelectGamesAction(
+  username: string,
+  chunkSize: number,
+  limit: number
+) {
+  const games = await getUserGames(username);
+  const toDisplay: InlineKeyboardButton[][] = [];
+  for (let i = 0; i < limit; i += chunkSize) {
+    let j = i + 1;
+    toDisplay.push(
+      games.slice(i, i + chunkSize).map((game) => ({
+        text: `${j++}`,
+        callback_data: `render-board:${game.id}:${-1}`
+      }))
+    );
+  }
+  return toDisplay;
 }
