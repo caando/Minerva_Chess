@@ -3,8 +3,8 @@ import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import { CallbackQuery, Message } from "telegraf/typings/core/types/typegram";
 import { Update } from "typegram";
-import { forfeitGame } from "../database";
-import { GameStatus } from "../models/game";
+import { forfeitGame, getUserGames } from "../database";
+import { Game, GameStatus } from "../models/game";
 import {
   chessEngineError,
   createGameError,
@@ -110,6 +110,58 @@ bot.action("show-menu", (ctx) => {
       ctx.editMessageText(menuText, getMenuTextConfiguration());
     }
   }
+});
+
+bot.action("view-stats", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  // TODO: Expand stats to include speed of loss/wins
+  const games = await getUserGames(username);
+  const wins = games.filter(
+    (game) => game.status === GameStatus.USER_WIN
+  ).length;
+  const losses = games.filter(
+    (game) => game.status === GameStatus.BOT_WIN
+  ).length;
+  const draws = games.filter((game) => game.status === GameStatus.DRAW).length;
+  const stalemates = games.filter(
+    (game) => game.status === GameStatus.STALEMATE
+  ).length;
+  const forfeits = games.filter(
+    (game) => game.status === GameStatus.FORFEITED
+  ).length;
+  const hasOngoing =
+    games.filter((game) => game.status === GameStatus.STARTED).length > 0;
+
+  const text = `
+  *${username} statistics*
+
+  Total games played: ${games.length}
+  Ongoing game?: ${hasOngoing ? "Yes" : "No"}
+  Wins: ${wins} / ${games.length} > ${((wins / games.length) * 100).toPrecision(
+    2
+  )}%
+  Losses: ${losses} / ${games.length} > ${(
+    (losses / games.length) *
+    100
+  ).toPrecision(2)}%
+  Draws: ${draws} / ${games.length} > ${(
+    (draws / games.length) *
+    100
+  ).toPrecision(2)}%
+  Stalemates: ${stalemates} / ${games.length} > ${(
+    (stalemates / games.length) *
+    100
+  ).toPrecision(2)}%
+  Forfeits: ${forfeits} / ${games.length} > ${(
+    (forfeits / games.length) *
+    100
+  ).toPrecision(2)}%
+  `.replace(/  +/g, "");
+
+  // Only reachable using menu
+  ctx.editMessageText(text, getTutorTextConfiguration());
 });
 
 // TODO: Abstract the behavior to work for both scenarios

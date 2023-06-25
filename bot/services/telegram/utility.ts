@@ -56,6 +56,8 @@ export const tutorText = `
 
     We have built a simple yet powerful move replay into the chessboard so you are able to navigate between the board states to review your plays.
 
+    You can also view your play statistics using /menu and selecting the "Play statistics" button.
+
     *Returning to a game*
     If you are returning to a game and lost the previous game state, you can find your ongoing game from /menu through the "View current game" button or use /board
   `.replace(/  +/g, "");
