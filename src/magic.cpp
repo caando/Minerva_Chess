@@ -163,7 +163,7 @@ static inline Bitboard getRookAttacks(Square square, Bitboard occupancy) {
 }
 
 // get queen attacks
-static inline Bitboard get_queen_attacks(Square square, Bitboard occupancy) {
+static inline Bitboard getQueenAttacks(Square square, Bitboard occupancy) {
   // init result attacks bitboard
   U64 queen_attacks = 0ULL;
 

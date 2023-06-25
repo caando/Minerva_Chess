@@ -1,7 +1,3 @@
-//
-// Created by Jikun on 26/6/23.
-//
-
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -289,10 +285,10 @@ static int32_t hidden2_biases alignas(64) [32];
 static int32_t output_biases[1];
 
 INLINE int32_t affine_propagate(clipped_t *input, int32_t *biases,
-    weight_t *weights)
+                                weight_t *weights)
 {
 #if defined(USE_AVX2)
-__m256i *iv = (__m256i *)input;
+  __m256i *iv = (__m256i *)input;
   __m256i *row = (__m256i *)weights;
 #if defined(USE_VNNI)
   __m256i prod = _mm256_dpbusd_epi32(_mm256_setzero_si256(), iv[0], row[0]);
@@ -306,7 +302,7 @@ __m256i *iv = (__m256i *)input;
   return _mm_cvtsi128_si32(sum) + _mm_extract_epi32(sum, 1) + biases[0];
 
 #elif defined(USE_SSE2)
-__m128i *iv = (__m128i *)input;
+  __m128i *iv = (__m128i *)input;
   __m128i *row = (__m128i *)weights;
 #if defined(AVOID_USE_SSSE3)
   const __m128i kOnes = _mm_set1_epi16(1);
@@ -329,7 +325,7 @@ __m128i *iv = (__m128i *)input;
 #endif
 
 #elif defined(USE_MMX)
-__m64 *iv = (__m64 *)input;
+  __m64 *iv = (__m64 *)input;
   __m64 s0 = _mm_setzero_si64(), s1 = s0;
   __m64 *row = (__m64 *)weights;
   for (unsigned j = 0; j < 4; j++) {
@@ -341,7 +337,7 @@ __m64 *iv = (__m64 *)input;
   return _mm_cvtsi64_si32(sum) + biases[0];
 
 #elif defined(USE_NEON)
-int8x8_t *iv = (int8x8_t *)input;
+  int8x8_t *iv = (int8x8_t *)input;
   int32x4_t sum = {biases[0]};
   int8x8_t *row = (int8x8_t *)weights;
   int16x8_t p0 = vmull_s8(iv[0], row[0]);
@@ -353,10 +349,10 @@ int8x8_t *iv = (int8x8_t *)input;
   return sum[0] + sum[1] + sum[2] + sum[3];
 
 #else
-int32_t sum = biases[0];
-for (unsigned j = 0; j < 32; j++)
-sum += weights[j] * input[j];
-return sum;
+  int32_t sum = biases[0];
+  for (unsigned j = 0; j < 32; j++)
+    sum += weights[j] * input[j];
+  return sum;
 
 #endif
 }
@@ -858,24 +854,24 @@ INLINE void affine_txfm(clipped_t *input, void *output, unsigned inDims,
 }
 #else /* generic fallback */
 INLINE void affine_txfm(clipped_t *input, void *output, unsigned inDims,
-unsigned outDims, int32_t *biases, const weight_t *weights,
-    mask_t *inMask, mask_t *outMask, const bool pack8_and_calc_mask)
+                        unsigned outDims, int32_t *biases, const weight_t *weights,
+                        mask_t *inMask, mask_t *outMask, const bool pack8_and_calc_mask)
 {
-(void)inMask; (void)outMask; (void)pack8_and_calc_mask;
+  (void)inMask; (void)outMask; (void)pack8_and_calc_mask;
 
-int32_t tmp[outDims];
+  int32_t tmp[outDims];
 
-for (unsigned i = 0; i < outDims; i++)
-tmp[i] = biases[i];
+  for (unsigned i = 0; i < outDims; i++)
+    tmp[i] = biases[i];
 
-for (unsigned idx = 0; idx < inDims; idx++)
-if (input[idx])
-for (unsigned i = 0; i < outDims; i++)
-tmp[i] += (int8_t)input[idx] * weights[outDims * idx + i];
+  for (unsigned idx = 0; idx < inDims; idx++)
+    if (input[idx])
+      for (unsigned i = 0; i < outDims; i++)
+        tmp[i] += (int8_t)input[idx] * weights[outDims * idx + i];
 
-clipped_t *outVec = (clipped_t *)output;
-for (unsigned i = 0; i < outDims; i++)
-outVec[i] = clamp(tmp[i] >> SHIFT, 0, 127);
+  clipped_t *outVec = (clipped_t *)output;
+  for (unsigned i = 0; i < outDims; i++)
+    outVec[i] = clamp(tmp[i] >> SHIFT, 0, 127);
 }
 #endif
 
@@ -1109,15 +1105,15 @@ int nnue_evaluate_pos(Position *pos)
 
 static void read_output_weights(weight_t *w, const char *d)
 {
-for (unsigned i = 0; i < 32; i++) {
-unsigned c = i;
+  for (unsigned i = 0; i < 32; i++) {
+    unsigned c = i;
 #if defined(USE_AVX512)
-unsigned b = c & 0x18;
+    unsigned b = c & 0x18;
     b = (b << 1) | (b >> 1);
     c = (c & ~0x18) | (b & 0x18);
 #endif
-w[c] = *d++;
-}
+    w[c] = *d++;
+  }
 }
 
 INLINE unsigned wt_idx(unsigned r, unsigned c, unsigned dims)
@@ -1155,13 +1151,13 @@ INLINE unsigned wt_idx(unsigned r, unsigned c, unsigned dims)
 }
 
 static const char *read_hidden_weights(weight_t *w, unsigned dims,
-const char *d)
+                                       const char *d)
 {
-for (unsigned r = 0; r < 32; r++)
-for (unsigned c = 0; c < dims; c++)
-w[wt_idx(r, c, dims)] = *d++;
+  for (unsigned r = 0; r < 32; r++)
+    for (unsigned c = 0; c < dims; c++)
+      w[wt_idx(r, c, dims)] = *d++;
 
-return d;
+  return d;
 }
 
 #ifdef USE_AVX2
@@ -1310,4 +1306,3 @@ DLLExport int _CDECL nnue_evaluate_fen(const char* fen)
   decode_fen((char*)fen,&player,&castle,&fifty,&move_number,pieces,squares);;
   return nnue_evaluate(player,pieces,squares);
 }
-

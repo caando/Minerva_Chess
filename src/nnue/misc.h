@@ -1,10 +1,3 @@
-//
-// Created by Jikun on 26/6/23.
-//
-
-#ifndef MINERVA_CHESS_SRC_NNUE_MISC_H_
-#define MINERVA_CHESS_SRC_NNUE_MISC_H_
-
 #ifndef MISC_H
 #define MISC_H
 
@@ -62,6 +55,3 @@ void decode_fen(const char* fen_str, int* player, int* castle,
 #define clamp(a, b, c) ((a) < (b) ? (b) : (a) > (c) ? (c) : (a))
 
 #endif
-
-
-#endif //MINERVA_CHESS_SRC_NNUE_MISC_H_

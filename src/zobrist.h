@@ -19,8 +19,8 @@ U64 castlingKey[16];
 
 U64 sideKey;
 
-void InitialiseKeys();
+void initialiseKeys();
 
-U64 GenerateHashkey();
+U64 generateHashkey();
 
 #endif //MINERVA_CHESS_SRC_ZOBRIST_H_

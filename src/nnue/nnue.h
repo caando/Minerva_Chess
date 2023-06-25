@@ -1,10 +1,3 @@
-//
-// Created by Jikun on 26/6/23.
-//
-
-#ifndef MINERVA_CHESS_SRC_NNUE_NNUE_H_
-#define MINERVA_CHESS_SRC_NNUE_NNUE_H_
-
 #ifndef NNUE_H
 #define NNUE_H
 
@@ -135,6 +128,3 @@ int nnue_evaluate(
 #endif
 
 #endif
-
-
-#endif //MINERVA_CHESS_SRC_NNUE_NNUE_H_

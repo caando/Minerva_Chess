@@ -5,7 +5,7 @@
 #include "zobrist.h"
 #include "variables.h"
 
-void InitialiseKeys() {
+void initialiseKeys() {
 
   // loop over piece codes
   iterPiece() {
@@ -32,7 +32,7 @@ void InitialiseKeys() {
   sideKey = rand64();
 }
 
-U64 GenerateHashkey() {
+U64 generateHashkey() {
   // final hash key
   U64 final_key = 0ULL;
 
