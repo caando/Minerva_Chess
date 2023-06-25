@@ -9,6 +9,7 @@ add_executable(
         movegen.h movegen.cpp
         transposition.h transposition.cpp
         types.h
+        uci.h uci.cpp
         util.h util.cpp
         variables.h
         zobrist.h zobrist.cpp
