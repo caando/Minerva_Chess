@@ -10,12 +10,12 @@
 // credits to BITBOARD CHESS ENGINE
 
 // A and H files affect the attack pattern of pawns and knights since it cannot attack out of board
-const U64 notAFile = 18374403900871474942ULL;
-const U64 notHFile = 9187201950435737471ULL;
+constexpr U64 notAFile = 18374403900871474942ULL;
+constexpr U64 notHFile = 9187201950435737471ULL;
 
 // AB and HG files affect the attack pattern of knights since it cannot attack out of board
-const U64 notHGFile = 4557430888798830399ULL;
-const U64 notABFile = 18229723555195321596ULL;
+constexpr U64 notHGFile = 4557430888798830399ULL;
+constexpr U64 notABFile = 18229723555195321596ULL;
 
 // rook magic numbers
 U64 rookMagicNumbers[SquareCount] = {
@@ -154,7 +154,7 @@ U64 bishopMagicNumbers[SquareCount] = {
 };
 
 // bishop relevant occupancy bit count for every square on board
-const int bishopRelevantBits[SquareCount] = {
+constexpr int bishopRelevantBits[SquareCount] = {
     6, 5, 5, 5, 5, 5, 5, 6,
     5, 5, 5, 5, 5, 5, 5, 5,
     5, 5, 7, 7, 7, 7, 5, 5,
@@ -178,7 +178,7 @@ const int rookRelevantBits[SquareCount] = {
 };
 
 // castling rights update constants
-const int castlingRights[SquareCount] = {
+constexpr int castlingRights[SquareCount] = {
     7, 15, 15, 15, 3, 15, 15, 11,
     15, 15, 15, 15, 15, 15, 15, 15,
     15, 15, 15, 15, 15, 15, 15, 15,
