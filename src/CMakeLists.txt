@@ -7,6 +7,7 @@ add_executable(
         magic.h magic.cpp
         magic_constants.h
         movegen.h movegen.cpp
+        search.h search.cpp
         transposition.h transposition.cpp
         types.h
         uci.h uci.cpp
