@@ -5,6 +5,7 @@
 #include "attack.h"
 #include "magic.h"
 #include "zobrist.h"
+#include "transposition.h"
 #include "nnue/nnue.h"
 
 // init all variables
@@ -18,6 +19,9 @@ void initAll() {
 
   // init random keys for hashing purposes
   initialiseKeys();
+
+  // init hash table with default 256 MB
+  initHashTable(256);
 
   // init NNUE weights
   nnue_init("nnue/nn-46832cfbead3.nnue");
