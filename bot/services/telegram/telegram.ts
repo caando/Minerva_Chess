@@ -108,14 +108,11 @@ bot.help((ctx) => {
 
 bot.action("show-help", (ctx) => {
   const message = ctx.update.callback_query.message;
-  if (!message) return;
-  bot.telegram.editMessageText(
-    message.chat.id,
-    message.message_id,
-    undefined,
-    helpText,
-    getHelpTextConfiguration()
-  );
+  if (!message) {
+    ctx.reply(helpText, getHelpTextConfiguration());
+  } else {
+    ctx.editMessageText(helpText, getHelpTextConfiguration());
+  }
 });
 
 // TODO: Abstract the behavior to work for both scenarios
