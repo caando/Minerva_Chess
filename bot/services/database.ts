@@ -17,8 +17,6 @@ const db = new Sequelize({
 
 export const whiteStartPos =
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-const blackStartPos =
-  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
 
 export async function testConnection() {
   try {
@@ -81,7 +79,7 @@ export async function getUserOngoingGame(user: User): Promise<Game | null> {
   return Game.findOne({
     where: {
       userId: user.id,
-      [Op.not]: [{ status: "ENDED" }]
+      status: "STARTED"
     }
   });
 }
@@ -138,4 +136,9 @@ export async function getGame(gameId: number) {
       id: gameId
     }
   });
+}
+
+export async function forfeitGame(game: Game) {
+  game.set("status", "FORFEITED");
+  await game.save();
 }

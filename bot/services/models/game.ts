@@ -16,7 +16,9 @@ export enum GameStatus {
   ENDED = "ENDED",
   FORFEITED = "FORFEITED",
   USER_WIN = "USER_WIN",
-  BOT_WIN = "BOT_WIN"
+  BOT_WIN = "BOT_WIN",
+  STALEMATE = "STALEMATE",
+  DRAW = "DRAW"
 }
 
 export enum UserSide {

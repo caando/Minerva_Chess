@@ -70,6 +70,7 @@ export async function makeMove(username: string, move: string) {
 }
 
 export async function getUserCurrentGame(username: string) {
+  // TODO: replace this with join select
   const user = await getUser(username);
   const game = await getUserOngoingGame(user);
   return game;
@@ -160,7 +161,12 @@ export async function renderBoard(
     }
   ]);
 
-  actions.push([{ text: "Forfeit game 🏳", callback_data: "forfeit-game" }]);
+  // Only allow forfeits on current matches
+  if (game.status === "STARTED") {
+    actions.push([
+      { text: "Forfeit game 🏳", callback_data: "forfeit-game-confirmation" }
+    ]);
+  }
 
   const boardUrl = getBoardImage(history[actualStep].fen, game.userSide);
   const boardCaption =

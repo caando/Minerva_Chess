@@ -3,8 +3,6 @@ import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
 import { CallbackQuery, Message } from "telegraf/typings/core/types/typegram";
 import { Update } from "typegram";
-import { whiteStartPos } from "../database";
-import { UserSide } from "../models/game";
 import {
   chessEngineError,
   createGameError,
@@ -23,12 +21,12 @@ import {
 } from "./service";
 import {
   editMessage,
-  getBoardImage,
   menuText,
   sendChessboard,
   sendEditableMessage,
   tutorText
 } from "./utility";
+import { forfeitGame } from "../database";
 
 // Explicitly type alias the two commonly used contexts for ease of use later on
 /**
@@ -105,7 +103,12 @@ bot.action("show-menu", (ctx) => {
   if (!message) {
     ctx.reply(menuText, getMenuTextConfiguration());
   } else {
-    ctx.editMessageText(menuText, getMenuTextConfiguration());
+    if ("caption" in message) {
+      bot.telegram.deleteMessage(message.chat.id, message.message_id);
+      ctx.reply(menuText, getMenuTextConfiguration());
+    } else {
+      ctx.editMessageText(menuText, getMenuTextConfiguration());
+    }
   }
 });
 
@@ -181,6 +184,7 @@ bot.command("start", async (ctx) => {
       await ctx.deleteMessage(createMessage.message_id);
       const ongoingGame = await getUserCurrentGame(username);
       if (!ongoingGame) return;
+      // TODO: Change this to renderBoard
       sendChessboard(
         ctx,
         ongoingGame,
@@ -209,7 +213,14 @@ bot.action("view-current", async (ctx) => {
 
   if (!game) {
     ctx.editMessageText(
-      "You do not have any ongoing games, use /start to create one"
+      "You do not have any ongoing games, use /start to create one",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Start game 🟢", callback_data: "start-game" }]
+          ]
+        }
+      }
     );
     return;
   }
@@ -226,7 +237,16 @@ bot.command("board", async (ctx) => {
   const game = await getUserCurrentGame(username);
 
   if (!game) {
-    ctx.reply("You do not have any ongoing games, use /start to create one");
+    ctx.reply(
+      "You do not have any ongoing games, use the button below or send /start",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Start game 🟢", callback_data: "start-game" }]
+          ]
+        }
+      }
+    );
     return;
   }
 
@@ -291,8 +311,44 @@ bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
   }
 });
 
-bot.action("forfeit-game", (ctx) => {
-  console.log("Forfeiting game");
+bot.action("forfeit-game-confirmation", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  const ongoingGame = await getUserCurrentGame(username);
+  // If no ongoing game, ignore the forfeit
+  if (!ongoingGame) return;
+
+  ctx.editMessageCaption("Are you sure you want to forfeit this match?", {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "Yes 🏳", callback_data: "forfeit-game" },
+          { text: "No! 💪🏻", callback_data: `render-board:${ongoingGame.id}:-1` }
+        ]
+      ]
+    }
+  });
+});
+
+bot.action("forfeit-game", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  const ongoingGame = await getUserCurrentGame(username);
+  // If no ongoing game, ignore the forfeit
+  if (!ongoingGame) return;
+
+  forfeitGame(ongoingGame);
+  ctx.editMessageCaption("You have forfeited the match, Minerva Chess wins", {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Start another 🔁", callback_data: "start-game" }],
+        [{ text: "View menu 🔎", callback_data: "show-menu" }]
+      ]
+    }
+  });
 });
 
 bot.command("teabag", async (ctx) => {
