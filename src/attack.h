@@ -6,28 +6,28 @@
 #define MINERVA_CHESS_SRC_ATTACK_H_
 
 #include "types.h"
-#include "magic.h"
+#include "magic_constants.h"
 
 // pawn attacks table [side][square]
-Bitboard PawnAttacks[2][SquareCount];
+Bitboard pawnAttacks[2][SquareCount];
 
 // knight attacks table [square]
-Bitboard KnightAttacks[SquareCount];
+Bitboard knightAttacks[SquareCount];
 
 // king attacks table [square]
-Bitboard KingAttacks[SquareCount];
+Bitboard kingAttacks[SquareCount];
 
 // bishop attack masks
-Bitboard BishopMasks[SquareCount];
+Bitboard bishopMasks[SquareCount];
 
 // rook attack masks
-Bitboard RookMasks[SquareCount];
+Bitboard rookMasks[SquareCount];
 
 // bishop attacks table [square][occupancies]
-Bitboard BishopAttacks[SquareCount][512];
+Bitboard bishopAttacks[SquareCount][512];
 
 // rook attacks table [square][occupancies]
-Bitboard RookAttacks[SquareCount][4096];
+Bitboard rookAttacks[SquareCount][4096];
 
 // Attack mask of respective pieces, with bitboard manipulation and magics
 
@@ -43,9 +43,9 @@ Bitboard maskRookAttacks(int square);
 
 // Implementation of piece attacks without bitboard manipulation and magics
 
-Bitboard BishopAttacksNaive(int square, Bitboard block);
+Bitboard bishopAttacksNaive(int square, Bitboard block);
 
-Bitboard RookAttacksNaive(int square, Bitboard block);
+Bitboard rookAttacksNaive(int square, Bitboard block);
 
 // Initialise attacks of pawns, knights and kings
 void initLeapersAttacks();

@@ -19,15 +19,15 @@ Bitboard maskPawnAttacks(Colour side, Square square) {
   // white pawns
   if (!side) {
     // generate pawn attacks
-    if ((bitboard >> 7) & NotAFile) attacks |= (bitboard >> 7);
-    if ((bitboard >> 9) & NotHFile) attacks |= (bitboard >> 9);
+    if ((bitboard >> 7) & notAFile) attacks |= (bitboard >> 7);
+    if ((bitboard >> 9) & notHFile) attacks |= (bitboard >> 9);
   }
 
     // black pawns
   else {
     // generate pawn attacks
-    if ((bitboard << 7) & NotHFile) attacks |= (bitboard << 7);
-    if ((bitboard << 9) & NotAFile) attacks |= (bitboard << 9);
+    if ((bitboard << 7) & notHFile) attacks |= (bitboard << 7);
+    if ((bitboard << 9) & notAFile) attacks |= (bitboard << 9);
   }
 
   // return attack map
@@ -46,14 +46,14 @@ Bitboard maskKnightAttacks(Square square) {
   setBit(bitboard, square);
 
   // generate knight attacks
-  if ((bitboard >> 17) & NotHFile) attacks |= (bitboard >> 17);
-  if ((bitboard >> 15) & NotAFile) attacks |= (bitboard >> 15);
-  if ((bitboard >> 10) & NotHGFile) attacks |= (bitboard >> 10);
-  if ((bitboard >> 6) & NotABFile) attacks |= (bitboard >> 6);
-  if ((bitboard << 17) & NotAFile) attacks |= (bitboard << 17);
-  if ((bitboard << 15) & NotHFile) attacks |= (bitboard << 15);
-  if ((bitboard << 10) & NotABFile) attacks |= (bitboard << 10);
-  if ((bitboard << 6) & NotHGFile) attacks |= (bitboard << 6);
+  if ((bitboard >> 17) & notHFile) attacks |= (bitboard >> 17);
+  if ((bitboard >> 15) & notAFile) attacks |= (bitboard >> 15);
+  if ((bitboard >> 10) & notHGFile) attacks |= (bitboard >> 10);
+  if ((bitboard >> 6) & notABFile) attacks |= (bitboard >> 6);
+  if ((bitboard << 17) & notAFile) attacks |= (bitboard << 17);
+  if ((bitboard << 15) & notHFile) attacks |= (bitboard << 15);
+  if ((bitboard << 10) & notABFile) attacks |= (bitboard << 10);
+  if ((bitboard << 6) & notHGFile) attacks |= (bitboard << 6);
 
   // return attack map
   return attacks;
@@ -72,13 +72,13 @@ Bitboard maskKingAttacks(Square square) {
 
   // generate king attacks
   if (bitboard >> 8) attacks |= (bitboard >> 8);
-  if ((bitboard >> 9) & NotHFile) attacks |= (bitboard >> 9);
-  if ((bitboard >> 7) & NotAFile) attacks |= (bitboard >> 7);
-  if ((bitboard >> 1) & NotHFile) attacks |= (bitboard >> 1);
+  if ((bitboard >> 9) & notHFile) attacks |= (bitboard >> 9);
+  if ((bitboard >> 7) & notAFile) attacks |= (bitboard >> 7);
+  if ((bitboard >> 1) & notHFile) attacks |= (bitboard >> 1);
   if (bitboard << 8) attacks |= (bitboard << 8);
-  if ((bitboard << 9) & NotAFile) attacks |= (bitboard << 9);
-  if ((bitboard << 7) & NotHFile) attacks |= (bitboard << 7);
-  if ((bitboard << 1) & NotAFile) attacks |= (bitboard << 1);
+  if ((bitboard << 9) & notAFile) attacks |= (bitboard << 9);
+  if ((bitboard << 7) & notHFile) attacks |= (bitboard << 7);
+  if ((bitboard << 1) & notAFile) attacks |= (bitboard << 1);
 
   // return attack map
   return attacks;
@@ -129,7 +129,7 @@ Bitboard maskRookAttacks(Square square) {
 }
 
 // generate bishop attacks on the fly
-Bitboard BishopAttacksNaive(Square square, Bitboard block) {
+Bitboard bishopAttacksNaive(Square square, Bitboard block) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -166,7 +166,7 @@ Bitboard BishopAttacksNaive(Square square, Bitboard block) {
 }
 
 // generate rook attacks on the fly
-Bitboard RookAttacksNaive(Square square, Bitboard block) {
+Bitboard rookAttacksNaive(Square square, Bitboard block) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -207,14 +207,14 @@ void initLeapersAttacks() {
   // loop over 64 board squares
   iterSquare() {
     // init pawn attacks
-    PawnAttacks[White][square] = maskPawnAttacks(White, square);
-    PawnAttacks[Black][square] = maskPawnAttacks(Black, square);
+    pawnAttacks[White][square] = maskPawnAttacks(White, square);
+    pawnAttacks[Black][square] = maskPawnAttacks(Black, square);
 
     // init knight attacks
-    KnightAttacks[square] = maskKnightAttacks(square);
+    knightAttacks[square] = maskKnightAttacks(square);
 
     // init king attacks
-    KingAttacks[square] = maskKingAttacks(square);
+    kingAttacks[square] = maskKingAttacks(square);
   }
 }
 
