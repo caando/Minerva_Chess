@@ -1,7 +1,10 @@
 import { Chess } from "chess.js";
-import { Context, Telegraf } from "telegraf";
+import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
+import { CallbackQuery, Message } from "telegraf/typings/core/types/typegram";
 import { Update } from "typegram";
+import { whiteStartPos } from "../database";
+import { UserSide } from "../models/game";
 import {
   chessEngineError,
   createGameError,
@@ -14,15 +17,39 @@ import {
   getHelpTextConfiguration,
   getUserCurrentGame,
   makeMove,
+  renderBoard,
   startGame
 } from "./service";
 import {
   editMessage,
+  getBoardImage,
   helpText,
   sendChessboard,
   sendEditableMessage,
   tutorText
 } from "./utility";
+
+// Explicitly type alias the two commonly used contexts for ease of use later on
+/**
+ * Context type provided in callbacks. Includes the message that had the inline keyboard.
+ */
+export type CallbackContext = NarrowedContext<
+  Context<Update> & {
+    match: RegExpExecArray;
+  },
+  Update.CallbackQueryUpdate<CallbackQuery>
+>;
+
+/**
+ * Context type provided in commands. Includes the message that triggered the command.
+ */
+export type CommandContext = NarrowedContext<
+  Context<Update>,
+  {
+    message: Update.New & Update.NonChannel & Message.TextMessage;
+    update_id: number;
+  }
+>;
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
@@ -30,6 +57,14 @@ const bot: Telegraf<Context<Update>> = new Telegraf(
 );
 
 bot.use(IgnoreOldMiddleWare);
+
+bot.telegram.setMyCommands([
+  { command: "ping", description: "Check if the bot is online" },
+  {
+    command: "menu",
+    description: "Display a menu to navigate using Minerva Chess bot"
+  }
+]);
 
 bot.on(message("new_chat_members"), (ctx) => {
   if (!ctx.botInfo || ctx.botInfo.username !== bot.botInfo?.username) return;
@@ -169,59 +204,52 @@ bot.command("start", async (ctx) => {
 });
 
 bot.action("view-current", async (ctx) => {
+  // Username is only ever undefined if message is sent from the channel
+  // Can safely ignore the cases where username is undefined
+  // See: https://core.telegram.org/bots/api#message
   const username = ctx.from?.username;
-  const message = ctx.update.callback_query.message;
-  if (!message) return;
-  if (!username) {
-    editMessage(
-      message,
-      "Something went wrong, contact @woojiahao to receive support"
-    );
-    return;
-  }
+  if (!username) return;
   const game = await getUserCurrentGame(username);
 
   if (!game) {
-    editMessage(
-      message,
+    ctx.editMessageText(
       "You do not have any ongoing games, use /start to create one"
     );
     return;
   }
 
-  ctx.deleteMessage(message.message_id);
-  await sendChessboard(
-    ctx,
-    game,
-    "Ongoing game found!",
-    `You are ${game.userSide}`
-  );
+  await renderBoard(ctx, game.id, -1);
 });
 
 bot.command("me", async (ctx) => {
-  const username = ctx.from.username;
-  const [message, editMessage] = await sendEditableMessage(
-    ctx,
-    `Retrieving your current game...`
-  );
-  if (!username) {
-    editMessage("Something went wrong, contact @woojiahao to receive support");
-    return;
-  }
+  // Username is only ever undefined if message is sent from the channel
+  // Can safely ignore the cases where username is undefined
+  // See: https://core.telegram.org/bots/api#message
+  const username = ctx.from?.username;
+  if (!username) return;
   const game = await getUserCurrentGame(username);
 
   if (!game) {
-    editMessage("You do not have any ongoing games, use /start to create one");
+    ctx.reply("You do not have any ongoing games, use /start to create one");
     return;
   }
 
-  ctx.deleteMessage(message.message_id);
-  await sendChessboard(
-    ctx,
-    game,
-    "Ongoing game found!",
-    `You are ${game.userSide}`
-  );
+  renderBoard(ctx, game.id, -1);
+});
+
+bot.action(/^render-board:(\d+):([-\d]+)$/, async (ctx) => {
+  const gameId = parseInt(ctx.match[1]);
+  const step = parseInt(ctx.match[2]);
+
+  renderBoard(ctx, gameId, step);
+});
+
+bot.command("e", async (ctx) => {
+  ctx.sendPhoto(getBoardImage(whiteStartPos, UserSide.WHITE), {
+    reply_markup: {
+      inline_keyboard: [[{ text: "Try", callback_data: "render-board:1:1" }]]
+    }
+  });
 });
 
 bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {

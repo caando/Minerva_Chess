@@ -1,7 +1,12 @@
 import { Context, NarrowedContext } from "telegraf";
-import { Message, Update } from "telegraf/typings/core/types/typegram";
+import {
+  InlineKeyboardButton,
+  Message,
+  Update
+} from "telegraf/typings/core/types/typegram";
 import { Game, UserSide } from "../models/game";
 import bot from "./telegram";
+import { getGameHistory } from "../database";
 
 export const helpText = `
     👑 *Minerva Chess* 👑
@@ -111,11 +116,6 @@ export async function sendChessboard<T extends Update>(
 
         Make moves using messages like \`e2e4\`. Receive more help using /help
       `.replace(/  +/g, ""),
-    parse_mode: "Markdown",
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "Forfeit game 🏳", callback_data: "forfeit-game" }]
-      ]
-    }
+    parse_mode: "Markdown"
   });
 }

@@ -15,6 +15,9 @@ module.exports = {
       fen: {
         type: Sequelize.STRING
       },
+      move: {
+        type: Sequelize.STRING
+      },
       player: {
         type: Sequelize.STRING
       },

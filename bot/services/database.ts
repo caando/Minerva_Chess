@@ -15,7 +15,7 @@ const db = new Sequelize({
   models: models
 });
 
-const whiteStartPos =
+export const whiteStartPos =
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 const blackStartPos =
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
@@ -98,6 +98,7 @@ export async function updateGameFen(game: Game, fen: string) {
 
 export async function addGameHistory(
   game: Game,
+  move: string,
   fen: string,
   player: HistoryPlayer
 ) {
@@ -105,10 +106,36 @@ export async function addGameHistory(
     {
       gameId: game.id,
       fen: fen,
-      player: player
+      player: player,
+      move: move
     },
     {
-      fields: ["gameId", "fen", "player"]
+      fields: ["gameId", "fen", "player", "move"]
     }
   );
+}
+
+export async function getGameHistory(game: Game) {
+  const records = [
+    { fen: whiteStartPos, player: HistoryPlayer.USER, move: "startpos" }
+  ];
+  const history = await History.findAll({
+    where: {
+      gameId: game.id
+    },
+    order: [["id", "ASC"]]
+  });
+  return records.concat(
+    history
+      .map((h) => h.toJSON())
+      .map((h) => ({ fen: h.fen, player: h.player, move: h.move }))
+  );
+}
+
+export async function getGame(gameId: number) {
+  return await Game.findOne({
+    where: {
+      id: gameId
+    }
+  });
 }
