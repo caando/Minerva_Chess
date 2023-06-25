@@ -25,6 +25,7 @@ export const menuText = `
     1. /menu to get this prompt again
     2. /start to start a game
     3. /board to view your currently active game
+    4. /help to view the help document
 
     Enjoy!
   `.replace(/  +/g, "");
@@ -36,24 +37,27 @@ export const tutorText = `
 
     The chess engine is built with C++ and this Telegram bot is built using Typescript.
 
-    *Creating games*
-    To start a game, use the /start command. Your side will be randomly chosen and you will be playing
-    against the Minerva Chess engine.
+    Motivated to make the user experience as streamlined as possible, we have opted for a more touch heavy flow. You will be able to navigate and interact the bot with minimal typing.
 
-    You are only able to play one active game at a time. If you wish to reset the game, please use
-    /forfeit to forfeit the current game before using /start again.
+    *Creating games*
+    You can create a new game from /menu or use /start to start a game!
+
+    To forfeit the current game, you can select "Forfeit game" button.
 
     *Moving your pieces*
     To make moves, use the Algebraic Notation of Long Algebraic Notation to indicate the moves.
-    For instance, if you wish to move the pawn from \`e2\` to \`e4\`, you can simply send \`e2e4\`
-    in the chat.
+
+    For instance, if you wish to move the pawn from \`e2\` to \`e4\`, you can simply send \`e2e4\` in the chat.
 
     Playing against Minerva Chess in a group chat? Do not worry, only your moves will be registered!
 
     *Reviewing your plays*
-    If you wish to pick up a game from where you last played, you can use /me to view the currently
-    active game. Otherwise, you might find the /games and /history commands handy when searching for
-    your previously played games.
+    If you want to look back at your past games, you can access them using /menu and selecting the "Past games" button.
+
+    We have built a simple yet powerful move replay into the chessboard so you are able to navigate between the board states to review your plays.
+
+    *Returning to a game*
+    If you are returning to a game and lost the previous game state, you can find your ongoing game from /menu through the "View current game" button or use /board
   `.replace(/  +/g, "");
 
 export function getBoardImage(fen: string, side: UserSide) {

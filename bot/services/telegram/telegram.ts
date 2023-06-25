@@ -1,12 +1,10 @@
 import { Chess } from "chess.js";
 import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
-import {
-  CallbackQuery,
-  InlineKeyboardButton,
-  Message
-} from "telegraf/typings/core/types/typegram";
+import { CallbackQuery, Message } from "telegraf/typings/core/types/typegram";
 import { Update } from "typegram";
+import { forfeitGame } from "../database";
+import { GameStatus } from "../models/game";
 import {
   chessEngineError,
   createGameError,
@@ -25,15 +23,11 @@ import {
   startGame
 } from "./service";
 import {
-  editMessage,
   gameStatusToText,
   menuText,
-  sendChessboard,
   sendEditableMessage,
   tutorText
 } from "./utility";
-import { forfeitGame, getGames, getUserGames } from "../database";
-import { GameStatus } from "../models/game";
 
 // Explicitly type alias the two commonly used contexts for ease of use later on
 /**
