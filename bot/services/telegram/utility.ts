@@ -8,7 +8,7 @@ import { Game, UserSide } from "../models/game";
 import bot from "./telegram";
 import { getGameHistory } from "../database";
 
-export const helpText = `
+export const menuText = `
     👑 *Minerva Chess* 👑
 
     Hello! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine.

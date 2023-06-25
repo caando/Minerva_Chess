@@ -75,10 +75,11 @@ export async function getUserCurrentGame(username: string) {
   return game;
 }
 
-export function getHelpTextConfiguration(): Omit<
+type replyConfiguration = Omit<
   object,
   "text" | "chat_id" | "message_id" | "inline_message_id"
-> {
+>;
+export function getMenuTextConfiguration(): replyConfiguration {
   return {
     parse_mode: "Markdown",
     reply_markup: {
@@ -88,6 +89,17 @@ export function getHelpTextConfiguration(): Omit<
         [{ text: "More help ❓", callback_data: "tutor" }],
         [{ text: "Past games 👓", callback_data: "view-games" }],
         [{ text: "Experimental", callback_data: "render-board:1:0" }]
+      ]
+    }
+  };
+}
+
+export function getTutorTextConfiguration(): replyConfiguration {
+  return {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Back to main menu ⏪", callback_data: "show-menu" }]
       ]
     }
   };

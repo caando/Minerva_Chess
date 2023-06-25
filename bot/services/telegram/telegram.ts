@@ -14,7 +14,8 @@ import {
 } from "./errors";
 import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
 import {
-  getHelpTextConfiguration,
+  getMenuTextConfiguration,
+  getTutorTextConfiguration,
   getUserCurrentGame,
   makeMove,
   renderBoard,
@@ -23,7 +24,7 @@ import {
 import {
   editMessage,
   getBoardImage,
-  helpText,
+  menuText,
   sendChessboard,
   sendEditableMessage,
   tutorText
@@ -63,12 +64,19 @@ bot.telegram.setMyCommands([
   {
     command: "menu",
     description: "Display a menu to navigate using Minerva Chess bot"
-  }
+  },
+  { command: "help", description: "Show a help text to use this bot" },
+  {
+    command: "start",
+    description:
+      "Starts a game against the bot if no ongoing games are happening"
+  },
+  { command: "board", description: "View your ongoing game if any" }
 ]);
 
 bot.on(message("new_chat_members"), (ctx) => {
   if (!ctx.botInfo || ctx.botInfo.username !== bot.botInfo?.username) return;
-  ctx.reply(helpText, getHelpTextConfiguration());
+  ctx.reply(menuText, getMenuTextConfiguration());
 });
 
 bot.command("ping", (ctx) => {
@@ -78,40 +86,26 @@ bot.command("ping", (ctx) => {
 bot.action("tutor", (ctx) => {
   const message = ctx.update.callback_query.message;
   if (!message) {
-    ctx.reply(tutorText, {
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "Back to main guide ⏪", callback_data: "show-help" }]
-        ]
-      }
-    });
-    return;
+    ctx.reply(tutorText, getTutorTextConfiguration());
+  } else {
+    ctx.editMessageText(tutorText, getTutorTextConfiguration());
   }
-
-  ctx.editMessageText(tutorText, {
-    parse_mode: "Markdown",
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "Back to main guide ⏪", callback_data: "show-help" }]
-      ]
-    }
-  });
 });
-
-// bot.action("view-games", (ctx) => {
-// })
 
 bot.help((ctx) => {
-  ctx.reply(helpText, getHelpTextConfiguration());
+  ctx.reply(tutorText, getTutorTextConfiguration());
 });
 
-bot.action("show-help", (ctx) => {
+bot.command("menu", (ctx) => {
+  ctx.reply(menuText, getMenuTextConfiguration());
+});
+
+bot.action("show-menu", (ctx) => {
   const message = ctx.update.callback_query.message;
   if (!message) {
-    ctx.reply(helpText, getHelpTextConfiguration());
+    ctx.reply(menuText, getMenuTextConfiguration());
   } else {
-    ctx.editMessageText(helpText, getHelpTextConfiguration());
+    ctx.editMessageText(menuText, getMenuTextConfiguration());
   }
 });
 
@@ -223,7 +217,7 @@ bot.action("view-current", async (ctx) => {
   await renderBoard(ctx, game.id, -1);
 });
 
-bot.command("me", async (ctx) => {
+bot.command("board", async (ctx) => {
   // Username is only ever undefined if message is sent from the channel
   // Can safely ignore the cases where username is undefined
   // See: https://core.telegram.org/bots/api#message
@@ -244,14 +238,6 @@ bot.action(/^render-board:(\d+):([-\d]+)$/, async (ctx) => {
   const step = parseInt(ctx.match[2]);
 
   renderBoard(ctx, gameId, step);
-});
-
-bot.command("e", async (ctx) => {
-  ctx.sendPhoto(getBoardImage(whiteStartPos, UserSide.WHITE), {
-    reply_markup: {
-      inline_keyboard: [[{ text: "Try", callback_data: "render-board:1:1" }]]
-    }
-  });
 });
 
 bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
