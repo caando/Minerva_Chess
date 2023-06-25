@@ -145,8 +145,7 @@ export function getMenuTextConfiguration(): replyConfiguration {
         [{ text: "Start a game! 🟢", callback_data: "start-game" }],
         [{ text: "View current game 👀", callback_data: "view-current" }],
         [{ text: "More help ❓", callback_data: "tutor" }],
-        [{ text: "Past games 👓", callback_data: "view-games" }],
-        [{ text: "Experimental", callback_data: "render-board:1:0" }]
+        [{ text: "Past games 👓", callback_data: "view-games" }]
       ]
     }
   };
@@ -235,7 +234,7 @@ export async function renderBoard(
   const boardCaption =
     caption === ""
       ? `
-  *Game History*
+  *Game*
 
   *Move ${actualStep + 1}* ${history[actualStep].move}
   *Turn* ${actualStep === 0 ? "Starting" : history[actualStep].player}

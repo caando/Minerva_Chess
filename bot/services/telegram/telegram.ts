@@ -121,90 +121,94 @@ bot.action("show-menu", (ctx) => {
 // TODO: Abstract the behavior to work for both scenarios
 bot.action("start-game", async (ctx) => {
   const message = ctx.update.callback_query.message;
-  if (!message) return;
-  editMessage(message, "Got it! We will try to start a game for you!");
   const username = ctx.from?.username;
-  if (!username) {
-    editMessage(
-      message,
-      "Something went wrong internally, contact @woojiahao for assistance"
-    );
-    return;
-  }
+  if (!username) return;
 
   const game = await startGame(username);
 
   if (game instanceof Error) {
     if (game === createGameError) {
-      editMessage(
-        message,
-        "Failed to create a new challenge, contact @woojiahao to receive support"
-      );
+      if (!message || !("photo" in message)) {
+        ctx.reply(
+          "Failed to create a new challenge, contact @woojiahao to receive support"
+        );
+      } else {
+        ctx.editMessageText(
+          "Failed to create a new challenge, contact @woojiahao to receive support"
+        );
+      }
     } else if (game === chessEngineError) {
-      editMessage(message, "Something went wrong internally");
+      if (!message || !("photo" in message)) {
+        ctx.reply("Something went wrong internally");
+      } else {
+        ctx.editMessageText("Something went wrong internally");
+      }
     } else if (game === ongoingGameError) {
-      await ctx.deleteMessage(message.message_id);
       const ongoingGame = await getUserCurrentGame(username);
       if (!ongoingGame) return;
-      sendChessboard(
+      renderBoard(
         ctx,
-        ongoingGame,
-        "Existing ongoing game!",
-        `You are ${ongoingGame.userSide}`
+        ongoingGame.id,
+        -1,
+        `
+        *Existing ongoing game!*
+
+        You are ${ongoingGame.userSide}
+        `.replace(/  +/g, "")
       );
+      return;
     }
   } else {
-    ctx.deleteMessage(message.message_id);
-    await sendChessboard(
+    renderBoard(
       ctx,
-      game,
-      "Game started!",
-      `You are ${game.userSide}`
+      game.id,
+      -1,
+      `
+        *Game started!*
+
+        You are ${game.userSide}
+        `.replace(/  +/g, "")
     );
   }
 });
 
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
-  const [createMessage, editCreateMessage] = await sendEditableMessage(
-    ctx,
-    "Processing your challenge..."
-  );
-  if (!username) {
-    editCreateMessage(
-      "Something went wrong, contact @woojiahao to receive support"
-    );
-    return;
-  }
+  if (!username) return;
 
   const game = await startGame(username);
 
   if (game instanceof Error) {
     if (game === createGameError) {
-      editCreateMessage(
+      ctx.reply(
         "Failed to create a new challenge, contact @woojiahao to receive support"
       );
     } else if (game === chessEngineError) {
-      editCreateMessage("Something went wrong internally");
+      ctx.reply("Something went wrong internally");
     } else if (game === ongoingGameError) {
-      await ctx.deleteMessage(createMessage.message_id);
       const ongoingGame = await getUserCurrentGame(username);
       if (!ongoingGame) return;
-      // TODO: Change this to renderBoard
-      sendChessboard(
+      renderBoard(
         ctx,
-        ongoingGame,
-        "Existing ongoing game!",
-        `You are ${ongoingGame.userSide}`
+        ongoingGame.id,
+        -1,
+        `
+        *Existing ongoing game!*
+
+        You are ${ongoingGame.userSide}
+        `.replace(/  +/g, "")
       );
     }
   } else {
-    ctx.deleteMessage(createMessage.message_id);
-    await sendChessboard(
+    renderBoard(
       ctx,
-      game,
-      "Game started!",
-      `You are ${game.userSide}`
+      game.id,
+      -1,
+      `
+        *Game started!*
+
+        You are ${game.userSide}
+        `.replace(/  +/g, "")
     );
   }
 });
