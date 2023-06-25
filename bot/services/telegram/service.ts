@@ -11,10 +11,11 @@ import {
   getUser,
   getUserGames,
   getUserOngoingGame,
+  setGameStatus,
   updateGameFen
 } from "../database";
 import { engine } from "../engine";
-import { UserSide } from "../models/game";
+import { GameStatus, UserSide } from "../models/game";
 import { HistoryPlayer } from "../models/history";
 import {
   chessEngineError,
@@ -24,7 +25,7 @@ import {
   ongoingGameError
 } from "./errors";
 import bot from "./telegram";
-import { getBoardImage } from "./utility";
+import { gameStatusToText, getBoardImage } from "./utility";
 
 export async function startGame(username: string) {
   const user = await getUser(username);
@@ -47,7 +48,6 @@ export async function startGame(username: string) {
 }
 
 export async function makeMove(username: string, move: string) {
-  // TODO: Handle cases where chess engine/user has checkmate or is in check
   const game = await getUserCurrentGame(username);
 
   if (!game) return missingGameError;
@@ -55,15 +55,71 @@ export async function makeMove(username: string, move: string) {
   const chess = new Chess(game.fen);
   try {
     chess.move(move);
+    await updateGameFen(game, chess.fen());
     await addGameHistory(game, move, chess.fen(), HistoryPlayer.USER);
+
+    if (chess.isCheckmate()) {
+      // User has checkmated the engine, end the game
+      await setGameStatus(game, GameStatus.USER_WIN);
+      return {
+        game: game,
+        engineMove: null,
+        status: GameStatus.USER_WIN
+      };
+    } else if (chess.isStalemate()) {
+      // User's move stalemated the game
+      await setGameStatus(game, GameStatus.STALEMATE);
+      return {
+        game: game,
+        engineMove: null,
+        status: GameStatus.STALEMATE
+      };
+    } else if (chess.isDraw()) {
+      // User's move drew the game
+      await setGameStatus(game, GameStatus.DRAW);
+      return {
+        game: game,
+        engineMove: null,
+        status: GameStatus.DRAW
+      };
+    }
+
     const engineMove: string | null = await engine.getMove(chess.fen());
     if (!engineMove) return chessEngineError;
     chess.move(engineMove);
     await updateGameFen(game, chess.fen());
     await addGameHistory(game, engineMove, chess.fen(), HistoryPlayer.BOT);
+    if (chess.isCheckmate()) {
+      // Bot checkmate
+      await setGameStatus(game, GameStatus.BOT_WIN);
+      return {
+        game: game,
+        engineMove: engineMove,
+        status: GameStatus.BOT_WIN
+      };
+    } else if (chess.isStalemate()) {
+      // Bot's move stalemates
+      await setGameStatus(game, GameStatus.STALEMATE);
+      return {
+        game: game,
+        engineMove: engineMove,
+        status: GameStatus.STALEMATE
+      };
+    } else if (chess.isDraw()) {
+      // Bot's move draws
+      await setGameStatus(game, GameStatus.DRAW);
+      return {
+        game: game,
+        engineMove: engineMove,
+        status: GameStatus.DRAW
+      };
+    }
+
+    // Regular move so do nothing
     return {
       game: game,
-      engineMove: engineMove
+      engineMove: engineMove,
+      status: GameStatus.STARTED
     };
   } catch (e) {
     return invalidMoveError;
@@ -162,11 +218,17 @@ export async function renderBoard(
     }
   ]);
 
-  // Only allow forfeits on current matches
   if (game.status === "STARTED") {
+    // Only allow forfeits on current matches
     actions.push([
       { text: "Forfeit game 🏳", callback_data: "forfeit-game-confirmation" }
     ]);
+  } else {
+    // For other status games, we allow them to start a new game if they don't have any other
+    // ongoing games
+    if (!(await getUserCurrentGame(game.player.username))) {
+      actions.push([{ text: "Start game 🟢", callback_data: "start-game" }]);
+    }
   }
 
   const boardUrl = getBoardImage(history[actualStep].fen, game.userSide);
@@ -175,9 +237,9 @@ export async function renderBoard(
       ? `
   *Game History*
 
-  *Move* ${history[actualStep].move}
-  *Move number* ${actualStep}
+  *Move ${actualStep + 1}* ${history[actualStep].move}
   *Turn* ${actualStep === 0 ? "Starting" : history[actualStep].player}
+  *Outcome* ${gameStatusToText(game.status)}
   `.replace(/  +/g, "")
       : caption;
 

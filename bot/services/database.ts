@@ -134,7 +134,8 @@ export async function getGame(gameId: number) {
   return await Game.findOne({
     where: {
       id: gameId
-    }
+    },
+    include: [User]
   });
 }
 
@@ -152,4 +153,9 @@ export async function getUserGames(username: string) {
     order: [["createdAt", "DESC"]]
   });
   return games.map((game) => game.toJSON());
+}
+
+export async function setGameStatus(game: Game, status: GameStatus) {
+  game.set("status", status);
+  await game.save();
 }

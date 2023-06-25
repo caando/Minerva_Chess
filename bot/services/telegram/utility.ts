@@ -4,7 +4,7 @@ import {
   Message,
   Update
 } from "telegraf/typings/core/types/typegram";
-import { Game, UserSide } from "../models/game";
+import { Game, GameStatus, UserSide } from "../models/game";
 import bot from "./telegram";
 import { getGameHistory } from "../database";
 
@@ -114,4 +114,23 @@ export async function sendChessboard<T extends Update>(
       `.replace(/  +/g, ""),
     parse_mode: "Markdown"
   });
+}
+
+export function gameStatusToText(status: GameStatus) {
+  switch (status) {
+    case GameStatus.BOT_WIN:
+      return "Bot has won";
+    case GameStatus.USER_WIN:
+      return "You won";
+    case GameStatus.DRAW:
+      return "The game is a draw";
+    case GameStatus.STALEMATE:
+      return "The game is a stalemate";
+    case GameStatus.FORFEITED:
+      return "You forfeited";
+    case GameStatus.ENDED:
+      return "The game was ended";
+    case GameStatus.STARTED:
+      return "Game is ongoing";
+  }
 }

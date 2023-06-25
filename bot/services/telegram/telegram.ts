@@ -26,12 +26,14 @@ import {
 } from "./service";
 import {
   editMessage,
+  gameStatusToText,
   menuText,
   sendChessboard,
   sendEditableMessage,
   tutorText
 } from "./utility";
 import { forfeitGame, getGames, getUserGames } from "../database";
+import { GameStatus } from "../models/game";
 
 // Explicitly type alias the two commonly used contexts for ease of use later on
 /**
@@ -299,16 +301,44 @@ bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
       }
     } else {
       ctx.deleteMessage(message.message_id);
-      await renderBoard(
-        ctx,
-        game.game.id,
-        -1,
-        `
-      *Your move!*
+      if (game.status === GameStatus.STARTED) {
+        // Game still progressing as per usual, check if in check
+        chess.clear();
+        chess.load(game.game.fen);
+        if (chess.inCheck()) {
+          await renderBoard(
+            ctx,
+            game.game.id,
+            -1,
+            `
+            *Your move!*
 
-      Minerva Chess played *${game.engineMove}*
-      `.replace(/  +/g, "")
-      );
+            Minerva Chess played *${game.engineMove}* and you are in check
+            `.replace(/  +/g, "")
+          );
+        } else {
+          await renderBoard(
+            ctx,
+            game.game.id,
+            -1,
+            `
+            *Your move!*
+
+            Minerva Chess played *${game.engineMove}*
+            `.replace(/  +/g, "")
+          );
+        }
+      } else {
+        // Game had some decided outcome already so just display the fail outcome
+        await renderBoard(
+          ctx,
+          game.game.id,
+          -1,
+          `
+            *${gameStatusToText(game.status)}*
+            `.replace(/  +/g, "")
+        );
+      }
     }
   } catch (e) {
     return;
