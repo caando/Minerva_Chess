@@ -13,6 +13,6 @@ U64 rand64() {
 }
 
 static inline int LSOneIdx(Bitboard bitboard) {
-  long long signedBitboard = bitboard;
+  signed long long signedBitboard = bitboard;
   return __builtin_ctz(signedBitboard & -(signedBitboard));
 }

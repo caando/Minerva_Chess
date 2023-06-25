@@ -6,7 +6,7 @@
 #include "util.h"
 
 // generate pawn attacks
-Bitboard maskPawnAttacks(int side, int square) {
+Bitboard maskPawnAttacks(Colour side, Square square) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -35,7 +35,7 @@ Bitboard maskPawnAttacks(int side, int square) {
 }
 
 // generate knight attacks
-Bitboard maskKnightAttacks(int square) {
+Bitboard maskKnightAttacks(Square square) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -60,7 +60,7 @@ Bitboard maskKnightAttacks(int square) {
 }
 
 // generate king attacks
-Bitboard maskKingAttacks(int square) {
+Bitboard maskKingAttacks(Square square) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -85,7 +85,7 @@ Bitboard maskKingAttacks(int square) {
 }
 
 // mask bishop attacks
-Bitboard maskBishopAttacks(int square) {
+Bitboard maskBishopAttacks(Square square) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -107,7 +107,7 @@ Bitboard maskBishopAttacks(int square) {
 }
 
 // mask rook attacks
-Bitboard maskRookAttacks(int square) {
+Bitboard maskRookAttacks(Square square) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -129,7 +129,7 @@ Bitboard maskRookAttacks(int square) {
 }
 
 // generate bishop attacks on the fly
-Bitboard BishopAttacksNaive(int square, U64 block) {
+Bitboard BishopAttacksNaive(Square square, Bitboard block) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -166,7 +166,7 @@ Bitboard BishopAttacksNaive(int square, U64 block) {
 }
 
 // generate rook attacks on the fly
-Bitboard RookAttacksNaive(int square, U64 block) {
+Bitboard RookAttacksNaive(Square square, Bitboard block) {
   // result attacks bitboard
   Bitboard attacks = 0ULL;
 
@@ -205,7 +205,7 @@ Bitboard RookAttacksNaive(int square, U64 block) {
 // init leaper pieces attacks
 void initLeapersAttacks() {
   // loop over 64 board squares
-  for (int square = 0; square < 64; square++) {
+  iterSquare() {
     // init pawn attacks
     PawnAttacks[White][square] = maskPawnAttacks(White, square);
     PawnAttacks[Black][square] = maskPawnAttacks(Black, square);
@@ -219,7 +219,7 @@ void initLeapersAttacks() {
 }
 
 // set occupancies
-Bitboard setOccupancy(int index, int bitsInMask, U64 attackMask) {
+Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
   // occupancy map
   Bitboard occupancy = 0ULL;
 

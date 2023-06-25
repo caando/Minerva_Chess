@@ -56,7 +56,7 @@ enum Castle {
   BlackQueenSide = 8,
 };
 
-#define iterCastle() for (int castle = 0; castle <= WhiteKingSide | WhiteQueenSide | BlackKingSide | BlackQueenSide; castle++)
+#define iterCastle() for (int castle = 0; castle <= (WhiteKingSide | WhiteQueenSide | BlackKingSide | BlackQueenSide); castle++)
 
 const char *SquareToCoordinates[] = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",

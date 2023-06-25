@@ -37,7 +37,7 @@ U64 GenerateHashkey() {
   U64 final_key = 0ULL;
 
   // temp piece bitboard copy
-  U64 bitboard;
+  Bitboard bitboard;
 
   // loop over piece bitboards
   iterPiece() {
