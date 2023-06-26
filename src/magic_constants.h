@@ -10,15 +10,15 @@
 // credits to BITBOARD CHESS ENGINE
 
 // A and H files affect the attack pattern of pawns and knights since it cannot attack out of board
-constexpr U64 notAFile = 18374403900871474942ULL;
-constexpr U64 notHFile = 9187201950435737471ULL;
+static constexpr U64 notAFile = 18374403900871474942ULL;
+static constexpr U64 notHFile = 9187201950435737471ULL;
 
 // AB and HG files affect the attack pattern of knights since it cannot attack out of board
-constexpr U64 notHGFile = 4557430888798830399ULL;
-constexpr U64 notABFile = 18229723555195321596ULL;
+static constexpr U64 notHGFile = 4557430888798830399ULL;
+static constexpr U64 notABFile = 18229723555195321596ULL;
 
 // rook magic numbers
-U64 rookMagicNumbers[SquareCount] = {
+static U64 rookMagicNumbers[SquareCount] = {
     0x8a80104000800020ULL,
     0x140002000100040ULL,
     0x2801880a0017001ULL,
@@ -86,7 +86,7 @@ U64 rookMagicNumbers[SquareCount] = {
 };
 
 // bishop magic numbers
-U64 bishopMagicNumbers[SquareCount] = {
+static U64 bishopMagicNumbers[SquareCount] = {
     0x40040844404084ULL,
     0x2004208a004208ULL,
     0x10190041080202ULL,
@@ -154,7 +154,7 @@ U64 bishopMagicNumbers[SquareCount] = {
 };
 
 // bishop relevant occupancy bit count for every square on board
-constexpr int bishopRelevantBits[SquareCount] = {
+static constexpr int bishopRelevantBits[SquareCount] = {
     6, 5, 5, 5, 5, 5, 5, 6,
     5, 5, 5, 5, 5, 5, 5, 5,
     5, 5, 7, 7, 7, 7, 5, 5,
@@ -166,7 +166,7 @@ constexpr int bishopRelevantBits[SquareCount] = {
 };
 
 // rook relevant occupancy bit count for every square on board
-const int rookRelevantBits[SquareCount] = {
+static const int rookRelevantBits[SquareCount] = {
     12, 11, 11, 11, 11, 11, 11, 12,
     11, 10, 10, 10, 10, 10, 10, 11,
     11, 10, 10, 10, 10, 10, 10, 11,
@@ -178,7 +178,7 @@ const int rookRelevantBits[SquareCount] = {
 };
 
 // castling rights update constants
-constexpr int castlingRights[SquareCount] = {
+static constexpr int castlingRights[SquareCount] = {
     7, 15, 15, 15, 3, 15, 15, 11,
     15, 15, 15, 15, 15, 15, 15, 15,
     15, 15, 15, 15, 15, 15, 15, 15,

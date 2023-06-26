@@ -16,10 +16,10 @@ void initMagicNumbers();
 
 void initSlidersAttacks(BishopRook isBishop);
 
-static inline Bitboard getBishopAttacks(Square square, Bitboard occupancy);
+Bitboard getBishopAttacks(Square square, Bitboard occupancy);
 
-static inline Bitboard getRookAttacks(Square square, Bitboard occupancy);
+Bitboard getRookAttacks(Square square, Bitboard occupancy);
 
-static inline Bitboard getQueenAttacks(Square square, Bitboard occupancy);
+Bitboard getQueenAttacks(Square square, Bitboard occupancy);
 
 #endif //MINERVA_CHESS_SRC_MAGIC_H_

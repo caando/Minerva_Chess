@@ -66,13 +66,13 @@
 // move types
 enum { all_moves, only_captures };
 
-static inline bool isSquareAttacked(Square square, Colour side);
+bool isSquareAttacked(Square square, Colour side);
 
-static inline void addMove(moves *move_list, int move);
+inline void addMove(moves *move_list, int move);
 
-static inline int makeMove(int move, int moveFlag);
+int makeMove(int move, int moveFlag);
 
-static inline void generateMoves(moves *moveList);
+void generateMoves(moves *moveList);
 
 // print move (for UCI purposes)
 void printMove(int move);

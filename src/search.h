@@ -8,20 +8,20 @@
 #include "types.h"
 
 // full depth moves counter
-constexpr int full_depth_moves = 4;
+static constexpr int full_depth_moves = 4;
 
 // depth limit to consider reduction
-constexpr int reduction_limit = 3;
+static constexpr int reduction_limit = 3;
 
-static inline int scoreMove(int move);
+inline int scoreMove(int move);
 
-static inline int sortMoves(moves *move_list, int best_move);
+inline int sortMoves(moves *move_list, int best_move);
 
-static inline int isRepetition();
+inline int isRepetition();
 
-static inline int quiescence(int alpha, int beta);
+inline int quiescence(int alpha, int beta);
 
-static inline int negamax(int alpha, int beta, int depth);
+inline int negamax(int alpha, int beta, int depth);
 
 void searchPosition(int depth);
 

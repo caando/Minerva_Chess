@@ -2,17 +2,17 @@
 // Created by Jikun on 26/6/23.
 //
 
+#include <string>
 #include "search.h"
 #include "transposition.h"
 #include "variables.h"
 #include "eval.h"
 #include "zobrist.h"
 #include "util.h"
-#include <string>
-#include "uci.h"
+#include "communication.h"
 
 // score moves
-static inline int scoreMove(int move) {
+inline int scoreMove(int move) {
   // if PV move scoring is allowed
   if (scorePv) {
     // make sure we are dealing with PV move
@@ -98,7 +98,7 @@ static inline int scoreMove(int move) {
 }
 
 // sort moves in descending order
-static inline int sortMoves(moves *moveList, int best_move) {
+inline int sortMoves(moves *moveList, int best_move) {
   // move scores
   int moveScores[moveList->count];
 
@@ -135,7 +135,7 @@ static inline int sortMoves(moves *moveList, int best_move) {
 }
 
 // position repetition detection
-static inline int isRepetition() {
+inline int isRepetition() {
   // loop over repetition indices range
   for (int index = 0; index < repetitionIndex; index++)
     // if we found the hash key same with a current
@@ -148,7 +148,7 @@ static inline int isRepetition() {
 }
 
 // quiescence search
-static inline int quiescence(int alpha, int beta) {
+inline int quiescence(int alpha, int beta) {
   // every 2047 nodes
   if ((nodes & 2047) == 0)
     // "listen" to the GUI/user input
@@ -244,7 +244,7 @@ static inline int quiescence(int alpha, int beta) {
 }
 
 // negamax alpha beta search
-static inline int negamax(int alpha, int beta, int depth) {
+inline int negamax(int alpha, int beta, int depth) {
   // init PV length
   pvLength[ply] = ply;
 
@@ -302,7 +302,7 @@ static inline int negamax(int alpha, int beta, int depth) {
   int legal_moves = 0;
 
   // get static evaluation score
-  int static_eval = evaluate();
+  int staticEval = evaluate();
 
   // evaluation pruning / static null move pruning
   if (depth < 3 && !pv_node && !in_check && abs(beta - 1) > -INFINITY + 100) {
@@ -310,9 +310,9 @@ static inline int negamax(int alpha, int beta, int depth) {
     int eval_margin = 120 * depth;
 
     // evaluation margin substracted from static evaluation score fails high
-    if (static_eval - eval_margin >= beta)
+    if (staticEval - eval_margin >= beta)
       // evaluation margin substracted from static evaluation score
-      return static_eval - eval_margin;
+      return staticEval - eval_margin;
   }
 
   // null move pruning
@@ -368,7 +368,7 @@ static inline int negamax(int alpha, int beta, int depth) {
   // razoring
   if (!pv_node && !in_check && depth <= 3) {
     // get static eval and add first bonus
-    score = static_eval + 125;
+    score = staticEval + 125;
 
     // define new score
     int new_score;

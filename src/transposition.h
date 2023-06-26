@@ -46,10 +46,10 @@ static int MvvLva[12][12] = {
 #define MAX_PLY 64
 
 // killer moves [id][ply]
-int killer_moves[2][MAX_PLY];
+static int killer_moves[2][MAX_PLY];
 
 // history moves [piece][square]
-int history_moves[PieceCount][MAX_PLY];
+static int history_moves[PieceCount][MAX_PLY];
 
 /*
       ================================
@@ -74,16 +74,16 @@ int history_moves[PieceCount][MAX_PLY];
 */
 
 // PV length [ply]
-int pvLength[MAX_PLY];
+static int pvLength[MAX_PLY];
 
 // PV table [ply][ply]
-int pvTable[MAX_PLY][MAX_PLY];
+static int pvTable[MAX_PLY][MAX_PLY];
 
 // follow PV & score PV move
-int followPv, scorePv;
+static int followPv, scorePv;
 
 // number hash table entries
-int hashEntries = 0;
+static int hashEntries = 0;
 
 // no hash entry found constant
 #define NO_HASH_ENTRY 100000
@@ -103,16 +103,16 @@ typedef struct {
 } tt;               // transposition table (TT aka hash table)
 
 // define TT instance
-tt *hash_table = nullptr;
+static tt *hash_table = nullptr;
 
 void clearHashTable();
 
 void initHashTable(int mb);
 
-static inline int readHashEntry(int alpha, int beta, int* bestMove, int depth);
+int readHashEntry(int alpha, int beta, int* bestMove, int depth);
 
-static inline void writeHashEntry(int score, int best_move, int depth, int hashFlag);
+void writeHashEntry(int score, int best_move, int depth, int hashFlag);
 
-static inline void enable_pv_scoring(moves *move_list);
+void enable_pv_scoring(moves *move_list);
 
 #endif //MINERVA_CHESS_SRC_TRANSPOSITION_H_

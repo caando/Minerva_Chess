@@ -8,10 +8,10 @@
 #include "types.h"
 
 // convert BBC piece code to Stockfish piece codes
-int nnuePieces[12] = {6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7};
+static int nnuePieces[12] = {6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7};
 
 // convert BBC square indices to Stockfish indices
-int nnueSquares[64] = {
+static int nnueSquares[64] = {
     a1, b1, c1, d1, e1, f1, g1, h1,
     a2, b2, c2, d2, e2, f2, g2, h2,
     a3, b3, c3, d3, e3, f3, g3, h3,
@@ -22,6 +22,6 @@ int nnueSquares[64] = {
     a8, b8, c8, d8, e8, f8, g8, h8
 };
 
-static inline int evaluate();
+int evaluate();
 
 #endif //MINERVA_CHESS_SRC_EVAL_H_

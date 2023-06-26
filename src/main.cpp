@@ -7,6 +7,7 @@
 #include "zobrist.h"
 #include "transposition.h"
 #include "nnue/nnue.h"
+#include "uci.h"
 
 // init all variables
 void initAll() {
@@ -21,16 +22,22 @@ void initAll() {
   initialiseKeys();
 
   // init hash table with default 256 MB
-  initHashTable(256);
+  initHashTable(128);
 
   // init NNUE weights
-  nnue_init("nnue/nn-46832cfbead3.nnue");
+  nnue_init("nn-eba324f53044.nnu");
 }
 
 int main()
 {
   // init all
   initAll();
+
+  // connect to GUI
+  uciLoop();
+
+  // free hash table memory on exit
+  free(hash_table);
 
   return 0;
 }

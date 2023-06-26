@@ -8,7 +8,7 @@
 #include "types.h"
 
 // perft driver
-static inline void perftDriver(int depth) {
+inline void perftDriver(int depth) {
   // reccursion escape condition
   if (depth == 0) {
     // increment nodes count (count reached positions)
@@ -33,7 +33,7 @@ static inline void perftDriver(int depth) {
       continue;
 
     // call perft driver recursively
-    perft_driver(depth - 1);
+    perftDriver(depth - 1);
 
     // take back
     takeBack();

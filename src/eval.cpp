@@ -8,7 +8,7 @@
 #include "./nnue/nnue.h"
 
 // position evaluation
-static inline int evaluate() {
+int evaluate() {
   // current pieces bitboard copy
   Bitboard bitboard;
 
@@ -26,14 +26,16 @@ static inline int evaluate() {
   int index = 2;
 
   // loop over piece bitboards
-  iterPiece() {
+  for (int bb_piece = WPawn; bb_piece <= BKing; bb_piece++)
+  {
     // init piece bitboard copy
-    bitboard = bitboards[piece];
+    bitboard = bitboards[bb_piece];
 
     // loop over pieces within a bitboard
-    while (bitboard) {
+    while (bitboard)
+    {
       // init piece
-      piece = static_cast<Piece>(piece);
+      piece = static_cast<Piece>(bb_piece);
 
       // init square
       square = static_cast<Square>(LSOneIdx(bitboard));
@@ -44,7 +46,8 @@ static inline int evaluate() {
       */
 
       // case white king
-      if (piece == WKing) {
+      if (piece == WKing)
+      {
         /* convert white king piece code to stockfish piece code and
            store it at the first index of pieces array
         */
@@ -57,7 +60,8 @@ static inline int evaluate() {
       }
 
         // case black king
-      else if (piece == BKing) {
+      else if (piece == BKing)
+      {
         /* convert black king piece code to stockfish piece code and
            store it at the second index of pieces array
         */
@@ -70,7 +74,8 @@ static inline int evaluate() {
       }
 
         // all the rest pieces
-      else {
+      else
+      {
         /*  convert all the rest of piece code with corresponding square codes
             to stockfish piece codes and square indices respectively
         */

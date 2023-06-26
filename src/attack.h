@@ -9,48 +9,48 @@
 #include "magic_constants.h"
 
 // pawn attacks table [side][square]
-Bitboard pawnAttacks[2][SquareCount];
+static Bitboard pawnAttacks[2][SquareCount];
 
 // knight attacks table [square]
-Bitboard knightAttacks[SquareCount];
+static Bitboard knightAttacks[SquareCount];
 
 // king attacks table [square]
-Bitboard kingAttacks[SquareCount];
+static Bitboard kingAttacks[SquareCount];
 
 // bishop attack masks
-Bitboard bishopMasks[SquareCount];
+static Bitboard bishopMasks[SquareCount];
 
 // rook attack masks
-Bitboard rookMasks[SquareCount];
+static Bitboard rookMasks[SquareCount];
 
 // bishop attacks table [square][occupancies]
-Bitboard bishopAttacks[SquareCount][512];
+static Bitboard bishopAttacks[SquareCount][512];
 
 // rook attacks table [square][occupancies]
-Bitboard rookAttacks[SquareCount][4096];
+static Bitboard rookAttacks[SquareCount][4096];
 
 // Attack mask of respective pieces, with bitboard manipulation and magics
 
-Bitboard maskPawnAttacks(int side, int square);
+Bitboard maskPawnAttacks(Colour side, Square square);
 
-Bitboard maskKnightAttacks(int square);
+Bitboard maskKnightAttacks(Square square);
 
-Bitboard maskKingAttacks(int square);
+Bitboard maskKingAttacks(Square square);
 
-Bitboard maskBishopAttacks(int square);
+Bitboard maskBishopAttacks(Square square);
 
-Bitboard maskRookAttacks(int square);
+Bitboard maskRookAttacks(Square square);
 
 // Implementation of piece attacks without bitboard manipulation and magics
 
-Bitboard bishopAttacksNaive(int square, Bitboard block);
+Bitboard bishopAttacksNaive(Square square, Bitboard block);
 
-Bitboard rookAttacksNaive(int square, Bitboard block);
+Bitboard rookAttacksNaive(Square square, Bitboard block);
 
 // Initialise attacks of pawns, knights and kings
 void initLeapersAttacks();
 
 // Change occupancy
-Bitboard setOccupancy(int index, int bits_in_mask, U64 attack_mask);
+Bitboard setOccupancy(int index, int bits_in_mask, Bitboard attack_mask);
 
 #endif //MINERVA_CHESS_SRC_ATTACK_H_

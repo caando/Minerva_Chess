@@ -58,7 +58,7 @@ enum Castle {
 
 #define iterCastle() for (int castle = 0; castle <= (WhiteKingSide | WhiteQueenSide | BlackKingSide | BlackQueenSide); castle++)
 
-const char *squareToCoordinates[] = {
+static constexpr char *squareToCoordinates[] = {
     "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
     "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
     "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
@@ -69,11 +69,11 @@ const char *squareToCoordinates[] = {
     "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
 };
 
-char *piecesToAscii[PieceCount] = {"P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"};
+static constexpr char *piecesToAscii[PieceCount] = {"P", "N", "B", "R", "Q", "K", "p", "n", "b", "r", "q", "k"};
 
-char *piecesToUnicode[PieceCount] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
+static constexpr char *piecesToUnicode[PieceCount] = {"♙", "♘", "♗", "♖", "♕", "♔", "♟︎", "♞", "♝", "♜", "♛", "♚"};
 
-Piece asciiToPieces[] = {
+static constexpr Piece asciiToPieces[] = {
     ['P'] = Piece::WPawn,
     ['N'] = Piece::WKnight,
     ['B'] = Piece::WBishop,
@@ -89,7 +89,7 @@ Piece asciiToPieces[] = {
 };
 
 // promoted pieces
-char promotedPieces[] = {
+static constexpr char promotedPieces[] = {
     [WQueen] = 'q',
     [WRook] = 'r',
     [WBishop] = 'b',

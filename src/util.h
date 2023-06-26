@@ -9,7 +9,7 @@
 
 U64 rand64();
 
-static inline int LSOneIdx(Bitboard bitboard);
+int LSOneIdx(U64 bitboard);
 
 int getTimeMs();
 

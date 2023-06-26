@@ -7,10 +7,20 @@
 
 #include "variables.h"
 
-int inputWaiting();
+#define version " - 1.0.0"
 
-void readInput();
+int parseMove(char *move_string);
 
-static void communicate();
+void resetBoard();
+
+void parseFen(char *fen);
+
+void parsePosition(char *command);
+
+void resetTimeControl();
+
+void parseGo(char *command);
+
+void uciLoop();
 
 #endif //MINERVA_CHESS_SRC_UNI_H_

@@ -11,13 +11,13 @@
 
 // Pseudorandom number generator
 U64 rand64() {
-  static U64 next = 123456789;
+  static U64 next = 1;
 
-  next = next * 1000000009 + 1234511;
+  next = next * 1103515245 + 12345;
   return next;
 }
 
-static inline int LSOneIdx(Bitboard bitboard) {
+int LSOneIdx(U64 bitboard) {
   signed long long signedBitboard = bitboard;
   return __builtin_ctz(signedBitboard & -(signedBitboard));
 }

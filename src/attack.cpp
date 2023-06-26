@@ -207,14 +207,14 @@ void initLeapersAttacks() {
   // loop over 64 board squares
   iterSquare() {
     // init pawn attacks
-    pawnAttacks[White][square] = maskPawnAttacks(White, square);
-    pawnAttacks[Black][square] = maskPawnAttacks(Black, square);
+    pawnAttacks[White][square] = maskPawnAttacks(White, static_cast<Square>(square));
+    pawnAttacks[Black][square] = maskPawnAttacks(Black, static_cast<Square>(square));
 
     // init knight attacks
-    knightAttacks[square] = maskKnightAttacks(square);
+    knightAttacks[square] = maskKnightAttacks(static_cast<Square>(square));
 
     // init king attacks
-    kingAttacks[square] = maskKingAttacks(square);
+    kingAttacks[square] = maskKingAttacks(static_cast<Square>(square));
   }
 }
 
@@ -226,7 +226,7 @@ Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
   // loop over the range of bits within attack mask
   for (int count = 0; count < bitsInMask; count++) {
     // get LS1B index of attacks mask
-    int square = LSOneIdx(attackMask);
+    int square = LSOneIdx((U64)attackMask);
 
     // pop LS1B in attack map
     remBit(attackMask, square);

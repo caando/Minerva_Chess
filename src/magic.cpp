@@ -98,8 +98,8 @@ void initSlidersAttacks(BishopRook isBishop) {
   // loop over 64 board squares
   for (int square = 0; square < 64; square++) {
     // init bishop & rook masks
-    bishopMasks[square] = maskBishopAttacks(square);
-    rookMasks[square] = maskRookAttacks(square);
+    bishopMasks[square] = maskBishopAttacks(static_cast<Square>(square));
+    rookMasks[square] = maskRookAttacks(static_cast<Square>(square));
 
     // init current mask
     Bitboard attack_mask = isBishop == Bishop ? bishopMasks[square] : rookMasks[square];
@@ -121,7 +121,7 @@ void initSlidersAttacks(BishopRook isBishop) {
         int magic_index = (occupancy * bishopMagicNumbers[square]) >> (64 - bishopRelevantBits[square]);
 
         // init bishop attacks
-        bishopAttacks[square][magic_index] = bishopAttacksNaive(square, occupancy);
+        bishopAttacks[square][magic_index] = bishopAttacksNaive(static_cast<Square>(square), occupancy);
       }
 
         // rook
@@ -133,7 +133,7 @@ void initSlidersAttacks(BishopRook isBishop) {
         int magic_index = (occupancy * rookMagicNumbers[square]) >> (64 - rookRelevantBits[square]);
 
         // init rook attacks
-        rookAttacks[square][magic_index] = rookAttacksNaive(square, occupancy);
+        rookAttacks[square][magic_index] = rookAttacksNaive(static_cast<Square>(square), occupancy);
 
       }
     }
@@ -141,7 +141,7 @@ void initSlidersAttacks(BishopRook isBishop) {
 }
 
 // get bishop attacks
-static inline Bitboard getBishopAttacks(Square square, Bitboard occupancy) {
+Bitboard getBishopAttacks(Square square, Bitboard occupancy) {
   // get bishop attacks assuming current board occupancy
   occupancy &= bishopMasks[square];
   occupancy *= bishopMagicNumbers[square];
@@ -152,7 +152,7 @@ static inline Bitboard getBishopAttacks(Square square, Bitboard occupancy) {
 }
 
 // get rook attacks
-static inline Bitboard getRookAttacks(Square square, Bitboard occupancy) {
+Bitboard getRookAttacks(Square square, Bitboard occupancy) {
   // get rook attacks assuming current board occupancy
   occupancy &= rookMasks[square];
   occupancy *= rookMagicNumbers[square];
@@ -163,7 +163,7 @@ static inline Bitboard getRookAttacks(Square square, Bitboard occupancy) {
 }
 
 // get queen attacks
-static inline Bitboard getQueenAttacks(Square square, Bitboard occupancy) {
+Bitboard getQueenAttacks(Square square, Bitboard occupancy) {
   // init result attacks bitboard
   U64 queen_attacks = 0ULL;
 

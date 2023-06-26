@@ -5,8 +5,6 @@
 #include "transposition.h"
 #include "variables.h"
 #include "stdio.h"
-#include "memory"
-
 
 // clear TT (hash table)
 void clearHashTable()
@@ -68,7 +66,7 @@ void initHashTable(int mb)
 }
 
 // read hash entry data
-static inline int readHashEntry(int alpha, int beta, int* bestMove, int depth)
+int readHashEntry(int alpha, int beta, int* bestMove, int depth)
 {
   // create a TT instance pointer to particular hash entry storing
   // the scoring data for the current board position if available
@@ -115,7 +113,7 @@ static inline int readHashEntry(int alpha, int beta, int* bestMove, int depth)
 }
 
 // write hash entry data
-static inline void writeHashEntry(int score, int best_move, int depth, int hashFlag)
+void writeHashEntry(int score, int best_move, int depth, int hashFlag)
 {
   // create a TT instance pointer to particular hash entry storing
   // the scoring data for the current board position if available
@@ -135,7 +133,7 @@ static inline void writeHashEntry(int score, int best_move, int depth, int hashF
 }
 
 // enable PV move scoring
-static inline void enable_pv_scoring(moves *move_list)
+void enable_pv_scoring(moves *move_list)
 {
   // disable following PV
   followPv = 0;

@@ -6,68 +6,68 @@
 #define MINERVA_CHESS_SRC_VARIABLES_H_
 
 #include "types.h"
-#include "stdlib.h"
+#include <cstdlib>
 
 // piece bitboards
-Bitboard bitboards[PieceCount];
+static Bitboard bitboards[PieceCount];
 
 // occupancy bitboards (White, Black, Combined)
-Bitboard occupancies[ColourCount];
+static Bitboard occupancies[ColourCount];
 
 // side to move
-Colour side;
+static Colour side;
 
 // enpassant square
-Square enpassant = no_sq;
+static Square enpassant = no_sq;
 
 // castling rights, bitwise or of all remaining castling rights
-int castle;
+static int castle;
 
 // hashed value of current position, with 1/2^64 chance of collision
-U64 hashKey;
+static U64 hashKey;
 
-constexpr int MAX_MOVES = 500;
+static constexpr int MAX_MOVES = 500;
 
 // positions repetition table
-U64 repetitionTable[MAX_MOVES * 2];
+static  U64 repetitionTable[MAX_MOVES * 2];
 
 // repetition index
-int repetitionIndex;
+static int repetitionIndex;
 
 // half move counter
-int ply;
+static int ply;
 
 // fifty move rule counter
-int fifty;
+static int fifty;
 
 // exit from engine flag
-int quit = 0;
+static int quit = 0;
 
 // UCI "movestogo" command moves counter
-int movestogo = 30;
+static int movestogo = 30;
 
 // UCI "movetime" command time counter
-int moveTime = -1;
+static int moveTime = -1;
 
 // UCI "time" command holder (ms)
-int time = -1;
+static int timer = -1;
 
 // UCI "inc" command's time increment holder
-int inc = 0;
+static int inc = 0;
 
 // UCI "starttime" command time holder
-int startTime = 0;
+static int startTime = 0;
 
 // UCI "stoptime" command time holder
-int stopTime = 0;
+static int stopTime = 0;
 
 // variable to flag time control availability
-int timeset = 0;
+static int timeset = 0;
 
 // variable to flag when the time is up
-int stopped = 0;
+static int stopped = 0;
 
 // leaf nodes (number of positions reached during the test of the move generator at a given depth)
-U64 nodes = 0;
+static U64 nodes = 0;
 
 #endif //MINERVA_CHESS_SRC_VARIABLES_H_

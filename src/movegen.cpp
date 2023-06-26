@@ -10,7 +10,7 @@
 #include <string>
 
 // is square current given attacked by the current given side
-static inline bool isSquareAttacked(Square square, Colour side) {
+bool isSquareAttacked(Square square, Colour side) {
   // attacked by White pawns
   if ((side == White) && (pawnAttacks[Black][square] & bitboards[WPawn])) return true;
 
@@ -39,7 +39,7 @@ static inline bool isSquareAttacked(Square square, Colour side) {
 }
 
 // add move to the move list
-static inline void addMove(moves *moveList, int move) {
+inline void addMove(moves *moveList, int move) {
 // store move
   moveList->moves[moveList->count] =
       move;
@@ -49,7 +49,7 @@ static inline void addMove(moves *moveList, int move) {
 }
 
 // make move on chess board
-static inline int makeMove(int move, int moveFlag) {
+int makeMove(int move, int moveFlag) {
   // quiet moves
   if (moveFlag == all_moves) {
     // preserve board state
@@ -312,7 +312,7 @@ static inline int makeMove(int move, int moveFlag) {
 }
 
 // generate all moves
-static inline void generateMoves(moves *moveList) {
+void generateMoves(moves *moveList) {
   // init move count
   moveList->count = 0;
 
