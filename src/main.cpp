@@ -25,7 +25,7 @@ void initAll() {
   initHashTable(128);
 
   // init NNUE weights
-  nnue_init("nn-eba324f53044.nnu");
+  nnue_init("nn-eba324f53044.nnue");
 }
 
 int main()
