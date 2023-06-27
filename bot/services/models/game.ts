@@ -1,19 +1,24 @@
 import {
-  DataType,
+  BelongsTo,
   Column,
-  Model,
-  Table,
+  DataType,
   ForeignKey,
-  CreatedAt,
-  UpdatedAt,
-  BelongsTo
+  HasOne,
+  Model,
+  Table
 } from "sequelize-typescript";
 
 import { User } from "./user";
+import { History } from "./history";
 
 export enum GameStatus {
   STARTED = "STARTED",
-  ENDED = "ENDED"
+  ENDED = "ENDED",
+  FORFEITED = "FORFEITED",
+  USER_WIN = "USER_WIN",
+  BOT_WIN = "BOT_WIN",
+  STALEMATE = "STALEMATE",
+  DRAW = "DRAW"
 }
 
 export enum UserSide {
@@ -57,4 +62,7 @@ export class Game extends Model {
 
   @BelongsTo(() => User)
   player!: User;
+
+  @HasOne(() => History, "gameId")
+  history!: History;
 }

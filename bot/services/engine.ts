@@ -25,7 +25,7 @@ class EngineService {
     await this.sleep(COMPUTING_TIME_PER_MOVE * 2);
     const match = lastMessage.toString().match(/bestmove ([+a-zA-Z0-9]+)/);
     engine.stdin.write(`quit\n`);
-    engine.kill(7);
+    engine.kill("SIGKILL");
     return match ? match[1] : null;
   }
 }

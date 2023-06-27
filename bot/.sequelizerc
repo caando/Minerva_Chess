@@ -1,0 +1,4 @@
+module.exports = {
+  'models-path': 'services/models',
+  'migrations-path': 'migrations'
+}

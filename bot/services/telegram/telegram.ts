@@ -1,12 +1,55 @@
-import { Context, NarrowedContext, Telegraf } from "telegraf";
-import { Update } from "typegram";
-import { Message } from "telegraf/typings/core/types/typegram";
-import { engine } from "../engine";
 import { Chess } from "chess.js";
-import { UserSide } from "../models/game";
-import { getUser, addGame, getUserOngoingGame } from "../database";
-import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
+import { Context, NarrowedContext, Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
+import { CallbackQuery, Message } from "telegraf/typings/core/types/typegram";
+import { Update } from "typegram";
+import { forfeitGame, getUserGames } from "../database";
+import { Game, GameStatus } from "../models/game";
+import {
+  chessEngineError,
+  createGameError,
+  invalidMoveError,
+  missingGameError,
+  ongoingGameError
+} from "./errors";
+import IgnoreOldMiddleWare from "./middlewares/ignoreOld";
+import {
+  chunkSelectGamesAction,
+  getMenuTextConfiguration,
+  getTutorTextConfiguration,
+  getUserCurrentGame,
+  makeMove,
+  renderBoard,
+  startGame
+} from "./service";
+import {
+  gameStatusToText,
+  menuText,
+  sendEditableMessage,
+  tutorText
+} from "./utility";
+
+// Explicitly type alias the two commonly used contexts for ease of use later on
+/**
+ * Context type provided in callbacks. Includes the message that had the inline keyboard.
+ */
+export type CallbackContext = NarrowedContext<
+  Context<Update> & {
+    match: RegExpExecArray;
+  },
+  Update.CallbackQueryUpdate<CallbackQuery>
+>;
+
+/**
+ * Context type provided in commands. Includes the message that triggered the command.
+ */
+export type CommandContext = NarrowedContext<
+  Context<Update>,
+  {
+    message: Update.New & Update.NonChannel & Message.TextMessage;
+    update_id: number;
+  }
+>;
 
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
@@ -15,196 +58,406 @@ const bot: Telegraf<Context<Update>> = new Telegraf(
 
 bot.use(IgnoreOldMiddleWare);
 
+bot.telegram.setMyCommands([
+  {
+    command: "menu",
+    description: "Display a menu to navigate using Minerva Chess bot"
+  },
+  { command: "help", description: "Show a help text to use this bot" },
+  {
+    command: "start",
+    description:
+      "Starts a game against the bot if no ongoing games are happening"
+  },
+  { command: "board", description: "View your ongoing game if any" }
+]);
+
 bot.on(message("new_chat_members"), (ctx) => {
   if (!ctx.botInfo || ctx.botInfo.username !== bot.botInfo?.username) return;
-  ctx.reply(
-    `
-      Hello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
-
-      To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
-
-      /ping to test the bot online status
-      /start to start a new game
-      /move \\<AN\\> to play a move in your game in either Algebraic Notation or Long Algebraic Notation
-      /me to view your current active game
-
-      Notation: For example, if you wish to move the pawn from e2 to e4 square, you can send \`/move e2e4\`\\.
-
-      Good luck\\!
-    `.replace(/  +/g, ""),
-    {
-      parse_mode: "MarkdownV2"
-    }
-  );
+  ctx.reply(menuText, getMenuTextConfiguration());
 });
-
-async function sendEditableMessage(
-  context: NarrowedContext<
-    Context<Update>,
-    {
-      message: Update.New & Update.NonChannel & Message.TextMessage;
-      update_id: number;
-    }
-  >,
-  message: string
-): Promise<[Message.TextMessage, (text: string) => void]> {
-  const msg = await context.reply(message);
-  const editMessage = function (text: string) {
-    bot.telegram.editMessageText(msg.chat.id, msg.message_id, undefined, text);
-  };
-  return [msg, editMessage];
-}
 
 bot.command("ping", (ctx) => {
   ctx.reply(`Hello ${ctx.from.first_name}!`);
 });
 
+bot.action("tutor", (ctx) => {
+  const message = ctx.update.callback_query.message;
+  if (!message) {
+    ctx.reply(tutorText, getTutorTextConfiguration());
+  } else {
+    ctx.editMessageText(tutorText, getTutorTextConfiguration());
+  }
+});
+
 bot.help((ctx) => {
-  ctx.reply(
-    `
-      Hello\\! I am @MinervaChessBot, an interactive UI for the Minerva Chess engine\\.
+  ctx.reply(tutorText, getTutorTextConfiguration());
+});
 
-      To get started with playing chess with the Minerva Chess engine, I've prepared the commands you can use:
+bot.command("menu", (ctx) => {
+  ctx.reply(menuText, getMenuTextConfiguration());
+});
 
-      /ping to test the bot online status
-      /start to start a new game
-      /move \\<AN\\> to play a move in your game in either Algebraic Notation or Long Algebraic Notation
-      /me to view your current active game
-
-      Notation: For example, if you wish to move the pawn from e2 to e4 square, you can send \`/move e2e4\`\\.
-
-      Good luck\\!
-    `.replace(/  +/g, ""),
-    {
-      parse_mode: "MarkdownV2"
+bot.action("show-menu", (ctx) => {
+  const message = ctx.update.callback_query.message;
+  if (!message) {
+    ctx.reply(menuText, getMenuTextConfiguration());
+  } else {
+    if ("caption" in message) {
+      bot.telegram.deleteMessage(message.chat.id, message.message_id);
+      ctx.reply(menuText, getMenuTextConfiguration());
+    } else {
+      ctx.editMessageText(menuText, getMenuTextConfiguration());
     }
-  );
+  }
+});
+
+bot.action("view-stats", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  // TODO: Expand stats to include speed of loss/wins
+  const games = await getUserGames(username);
+  const wins = games.filter(
+    (game) => game.status === GameStatus.USER_WIN
+  ).length;
+  const losses = games.filter(
+    (game) => game.status === GameStatus.BOT_WIN
+  ).length;
+  const draws = games.filter((game) => game.status === GameStatus.DRAW).length;
+  const stalemates = games.filter(
+    (game) => game.status === GameStatus.STALEMATE
+  ).length;
+  const forfeits = games.filter(
+    (game) => game.status === GameStatus.FORFEITED
+  ).length;
+  const hasOngoing =
+    games.filter((game) => game.status === GameStatus.STARTED).length > 0;
+
+  const text = `
+  *${username} statistics*
+
+  Total games played: ${games.length}
+  Ongoing game?: ${hasOngoing ? "Yes" : "No"}
+  Wins: ${wins} / ${games.length} > ${((wins / games.length) * 100).toPrecision(
+    2
+  )}%
+  Losses: ${losses} / ${games.length} > ${(
+    (losses / games.length) *
+    100
+  ).toPrecision(2)}%
+  Draws: ${draws} / ${games.length} > ${(
+    (draws / games.length) *
+    100
+  ).toPrecision(2)}%
+  Stalemates: ${stalemates} / ${games.length} > ${(
+    (stalemates / games.length) *
+    100
+  ).toPrecision(2)}%
+  Forfeits: ${forfeits} / ${games.length} > ${(
+    (forfeits / games.length) *
+    100
+  ).toPrecision(2)}%
+  `.replace(/  +/g, "");
+
+  // Only reachable using menu
+  ctx.editMessageText(text, getTutorTextConfiguration());
+});
+
+// TODO: Abstract the behavior to work for both scenarios
+bot.action("start-game", async (ctx) => {
+  const message = ctx.update.callback_query.message;
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  const game = await startGame(username);
+
+  if (game instanceof Error) {
+    if (game === createGameError) {
+      if (!message || !("photo" in message)) {
+        ctx.reply(
+          "Failed to create a new challenge, contact @woojiahao to receive support"
+        );
+      } else {
+        ctx.editMessageText(
+          "Failed to create a new challenge, contact @woojiahao to receive support"
+        );
+      }
+    } else if (game === chessEngineError) {
+      if (!message || !("photo" in message)) {
+        ctx.reply("Something went wrong internally");
+      } else {
+        ctx.editMessageText("Something went wrong internally");
+      }
+    } else if (game === ongoingGameError) {
+      const ongoingGame = await getUserCurrentGame(username);
+      if (!ongoingGame) return;
+      renderBoard(
+        ctx,
+        ongoingGame.id,
+        -1,
+        `
+        *Existing ongoing game!*
+
+        You are ${ongoingGame.userSide}
+        `.replace(/  +/g, "")
+      );
+      return;
+    }
+  } else {
+    renderBoard(
+      ctx,
+      game.id,
+      -1,
+      `
+        *Game started!*
+
+        You are ${game.userSide}
+        `.replace(/  +/g, "")
+    );
+  }
 });
 
 bot.command("start", async (ctx) => {
   const username = ctx.from.username;
-  await ctx.reply("If you want to get more help, use /help");
-  const [_, editCreateMessage] = await sendEditableMessage(
-    ctx,
-    "Processing your challenge..."
-  );
-  if (!username) {
-    editCreateMessage(
-      "Something went wrong, contact @woojiahao to receive support"
-    );
-    return;
-  }
+  if (!username) return;
 
-  const user = await getUser(username);
-
-  const prevGame = await getUserOngoingGame(user);
-  if (prevGame !== null) {
-    prevGame.set("status", "ENDED");
-    prevGame.save();
-  }
-
-  const game = await addGame(user.id);
+  const game = await startGame(username);
 
   if (game instanceof Error) {
-    editCreateMessage(
-      "Failed to create a new challenge, contact @woojiahao to receive support"
-    );
-    return;
-  }
-
-  editCreateMessage(`Game started, you are ${game.userSide}`);
-
-  if (game.userSide === UserSide.BLACK) {
-    const chess = new Chess(game.fen);
-    const move: string | null = await engine.getMove(chess.fen());
-    if (!move) {
-      editCreateMessage("Something went wrong internally");
-      return;
-    }
-    chess.move(move);
-    await game.set("fen", chess.fen());
-    game.save();
-  }
-
-  if (game.userSide === "BLACK") {
-    await ctx.sendPhoto(
-      `https://fen2image.chessvision.ai/${game.fen}?pov=black`
-    );
-  } else {
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
-  }
-});
-
-bot.command("me", async (ctx) => {
-  const username = ctx.from.username;
-  const [_, editMessage] = await sendEditableMessage(
-    ctx,
-    `Retrieving your current game...`
-  );
-  if (!username) {
-    editMessage("Something went wrong, contact @woojiahao to receive support");
-    return;
-  }
-
-  const user = await getUser(username);
-  const game = await getUserOngoingGame(user);
-
-  if (!game) {
-    editMessage("You do not have any ongoing games, use /start to create one");
-    return;
-  }
-  if (game.userSide === "BLACK") {
-    await ctx.sendPhoto(
-      `https://fen2image.chessvision.ai/${game.fen}?pov=black`
-    );
-  } else {
-    await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
-  }
-});
-
-bot.command("move", async (ctx) => {
-  const username = ctx.from.username;
-  const [_, editMessage] = await sendEditableMessage(
-    ctx,
-    `Retrieving your current game...`
-  );
-  if (!username) {
-    editMessage("Something went wrong, contact @woojiahao to receive support");
-    return;
-  }
-
-  const user = await getUser(username);
-  const game = await getUserOngoingGame(user);
-
-  if (!game) {
-    editMessage("You do not have any ongoing games, use /start to create one");
-    return;
-  }
-
-  const move = ctx.update.message.text.slice(6);
-  const chess = new Chess(game.fen);
-  try {
-    chess.move(move);
-    const engineMove: string | null = await engine.getMove(chess.fen());
-    if (!engineMove) {
-      editMessage("Something wrong happened internally");
-      return;
-    }
-    chess.move(engineMove);
-    game.fen = chess.fen();
-    game.save();
-    if (game.userSide === "BLACK") {
-      await ctx.sendPhoto(
-        `https://fen2image.chessvision.ai/${game.fen}?pov=black`
+    if (game === createGameError) {
+      ctx.reply(
+        "Failed to create a new challenge, contact @woojiahao to receive support"
       );
+    } else if (game === chessEngineError) {
+      ctx.reply("Something went wrong internally");
+    } else if (game === ongoingGameError) {
+      const ongoingGame = await getUserCurrentGame(username);
+      if (!ongoingGame) return;
+      renderBoard(
+        ctx,
+        ongoingGame.id,
+        -1,
+        `
+        *Existing ongoing game!*
+
+        You are ${ongoingGame.userSide}
+        `.replace(/  +/g, "")
+      );
+    }
+  } else {
+    renderBoard(
+      ctx,
+      game.id,
+      -1,
+      `
+        *Game started!*
+
+        You are ${game.userSide}
+        `.replace(/  +/g, "")
+    );
+  }
+});
+
+bot.action("view-current", async (ctx) => {
+  // Username is only ever undefined if message is sent from the channel
+  // Can safely ignore the cases where username is undefined
+  // See: https://core.telegram.org/bots/api#message
+  const username = ctx.from?.username;
+  if (!username) return;
+  const game = await getUserCurrentGame(username);
+
+  if (!game) {
+    ctx.editMessageText(
+      "You do not have any ongoing games, use /start to create one",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Start game 🟢", callback_data: "start-game" }]
+          ]
+        }
+      }
+    );
+    return;
+  }
+
+  await renderBoard(ctx, game.id, -1);
+});
+
+bot.command("board", async (ctx) => {
+  // Username is only ever undefined if message is sent from the channel
+  // Can safely ignore the cases where username is undefined
+  // See: https://core.telegram.org/bots/api#message
+  const username = ctx.from?.username;
+  if (!username) return;
+  const game = await getUserCurrentGame(username);
+
+  if (!game) {
+    ctx.reply(
+      "You do not have any ongoing games, use the button below or send /start",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Start game 🟢", callback_data: "start-game" }]
+          ]
+        }
+      }
+    );
+    return;
+  }
+
+  renderBoard(ctx, game.id, -1);
+});
+
+bot.action(/^render-board:(\d+):([-\d]+)$/, async (ctx) => {
+  const gameId = parseInt(ctx.match[1]);
+  const step = parseInt(ctx.match[2]);
+
+  renderBoard(ctx, gameId, step);
+});
+
+bot.hears(/^[^/]([\w\d ]+)$/, async (ctx) => {
+  // If username somehow invalid, we skip
+  const username = ctx.from.username;
+  if (!username) return;
+
+  // If no ongoing games, we skip
+  const userCurrentGame = await getUserCurrentGame(username);
+  if (!userCurrentGame) return;
+
+  try {
+    // Attempt to make the move on the current board state
+    // If invalid move, immediately ignore
+    const chess = new Chess(userCurrentGame.fen);
+    const move = ctx.message.text;
+    chess.move(move);
+
+    // If move is valid SAN, permanently make the move in the DB
+    const [message, editMessage] = await sendEditableMessage(
+      ctx,
+      `Retrieving your current game...`
+    );
+    const game = await makeMove(username, move);
+
+    if (game instanceof Error) {
+      if (game === missingGameError) {
+        editMessage(
+          "You do not have any ongoing games, use /start to create one"
+        );
+      } else if (game === chessEngineError) {
+        editMessage("Something wrong happened internally");
+      } else if (game === invalidMoveError) {
+        editMessage("Invalid move");
+      }
     } else {
-      await ctx.sendPhoto(`https://fen2image.chessvision.ai/${game.fen}`);
+      ctx.deleteMessage(message.message_id);
+      if (game.status === GameStatus.STARTED) {
+        // Game still progressing as per usual, check if in check
+        chess.clear();
+        chess.load(game.game.fen);
+        if (chess.inCheck()) {
+          await renderBoard(
+            ctx,
+            game.game.id,
+            -1,
+            `
+            *Your move!*
+
+            Minerva Chess played *${game.engineMove}* and you are in check
+            `.replace(/  +/g, "")
+          );
+        } else {
+          await renderBoard(
+            ctx,
+            game.game.id,
+            -1,
+            `
+            *Your move!*
+
+            Minerva Chess played *${game.engineMove}*
+            `.replace(/  +/g, "")
+          );
+        }
+      } else {
+        // Game had some decided outcome already so just display the fail outcome
+        await renderBoard(
+          ctx,
+          game.game.id,
+          -1,
+          `
+            *${gameStatusToText(game.status)}*
+            `.replace(/  +/g, "")
+        );
+      }
     }
   } catch (e) {
-    console.log(e);
-    editMessage("Invalid move!");
     return;
   }
+});
+
+bot.action("forfeit-game-confirmation", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  const ongoingGame = await getUserCurrentGame(username);
+  // If no ongoing game, ignore the forfeit
+  if (!ongoingGame) return;
+
+  ctx.editMessageCaption("Are you sure you want to forfeit this match?", {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "Yes 🏳", callback_data: "forfeit-game" },
+          { text: "No! 💪🏻", callback_data: `render-board:${ongoingGame.id}:-1` }
+        ]
+      ]
+    }
+  });
+});
+
+bot.action("forfeit-game", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+
+  const ongoingGame = await getUserCurrentGame(username);
+  // If no ongoing game, ignore the forfeit
+  if (!ongoingGame) return;
+
+  forfeitGame(ongoingGame);
+  ctx.editMessageCaption("You have forfeited the match, Minerva Chess wins", {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Start another 🔁", callback_data: "start-game" }],
+        [{ text: "View menu 🔎", callback_data: "show-menu" }]
+      ]
+    }
+  });
+});
+
+bot.action("view-games", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+  const toDisplay = await chunkSelectGamesAction(username, 8, 50);
+  ctx.editMessageText(
+    `Review your play history of your most recent ${50} games`,
+    {
+      reply_markup: {
+        inline_keyboard: toDisplay
+      }
+    }
+  );
+});
+
+bot.command("games", async (ctx) => {
+  const username = ctx.from?.username;
+  if (!username) return;
+  const toDisplay = await chunkSelectGamesAction(username, 8, 50);
+  ctx.reply(`Review your play history of your most recent ${50} games`, {
+    reply_markup: {
+      inline_keyboard: toDisplay
+    }
+  });
 });
 
 bot.command("teabag", async (ctx) => {

@@ -1,9 +1,10 @@
 import { Sequelize } from "sequelize-typescript";
 import { Op } from "sequelize";
-import { Game } from "./models/game";
+import { Game, GameStatus } from "./models/game";
 import { User } from "./models/user";
+import { History, HistoryPlayer } from "./models/history";
 
-const models = [Game, User];
+const models = [Game, User, History];
 
 const db = new Sequelize({
   database: "database_development",
@@ -14,10 +15,8 @@ const db = new Sequelize({
   models: models
 });
 
-const whiteStartPos =
+export const whiteStartPos =
   "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-const blackStartPos =
-  "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
 
 export async function testConnection() {
   try {
@@ -36,7 +35,8 @@ export async function getGames() {
           status: "ENDED"
         }
       ]
-    }
+    },
+    include: History
   });
   return games.map((game) => game.toJSON());
 }
@@ -79,7 +79,83 @@ export async function getUserOngoingGame(user: User): Promise<Game | null> {
   return Game.findOne({
     where: {
       userId: user.id,
-      [Op.not]: [{ status: "ENDED" }]
+      status: "STARTED"
     }
   });
+}
+
+export async function endGame(game: Game) {
+  game.set("status", "ENDED");
+  await game.save();
+}
+
+export async function updateGameFen(game: Game, fen: string) {
+  game.set("fen", fen);
+  await game.save();
+}
+
+export async function addGameHistory(
+  game: Game,
+  move: string,
+  fen: string,
+  player: HistoryPlayer
+) {
+  return await History.create(
+    {
+      gameId: game.id,
+      fen: fen,
+      player: player,
+      move: move
+    },
+    {
+      fields: ["gameId", "fen", "player", "move"]
+    }
+  );
+}
+
+export async function getGameHistory(game: Game) {
+  const records = [
+    { fen: whiteStartPos, player: HistoryPlayer.USER, move: "startpos" }
+  ];
+  const history = await History.findAll({
+    where: {
+      gameId: game.id
+    },
+    order: [["id", "ASC"]]
+  });
+  return records.concat(
+    history
+      .map((h) => h.toJSON())
+      .map((h) => ({ fen: h.fen, player: h.player, move: h.move }))
+  );
+}
+
+export async function getGame(gameId: number) {
+  return await Game.findOne({
+    where: {
+      id: gameId
+    },
+    include: [User]
+  });
+}
+
+export async function forfeitGame(game: Game) {
+  game.set("status", "FORFEITED");
+  await game.save();
+}
+
+export async function getUserGames(username: string) {
+  const games = await Game.findAll({
+    where: {
+      "$player.username$": username
+    },
+    include: [User],
+    order: [["createdAt", "DESC"]]
+  });
+  return games.map((game) => game.toJSON());
+}
+
+export async function setGameStatus(game: Game, status: GameStatus) {
+  game.set("status", status);
+  await game.save();
 }
