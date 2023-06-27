@@ -8,10 +8,10 @@
 #include "types.h"
 
 // full depth moves counter
-static constexpr int full_depth_moves = 4;
+extern const int full_depth_moves;
 
 // depth limit to consider reduction
-static constexpr int reduction_limit = 3;
+extern const int reduction_limit;
 
 inline int scoreMove(int move);
 

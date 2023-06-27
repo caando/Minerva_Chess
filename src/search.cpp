@@ -11,6 +11,11 @@
 #include "util.h"
 #include "communication.h"
 
+const int full_depth_moves = 4;
+
+// depth limit to consider reduction
+const int reduction_limit = 3;
+
 // score moves
 inline int scoreMove(int move) {
   // if PV move scoring is allowed
@@ -223,7 +228,7 @@ inline int quiescence(int alpha, int beta) {
     // take move back
     takeBack();
 
-    // reutrn 0 if time is up
+    // return 0 if time is up
     if (stopped == 1) return 0;
 
     // found a better move
@@ -494,7 +499,7 @@ inline int negamax(int alpha, int beta, int depth) {
     // take move back
     takeBack();
 
-    // reutrn 0 if time is up
+    // return 0 if time is up
     if (stopped == 1)
       return 0;
 

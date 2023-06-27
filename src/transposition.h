@@ -11,6 +11,17 @@
 #define INFINITY 50000
 #define MATE_VALUE 49000
 #define MATE_SCORE 48000
+// max ply that we can reach within a search
+#define MAX_PLY 64
+
+// transposition table data structure
+typedef struct {
+  U64 hash_key;   // "almost" unique chess position identifier
+  int depth;      // current search depth
+  int flag;       // flag the type of node (fail-low/fail-high/PV)
+  int score;      // score (alpha/beta/PV)
+  int best_move;
+} tt;               // transposition table (TT aka hash table)
 
 /*
     most valuable victim & less valuable attacker
@@ -26,30 +37,13 @@
 */
 
 // MVV LVA [attacker][victim]
-static int MvvLva[12][12] = {
-    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
-
-    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
-};
-
-// max ply that we can reach within a search
-#define MAX_PLY 64
+extern const int MvvLva[12][12];
 
 // killer moves [id][ply]
-static int killer_moves[2][MAX_PLY];
+extern int killer_moves[2][MAX_PLY];
 
 // history moves [piece][square]
-static int history_moves[PieceCount][MAX_PLY];
+extern int history_moves[PieceCount][SquareCount];
 
 /*
       ================================
@@ -74,16 +68,19 @@ static int history_moves[PieceCount][MAX_PLY];
 */
 
 // PV length [ply]
-static int pvLength[MAX_PLY];
+extern int pvLength[MAX_PLY];
 
 // PV table [ply][ply]
-static int pvTable[MAX_PLY][MAX_PLY];
+extern int pvTable[MAX_PLY][MAX_PLY];
 
 // follow PV & score PV move
-static int followPv, scorePv;
+extern int followPv, scorePv;
 
 // number hash table entries
-static int hashEntries = 0;
+extern int hashEntries;
+
+// define TT instance
+extern tt *hash_table;
 
 // no hash entry found constant
 #define NO_HASH_ENTRY 100000
@@ -93,17 +90,6 @@ static int hashEntries = 0;
 #define HASH_FLAG_ALPHA 1
 #define HASH_FLAG_BETA 2
 
-// transposition table data structure
-typedef struct {
-  U64 hash_key;   // "almost" unique chess position identifier
-  int depth;      // current search depth
-  int flag;       // flag the type of node (fail-low/fail-high/PV)
-  int score;      // score (alpha/beta/PV)
-  int best_move;
-} tt;               // transposition table (TT aka hash table)
-
-// define TT instance
-static tt *hash_table = nullptr;
 
 void clearHashTable();
 

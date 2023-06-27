@@ -9,15 +9,15 @@
 #include "util.h"
 
 // random piece keys [piece][square]
-static U64 pieceKey[PieceCount][SquareCount];
+extern U64 pieceKey[PieceCount][SquareCount];
 
 // random enpassant keys [square]
-static U64 enpassantKey[SquareCount];
+extern U64 enpassantKey[SquareCount];
 
 // random castling keys [castling state]
-static U64 castlingKey[16];
+extern U64 castlingKey[16];
 
-static U64 sideKey;
+extern U64 sideKey;
 
 void initialiseKeys();
 

@@ -9,25 +9,25 @@
 #include "magic_constants.h"
 
 // pawn attacks table [side][square]
-static Bitboard pawnAttacks[2][SquareCount];
+extern Bitboard pawnAttacks[2][SquareCount];
 
 // knight attacks table [square]
-static Bitboard knightAttacks[SquareCount];
+extern Bitboard knightAttacks[SquareCount];
 
 // king attacks table [square]
-static Bitboard kingAttacks[SquareCount];
+extern Bitboard kingAttacks[SquareCount];
 
 // bishop attack masks
-static Bitboard bishopMasks[SquareCount];
+extern Bitboard bishopMasks[SquareCount];
 
 // rook attack masks
-static Bitboard rookMasks[SquareCount];
+extern Bitboard rookMasks[SquareCount];
 
 // bishop attacks table [square][occupancies]
-static Bitboard bishopAttacks[SquareCount][512];
+extern Bitboard bishopAttacks[SquareCount][512];
 
 // rook attacks table [square][occupancies]
-static Bitboard rookAttacks[SquareCount][4096];
+extern Bitboard rookAttacks[SquareCount][4096];
 
 // Attack mask of respective pieces, with bitboard manipulation and magics
 

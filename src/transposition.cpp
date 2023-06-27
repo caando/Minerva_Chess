@@ -4,7 +4,45 @@
 
 #include "transposition.h"
 #include "variables.h"
-#include "stdio.h"
+#include <cstdio>
+
+// MVV LVA [attacker][victim]
+const int MvvLva[PieceCount][PieceCount] = {
+    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
+
+    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
+};
+
+// killer moves [id][ply]
+int killer_moves[2][MAX_PLY] = {0};
+
+// history moves [piece][square]
+int history_moves[PieceCount][SquareCount] = {0};
+
+// PV length [ply]
+int pvLength[MAX_PLY] = {0};
+
+// PV table [ply][ply]
+int pvTable[MAX_PLY][MAX_PLY] = {0};
+
+// follow PV & score PV move
+int followPv = 0, scorePv = 0;
+
+// number hash table entries
+int hashEntries = 0;
+
+// define TT instance
+tt *hash_table = nullptr;
 
 // clear TT (hash table)
 void clearHashTable()
@@ -27,10 +65,10 @@ void clearHashTable()
 void initHashTable(int mb)
 {
   // init hash size
-  int hash_size = 0x100000 * mb;
+  int hashSize = 0x100000 * mb;
 
   // init number of hash entries
-  hashEntries =  hash_size / sizeof(tt);
+  hashEntries =  hashSize / sizeof(tt);
 
   // free hash table if not empty
   if (hash_table != nullptr)

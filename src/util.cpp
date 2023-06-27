@@ -3,6 +3,7 @@
 //
 
 #include "util.h"
+#include <bitset>
 #ifdef WIN64
 #include <windows.h>
 #else
@@ -18,8 +19,17 @@ U64 rand64() {
 }
 
 int LSOneIdx(U64 bitboard) {
-  signed long long signedBitboard = bitboard;
-  return __builtin_ctz(signedBitboard & -(signedBitboard));
+  // make sure bitboard is not 0
+  if (bitboard)
+  {
+    // count trailing bits before LS1B
+    return std::popcount((bitboard & -bitboard) - 1);
+  }
+
+    //otherwise
+  else
+    // return illegal index
+    return -1;
 }
 
 // get time in milliseconds

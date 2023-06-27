@@ -4,6 +4,28 @@
 
 #include "attack.h"
 #include "util.h"
+#include <iostream>
+
+// pawn attacks table [side][square]
+Bitboard pawnAttacks[2][SquareCount] = {0};
+
+// knight attacks table [square]
+Bitboard knightAttacks[SquareCount] = {0};
+
+// king attacks table [square]
+Bitboard kingAttacks[SquareCount] = {0};
+
+// bishop attack masks
+Bitboard bishopMasks[SquareCount] = {0};
+
+// rook attack masks
+Bitboard rookMasks[SquareCount] = {0};
+
+// bishop attacks table [square][occupancies]
+Bitboard bishopAttacks[SquareCount][512] = {0};
+
+// rook attacks table [square][occupancies]
+Bitboard rookAttacks[SquareCount][4096];
 
 // generate pawn attacks
 Bitboard maskPawnAttacks(Colour side, Square square) {
@@ -123,7 +145,6 @@ Bitboard maskRookAttacks(Square square) {
   for (r = tr - 1; r >= 1; r--) attacks |= (1ULL << (r * 8 + tf));
   for (f = tf + 1; f <= 6; f++) attacks |= (1ULL << (tr * 8 + f));
   for (f = tf - 1; f >= 1; f--) attacks |= (1ULL << (tr * 8 + f));
-
   // return attack map
   return attacks;
 }
@@ -226,7 +247,7 @@ Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
   // loop over the range of bits within attack mask
   for (int count = 0; count < bitsInMask; count++) {
     // get LS1B index of attacks mask
-    int square = LSOneIdx((U64)attackMask);
+    int square = LSOneIdx(attackMask);
 
     // pop LS1B in attack map
     remBit(attackMask, square);

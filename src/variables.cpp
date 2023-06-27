@@ -1,73 +1,68 @@
 //
-// Created by Jikun on 25/6/23.
+// Created by Jikun on 26/6/23.
 //
 
-#ifndef MINERVA_CHESS_SRC_VARIABLES_H_
-#define MINERVA_CHESS_SRC_VARIABLES_H_
-
-#include "types.h"
-#include <cstdlib>
+#include "variables.h"
 
 // piece bitboards
-extern Bitboard bitboards[PieceCount];
+Bitboard bitboards[PieceCount] = {0};
 
 // occupancy bitboards (White, Black, Combined)
-extern Bitboard occupancies[ColourCount];
+Bitboard occupancies[ColourCount] = {0};
 
 // side to move
-extern Colour side;
+Colour side = White;
 
 // enpassant square
-extern Square enpassant;
+Square enpassant = no_sq;
 
 // castling rights, bitwise or of all remaining castling rights
-extern int castle;
+int castle = 0;
 
 // hashed value of current position, with 1/2^64 chance of collision
-extern U64 hashKey;
+U64 hashKey = 0;
 
-extern const int MAX_MOVES;
+const int MAX_MOVES = 500;
 
 // positions repetition table
-extern U64 repetitionTable[1000];
+U64 repetitionTable[1000] = {0};
 
 // repetition index
-extern int repetitionIndex;
+int repetitionIndex = 0;
 
 // half move counter
-extern int ply;
+int ply = 0;
 
 // fifty move rule counter
-extern int fifty;
+int fifty = 0;
 
 // exit from engine flag
-extern int quit;
+int quit = 0;
 
 // UCI "movestogo" command moves counter
-extern int movestogo;
+int movestogo = 30;
 
 // UCI "movetime" command time counter
-extern int moveTime;
+int moveTime = -1;
 
 // UCI "time" command holder (ms)
-extern int timer;
+int timer = -1;
 
 // UCI "inc" command's time increment holder
-extern int inc;
+int inc = 0;
 
 // UCI "starttime" command time holder
-extern int startTime;
+int startTime = 0;
 
 // UCI "stoptime" command time holder
-extern int stopTime;
+int stopTime = 0;
 
 // variable to flag time control availability
-extern int timeset;
+int timeset = 0;
 
 // variable to flag when the time is up
-extern int stopped;
+int stopped = 0;
 
 // leaf nodes (number of positions reached during the test of the move generator at a given depth)
-extern U64 nodes;
+U64 nodes = 0;
 
-#endif //MINERVA_CHESS_SRC_VARIABLES_H_

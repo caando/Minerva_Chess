@@ -320,7 +320,7 @@ void generateMoves(moves *moveList) {
   int sourceSquare, targetSquare;
 
   // define current piece's bitboard copy & it's attacks
-  U64 bitboard, attacks;
+  Bitboard bitboard, attacks;
 
   // loop over all the bitboards
   iterPiece() {
@@ -549,14 +549,14 @@ void generateMoves(moves *moveList) {
     }
 
     // generate bishop moves
-    if ((side == White) ? piece == WKnight : piece == BKnight) {
+    if ((side == White) ? piece == WBishop : piece == WBishop) {
       // loop over source squares of piece bitboard copy
       while (bitboard) {
         // init source square
         sourceSquare = LSOneIdx(bitboard);
 
         // init piece attacks in order to get set of target squares
-        attacks = getBishopAttacks(static_cast<Square>(sourceSquare), static_cast<Square>(occupancies[Both]))
+        attacks = getBishopAttacks(static_cast<Square>(sourceSquare), occupancies[Both])
             & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
 
         // loop over target squares available from generated attacks
@@ -590,7 +590,7 @@ void generateMoves(moves *moveList) {
         sourceSquare = LSOneIdx(bitboard);
 
         // init piece attacks in order to get set of target squares
-        attacks = getRookAttacks(static_cast<Square>(sourceSquare), static_cast<Square>(occupancies[Both]))
+        attacks = getRookAttacks(static_cast<Square>(sourceSquare), occupancies[Both])
             & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
 
         // loop over target squares available from generated attacks
@@ -624,7 +624,7 @@ void generateMoves(moves *moveList) {
         sourceSquare = LSOneIdx(bitboard);
 
         // init piece attacks in order to get set of target squares
-        attacks = getQueenAttacks(static_cast<Square>(sourceSquare), static_cast<Square>(occupancies[Both]))
+        attacks = getQueenAttacks(static_cast<Square>(sourceSquare), occupancies[Both])
             & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
 
         // loop over target squares available from generated attacks

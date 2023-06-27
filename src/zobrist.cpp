@@ -5,6 +5,17 @@
 #include "zobrist.h"
 #include "variables.h"
 
+// random piece keys [piece][square]
+U64 pieceKey[PieceCount][SquareCount] = {0};
+
+// random enpassant keys [square]
+U64 enpassantKey[SquareCount] = {0};
+
+// random castling keys [castling state]
+U64 castlingKey[16] = {0};
+
+U64 sideKey = 0;
+
 void initialiseKeys() {
 
   // loop over piece codes
