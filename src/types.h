@@ -64,7 +64,7 @@ extern const char *piecesToAscii[PieceCount];
 
 extern const char *piecesToUnicode[PieceCount];
 
-extern const Piece asciiToPieces[128];
+extern const int asciiToPieces[128];
 
 // promoted pieces
 extern const char promotedPieces[PieceCount];

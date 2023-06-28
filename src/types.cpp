@@ -19,29 +19,29 @@ const char *piecesToAscii[PieceCount] = {"P", "N", "B", "R", "Q", "K", "p", "n",
 
 const char *piecesToUnicode[PieceCount] = {"♟︎", "♞", "♝", "♜", "♛", "♚", "♙", "♘", "♗", "♖", "♕", "♔"};
 
-const Piece asciiToPieces[128] = {
-    ['P'] = Piece::WPawn,
-    ['N'] = Piece::WKnight,
-    ['B'] = Piece::WBishop,
-    ['R'] = Piece::WRook,
-    ['Q'] = Piece::WQueen,
-    ['K'] = Piece::WKing,
-    ['p'] = Piece::BPawn,
-    ['n'] = Piece::BKnight,
-    ['b'] = Piece::BBishop,
-    ['r'] = Piece::BRook,
-    ['q'] = Piece::BQueen,
-    ['k'] = Piece::BKing
+const int asciiToPieces[128] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, Piece::WBishop, 0, 0, 0, 0, 0, 0, 0, 0, Piece::WKing, 0, 0, Piece::WKnight, 0,
+    Piece::WPawn, Piece::WQueen, Piece::WRook, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, Piece::BBishop, 0, 0, 0, 0, 0, 0, 0, 0, Piece::BKing, 0, 0, Piece::BKnight, 0,
+    Piece::BPawn, Piece::BQueen, Piece::BRook, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
 // promoted pieces
 const char promotedPieces[PieceCount] = {
-    [WQueen] = 'q',
-    [WRook] = 'r',
-    [WBishop] = 'b',
-    [WKnight] = 'n',
-    [BQueen] = 'q',
-    [BRook] = 'r',
-    [BBishop] = 'b',
-    [BKnight] = 'n'
+    'p',
+    'n', // WKnight
+    'b', // WBishop
+    'p', // WRook
+    'q', // WQueen
+    'p',
+    'k',
+    'n', // BKnight
+    'b', // BBishop
+    'p', // BRook
+    'q', // BQueen
+    'k'
 };

@@ -6,6 +6,7 @@
 #define MINERVA_CHESS_SRC_MOVEGEN_H_
 
 #include "types.h"
+#include <cstring>
 #include <iostream>
 
 // encode move
