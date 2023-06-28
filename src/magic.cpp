@@ -6,8 +6,9 @@
 #include "magic_constants.h"
 #include "attack.h"
 #include "util.h"
+#include <bit>
 #include <cstring>
-#include <bitset>
+#include <iostream>
 
 U64 generateMagicNumber() {
   return rand64() & rand64() & rand64();

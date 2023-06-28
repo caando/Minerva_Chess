@@ -3,7 +3,7 @@
 //
 
 #include "util.h"
-#include <bitset>
+#include <bit>
 #ifdef WIN64
 #include <windows.h>
 #else
