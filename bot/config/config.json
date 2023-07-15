@@ -11,7 +11,7 @@
     "username": "root",
     "password": null,
     "database": "database_test",
-    "storage": "minerva_chess.db",
+    "storage": "minerva_chess_test.db",
     "host": "127.0.0.1",
     "dialect": "sqlite"
   },
