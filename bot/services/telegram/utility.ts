@@ -40,7 +40,7 @@ export const tutorText = `
     Motivated to make the user experience as streamlined as possible, we have opted for a more touch heavy flow. You will be able to navigate and interact the bot with minimal typing.
 
     *Creating games*
-    You can create a new game from /menu or use /start to start a game!
+    You can create a new game from /menu or use /start to start a game! You will be *randomly* assigned a side.
 
     To forfeit the current game, you can select "Forfeit game" button.
 
@@ -48,6 +48,27 @@ export const tutorText = `
     To make moves, use the Algebraic Notation of Long Algebraic Notation to indicate the moves.
 
     For instance, if you wish to move the pawn from \`e2\` to \`e4\`, you can simply send \`e2e4\` in the chat.
+
+    _Note:_ Algebraic Notation is *case-sensitive*. Pieces are denoted by uppercase letters while board files are denoted by lowercase letters. It is intentionally designed so.
+
+    Here are some of the common moves used in chess:
+    1. Move piece (piece, from, to): e2e4
+    2. Kingside castling: O-O (not zero)
+    3. Queenside castling: O-O-O
+    4. Capture (x): exd4
+    5. Check (+): Qe3+
+    6. Checkmate (++ or #): Qg2#
+    7. En passant: e.p.
+
+    The following are the notations for all board pieces:
+    1. King: K
+    2. Queen: Q
+    3. Rook: R
+    4. Bishop: B
+    5. Knight: N
+    6. Pawn: No notation
+
+    Prepend the piece notation before a move to move that piece.
 
     Playing against Minerva Chess in a group chat? Do not worry, only your moves will be registered!
 
