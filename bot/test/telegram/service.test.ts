@@ -4,6 +4,7 @@ import {
   addGame,
   addUser,
   getGame,
+  getGameHistory,
   getUser,
   whiteStartPos
 } from "../../services/database";
@@ -49,6 +50,9 @@ describe("start game", () => {
     expect(game.dataValues.fen).toBe(whiteStartPos);
     expect(game.dataValues.userId).toBe(johndoe.id);
     expect(game.dataValues.userSide).toBe("WHITE");
+    const gameHistory = await getGameHistory(game);
+    // Game history should include the black move too
+    expect(gameHistory).toHaveLength(1);
   });
 
   test("creates game with player as BLACK and makes engine move first", async () => {
@@ -66,5 +70,8 @@ describe("start game", () => {
     expect(game).toBeInstanceOf(Game);
     if (game instanceof Error) return;
     expect(game.dataValues.fen).toBe(chess.fen());
+    const gameHistory = await getGameHistory(game);
+    // Game history should include the black move too
+    expect(gameHistory).toHaveLength(2);
   });
 });
