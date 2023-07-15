@@ -28,6 +28,7 @@ import {
   sendEditableMessage,
   tutorText
 } from "./utility";
+import * as dotenv from "dotenv";
 
 // Explicitly type alias the two commonly used contexts for ease of use later on
 /**
@@ -51,6 +52,7 @@ export type CommandContext = NarrowedContext<
   }
 >;
 
+dotenv.config();
 // TODO: Setup logger
 const bot: Telegraf<Context<Update>> = new Telegraf(
   process.env.TELEGRAM_BOT_TOKEN as string

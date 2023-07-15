@@ -14,7 +14,7 @@ const databaseFilename =
     : "./minerva_chess.db";
 const logging = process.env.NODE_ENV === "test" ? false : true;
 
-const db = new Sequelize({
+export const db = new Sequelize({
   database: database,
   dialect: "sqlite",
   username: "root",
