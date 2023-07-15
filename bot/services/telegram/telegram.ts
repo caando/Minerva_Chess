@@ -316,7 +316,7 @@ bot.action(/^render-board:(\d+):([-\d]+)$/, async (ctx) => {
   renderBoard(ctx, gameId, step);
 });
 
-bot.hears(/^[^/]([\w\d -]+)$/, async (ctx) => {
+bot.hears(/^[^/]([\w\d -+.#]+)$/, async (ctx) => {
   // If username somehow invalid, we skip
   const username = ctx.from.username;
   if (!username) return;
