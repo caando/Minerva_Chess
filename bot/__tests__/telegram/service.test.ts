@@ -6,11 +6,15 @@ import {
   getGame,
   getGameHistory,
   getUser,
+  getUserGames,
   whiteStartPos
 } from "../../services/database";
 import { engine } from "../../services/engine";
 import { ongoingGameError } from "../../services/telegram/errors";
-import { startGame } from "../../services/telegram/service";
+import {
+  chunkSelectGamesAction,
+  startGame
+} from "../../services/telegram/service";
 import { Game } from "../../services/models/game";
 
 jest.mock("../../services/engine");
@@ -73,5 +77,64 @@ describe("start game", () => {
     const gameHistory = await getGameHistory(game);
     // Game history should include the black move too
     expect(gameHistory).toHaveLength(2);
+  });
+});
+
+describe("chunkSelectGamesAction", () => {
+  // Handle cases of 0 game, 1 game, 9 games, 51 games
+
+  beforeEach(() => {
+    return addUser("johndoe");
+  });
+
+  test("chunk no games returns no actions", async () => {
+    const chunks = await chunkSelectGamesAction("johndoe", 8, 50);
+    expect(chunks).toHaveLength(7);
+    for (const chunk of chunks) {
+      expect(chunk).toHaveLength(0);
+    }
+  });
+
+  test("chunk one games returns arrays with very first action set", async () => {
+    await addGame(1);
+    const chunks = await chunkSelectGamesAction("johndoe", 8, 50);
+    expect(chunks).toHaveLength(7);
+    expect(chunks[0]).toHaveLength(1);
+    for (let i = 1; i < 7; i++) {
+      expect(chunks[i]).toHaveLength(0);
+    }
+  });
+
+  test("chunk nine games returns arrays overflowed actions", async () => {
+    for (let i = 0; i < 9; i++) await addGame(1);
+    const chunks = await chunkSelectGamesAction("johndoe", 8, 50);
+    expect(chunks).toHaveLength(7);
+    expect(chunks[0]).toHaveLength(8);
+    expect(chunks[1]).toHaveLength(1);
+    for (let i = 2; i < 7; i++) {
+      expect(chunks[i]).toHaveLength(0);
+    }
+  });
+
+  test("chunk 51 games returns most recent 50", async () => {
+    // Ensure WHITE
+    jest.spyOn(global.Math, "random").mockReturnValue(0.7);
+    for (let i = 0; i < 51; i++) await addGame(1);
+    const chunks = await chunkSelectGamesAction("johndoe", 8, 50);
+    const games = await getUserGames("johndoe");
+    expect(games).toHaveLength(51);
+    expect(chunks).toHaveLength(7);
+    expect(chunks[6]).toHaveLength(2);
+    for (let i = 0; i < 6; i++) {
+      expect(chunks[i]).toHaveLength(8);
+    }
+    expect(chunks[0][0]).toMatchObject({
+      text: "1",
+      callback_data: `render-board:${games[0].id}:-1`
+    });
+    expect(chunks[6][1]).toMatchObject({
+      text: "50",
+      callback_data: `render-board:${games[49].id}:-1`
+    });
   });
 });

@@ -287,7 +287,7 @@ export async function chunkSelectGamesAction(
   for (let i = 0; i < limit; i += chunkSize) {
     let j = i + 1;
     toDisplay.push(
-      games.slice(i, i + chunkSize).map((game) => ({
+      games.slice(i, Math.min(i + chunkSize, limit)).map((game) => ({
         text: `${j++}`,
         callback_data: `render-board:${game.id}:${-1}`
       }))
