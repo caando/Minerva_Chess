@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  # The Telegram bot isn't being used so we just need to give a mock API key
+  TELEGRAM_BOT_TOKEN: mock
+
 jobs:
   bot-ci:
     runs-on: ubuntu-latest
