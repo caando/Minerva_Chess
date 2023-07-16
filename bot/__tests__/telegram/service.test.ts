@@ -135,11 +135,27 @@ describe("makeMove", () => {
   });
 
   test("user move causing stalemate updates game status and returns stalemate state", async () => {
-    return 0;
+    const game = await addGame(1);
+    game.set("fen", "7k/8/8/6Q1/8/8/8/K7 w - - 0 1");
+    await game.save();
+    const result = await makeMove("johndoe", "Qg5g6");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.STALEMATE);
+    expect(result.engineMove).toBeNull();
+    expect(result.game.fen).toBe("7k/8/6Q1/8/8/8/8/K7 b - - 1 1");
   });
 
   test("user move causing draw updates game status and returns draw state", async () => {
-    return 0;
+    const game = await addGame(1);
+    game.set("fen", "8/5K2/8/7B/3k4/8/8/8 w - - 0 1");
+    await game.save();
+    const result = await makeMove("johndoe", "Bh5g4");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.DRAW);
+    expect(result.engineMove).toBeNull();
+    expect(result.game.fen).toBe("8/5K2/8/8/3k2B1/8/8/8 b - - 1 1");
   });
 
   test("bot move causing checkmate updates game status and returns bot win state", async () => {
