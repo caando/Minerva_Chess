@@ -16,6 +16,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Change directory to /bot folder
+        run: cd bot/
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -25,4 +28,4 @@ jobs:
         run: yarn install
 
       - name: Run unit tests
-        run: npm test
+        run: yarn test
