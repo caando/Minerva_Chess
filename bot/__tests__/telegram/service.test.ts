@@ -3,13 +3,14 @@ import { exec } from "child_process";
 import {
   addGame,
   addUser,
+  getGame,
   getGameHistory,
   getUser,
   getUserGames,
   whiteStartPos
 } from "../../services/database";
 import { engine } from "../../services/engine";
-import { Game } from "../../services/models/game";
+import { Game, GameStatus } from "../../services/models/game";
 import {
   invalidMoveError,
   missingGameError,
@@ -104,11 +105,33 @@ describe("makeMove", () => {
   });
 
   test("regular move saves game history and adds engine move", async () => {
-    return 0;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    engine.getMove.mockImplementation(async () => "d7d5");
+
+    const game = await addGame(1);
+    const result = await makeMove("johndoe", "e2e4");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.STARTED);
+    expect(result.engineMove).toBe("d7d5");
+    expect(result.game.fen).toBe(
+      "rnbqkbnr/ppp1pppp/8/3p4/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"
+    );
+    const gameHistory = await getGameHistory(game);
+    expect(gameHistory).toHaveLength(3);
   });
 
   test("user move causing checkmate updates game status and returns user win state", async () => {
-    return 0;
+    const game = await addGame(1);
+    game.set("fen", "k7/8/2B5/1Q6/8/8/8/7K w - - 0 1");
+    await game.save();
+    const result = await makeMove("johndoe", "Qb5b7");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.USER_WIN);
+    expect(result.engineMove).toBeNull();
+    expect(result.game.fen).toBe("k7/1Q6/2B5/8/8/8/8/7K b - - 1 1");
   });
 
   test("user move causing stalemate updates game status and returns stalemate state", async () => {
