@@ -1,12 +1,6 @@
-import { Context, NarrowedContext } from "telegraf";
-import {
-  InlineKeyboardButton,
-  Message,
-  Update
-} from "telegraf/typings/core/types/typegram";
+import { Context, NarrowedContext, Telegraf } from "telegraf";
+import { Message, Update } from "telegraf/typings/core/types/typegram";
 import { Game, GameStatus, UserSide } from "../models/game";
-import bot from "./telegram";
-import { getGameHistory } from "../database";
 
 export const menuText = `
     👑 *Minerva Chess* 👑
@@ -88,6 +82,7 @@ export function getBoardImage(fen: string, side: UserSide) {
 }
 
 export async function sendEditableMessage(
+  bot: Telegraf<Context<Update>>,
   context: NarrowedContext<
     Context<Update>,
     {
@@ -104,7 +99,11 @@ export async function sendEditableMessage(
   return [msg, editMessage];
 }
 
-export async function editMessage(message: Message, text: string) {
+export async function editMessage(
+  bot: Telegraf<Context<Update>>,
+  message: Message,
+  text: string
+) {
   bot.telegram.editMessageText(
     message.chat.id,
     message.message_id,

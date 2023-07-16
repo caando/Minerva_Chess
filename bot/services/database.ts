@@ -12,7 +12,7 @@ const databaseFilename =
   process.env.NODE_ENV === "test"
     ? "./minerva_chess_test.db"
     : "./minerva_chess.db";
-const logging = process.env.NODE_ENV === "test" ? false : true;
+const logging = process.env.NODE_ENV === "test" ? false : console.log;
 
 export const db = new Sequelize({
   database: database,

@@ -21,6 +21,7 @@
     "@types/jest": "^29.5.3",
     "@types/ndjson": "^2.0.1",
     "@types/node": "^20.2.3",
+    "@types/node-fetch": "^2.6.4",
     "@types/rewire": "^2.5.28",
     "@types/sqlite3": "^3.1.8",
     "@typescript-eslint/eslint-plugin": "^5.59.6",

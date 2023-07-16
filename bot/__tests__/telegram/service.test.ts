@@ -3,19 +3,23 @@ import { exec } from "child_process";
 import {
   addGame,
   addUser,
-  getGame,
   getGameHistory,
   getUser,
   getUserGames,
   whiteStartPos
 } from "../../services/database";
 import { engine } from "../../services/engine";
-import { ongoingGameError } from "../../services/telegram/errors";
+import { Game } from "../../services/models/game";
+import {
+  invalidMoveError,
+  missingGameError,
+  ongoingGameError
+} from "../../services/telegram/errors";
 import {
   chunkSelectGamesAction,
+  makeMove,
   startGame
 } from "../../services/telegram/service";
-import { Game } from "../../services/models/game";
 
 jest.mock("../../services/engine");
 
@@ -77,6 +81,55 @@ describe("start game", () => {
     const gameHistory = await getGameHistory(game);
     // Game history should include the black move too
     expect(gameHistory).toHaveLength(2);
+  });
+});
+
+describe("makeMove", () => {
+  beforeEach(() => {
+    // For all test cases, start the game as WHITE for player
+    jest.spyOn(global.Math, "random").mockReturnValue(0.7);
+    return addUser("johndoe");
+  });
+
+  test("missing game returns error", async () => {
+    const result = await makeMove("johndoe", "e2e4");
+    expect(result).toBe(missingGameError);
+  });
+
+  test("attempt invalid move returns error", async () => {
+    await addGame(1);
+    // Make invalid move
+    const result = await makeMove("johndoe", "e2e5");
+    expect(result).toBe(invalidMoveError);
+  });
+
+  test("regular move saves game history and adds engine move", async () => {
+    return 0;
+  });
+
+  test("user move causing checkmate updates game status and returns user win state", async () => {
+    return 0;
+  });
+
+  test("user move causing stalemate updates game status and returns stalemate state", async () => {
+    return 0;
+  });
+
+  test("user move causing draw updates game status and returns draw state", async () => {
+    return 0;
+  });
+
+  test("bot move causing checkmate updates game status and returns bot win state", async () => {
+    return 0;
+  });
+
+  test("bot move causing stalemate updates game status and returns stalemate status", async () => {
+    // TODO: Ensure that the game history registers that move too
+    return 0;
+  });
+
+  test("bot move causing draw updates game status and returns draw status", async () => {
+    return 0;
   });
 });
 
