@@ -3,9 +3,11 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   testPathIgnorePatterns: [
-    "dist/"
+    "dist/",
+    "<rootDir>/__tests__/setup.ts"
   ],
   modulePathIgnorePatterns: [
     "services/telegram/telegram.ts"
-  ]
+  ],
+  setupFilesAfterEnv: ["<rootDir>/__tests__/setup.ts"]
 };
