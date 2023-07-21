@@ -159,16 +159,49 @@ describe("makeMove", () => {
   });
 
   test("bot move causing checkmate updates game status and returns bot win state", async () => {
-    return 0;
+    const game = await addGame(1);
+    game.set("fen", "2n5/3q4/2b4P/2K5/8/8/n7/1r5k w - - 0 1");
+    await game.save();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    engine.getMove.mockImplementation(async () => "Rb1c1");
+
+    const result = await makeMove("johndoe", "h6h7");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.BOT_WIN);
+    expect(result.engineMove).toBe("Rb1c1");
+    expect(result.game.fen).toBe("2n5/3q3P/2b5/2K5/8/8/n7/2r4k w - - 1 2");
   });
 
   test("bot move causing stalemate updates game status and returns stalemate status", async () => {
-    // TODO: Ensure that the game history registers that move too
-    return 0;
+    const game = await addGame(1);
+    game.set("fen", "8/7K/8/6q1/8/8/8/k7 w - - 0 1");
+    await game.save();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    engine.getMove.mockImplementation(async () => "Qg5g6");
+    const result = await makeMove("johndoe", "Kh7h8");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.STALEMATE);
+    expect(result.engineMove).toBe("Qg5g6");
+    expect(result.game.fen).toBe("7K/8/6q1/8/8/8/8/k7 w - - 2 2");
   });
 
   test("bot move causing draw updates game status and returns draw status", async () => {
-    return 0;
+    const game = await addGame(1);
+    game.set("fen", "8/1k3b2/3R4/8/8/8/8/K7 w - - 0 1");
+    await game.save();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    engine.getMove.mockImplementation(async () => "Kb7c6");
+    const result = await makeMove("johndoe", "Rd6c6");
+    expect(result).not.toBe(invalidMoveError);
+    if (result instanceof Error) return;
+    expect(result.status).toBe(GameStatus.DRAW);
+    expect(result.engineMove).toBe("Kb7c6");
+    expect(result.game.fen).toBe("8/5b2/2k5/8/8/8/8/K7 w - - 0 2");
   });
 });
 
