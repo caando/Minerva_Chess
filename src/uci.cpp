@@ -12,6 +12,7 @@
 #include "search.h"
 #include "transposition.h"
 #include "perft.h"
+#include "debug.h"
 
 /**********************************\
  ==================================
@@ -251,7 +252,7 @@ void parsePosition(char *command) {
     currentChar = strstr(command, "fen");
 
     // if no "fen" command is available within command string
-    if (currentChar == NULL)
+    if (currentChar == nullptr)
       // init chess board with start position
       parseFen(START_BOARD);
 
@@ -269,7 +270,7 @@ void parsePosition(char *command) {
   currentChar = strstr(command, "moves");
 
   // moves available
-  if (currentChar != NULL) {
+  if (currentChar != nullptr) {
     // shift pointer to the right where next token begins
     currentChar += 6;
 
@@ -324,7 +325,7 @@ void parseGo(char *command) {
   int depth = -1;
 
   // init argument
-  char *argument = NULL;
+  char *argument = nullptr;
 
   // infinite search
   if ((argument = strstr(command, "infinite"))) {}
@@ -447,8 +448,8 @@ void uciLoop() {
   int mb = 256;
 
   // reset STDIN & STDOUT buffers
-  setbuf(stdin, NULL);
-  setbuf(stdout, NULL);
+  setbuf(stdin, nullptr);
+  setbuf(stdout, nullptr);
 
   // define user / GUI input buffer
   char input[INPUT_BUFFER];

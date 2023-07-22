@@ -7,6 +7,7 @@
 #include "magic.h"
 #include "variables.h"
 #include "zobrist.h"
+#include "debug.h"
 
 // is square current given attacked by the current given side
 bool isSquareAttacked(Square square, Colour side) {
@@ -541,7 +542,7 @@ void generateMoves(moves &moveList) {
     }
 
     // generate bishop moves
-    if ((side == White) ? piece == WBishop : piece == WBishop) {
+    if ((side == White) ? piece == WBishop : piece == BBishop) {
       // loop over source squares of piece bitboard copy
       while (bitboard) {
         // init source square
