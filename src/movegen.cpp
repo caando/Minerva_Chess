@@ -297,11 +297,12 @@ int makeMove(int move, int moveFlag) {
     // capture moves
   else {
     // make sure move is the capture
-    if (getMoveCapture(move))
+    if (getMoveCapture(move)) {
       makeMove(move, all_moves);
+      return 0;
 
       // otherwise the move is not a capture
-    else
+    } else
       // don't make it
       return 0;
   }
@@ -346,7 +347,7 @@ void generateMoves(moves &moveList) {
 
               // two squares ahead pawn move
               if ((sourceSquare >= a2 && sourceSquare <= h2) && !getBit(occupancies[Both], targetSquare - 8))
-                addMove(moveList, encodeMove(sourceSquare, targetSquare - 8, piece, 0, 0, 1, 0, 0));
+                addMove(moveList, encodeMove(sourceSquare, (targetSquare - 8), piece, 0, 0, 1, 0, 0));
             }
           }
 
@@ -440,7 +441,7 @@ void generateMoves(moves &moveList) {
 
               // two squares ahead pawn move
               if ((sourceSquare >= a7 && sourceSquare <= h7) && !getBit(occupancies[Both], targetSquare + 8))
-                addMove(moveList, encodeMove(sourceSquare, targetSquare + 8, piece, 0, 0, 1, 0, 0));
+                addMove(moveList, encodeMove(sourceSquare, (targetSquare + 8), piece, 0, 0, 1, 0, 0));
             }
           }
 

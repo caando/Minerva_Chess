@@ -3,7 +3,7 @@ add_executable(
         nnue/nnue.h nnue/nnue.cpp
         nnue/misc.h nnue/misc.cpp
         types.h
-        magic_constants.h magic_constant.cpp
+        magic_constants.h
         attack.h attack.cpp
         perft.h perft.cpp
         magic.h magic.cpp

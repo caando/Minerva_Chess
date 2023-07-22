@@ -160,10 +160,10 @@ void enable_pv_scoring(moves &move_list)
   followPv = 0;
 
   // loop over the moves within a move list
-  for (int count = 0; count < move_list.size(); count++)
+  for (int count : move_list)
   {
     // make sure we hit PV move
-    if (pvTable[0][ply] == move_list[count])
+    if (pvTable[0][ply] == count)
     {
       // enable move scoring
       scorePv = 1;

@@ -82,17 +82,18 @@ U64 findMagicNumber(Square square, int relevantBits, BishopRook isBishop) {
 }
 
 // init magic numbers
-void initMagicNumbers() {
-  // loop over 64 board squares
-  iterSquare()
-    // init rook magic numbers
-    rookMagicNumbers[square] = findMagicNumber(static_cast<Square>(square), rookRelevantBits[square], Rook);
-
-  // loop over 64 board squares
-  iterSquare()
-    // init bishop magic numbers
-    bishopMagicNumbers[square] = findMagicNumber(static_cast<Square>(square), bishopRelevantBits[square], Bishop);
-}
+//void initMagicNumbers() {
+//  // loop over 64 board squares
+//  iterSquare()
+//    // init rook magic numbers
+//    rookMagicNumbers[square] = findMagicNumber(static_cast<Square>(square), rookRelevantBits[square], Rook);
+//
+//  // loop over 64 board squares
+//  iterSquare()
+//    // init bishop magic numbers
+//    bishopMagicNumbers[square] = findMagicNumber(static_cast<Square>(square), bishopRelevantBits[square], Bishop);
+//}
+// Deprecated in order to constexpr magic numbers
 
 // init slider piece's attack tables
 void initSlidersAttacks(BishopRook isBishop) {

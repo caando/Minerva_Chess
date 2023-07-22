@@ -101,7 +101,7 @@ inline int sortMoves(moves &moveList, int best_move) {
   std::vector<int> moveScores(moveList.size(), 0);
 
   // score all the moves within a move list
-  for (int count = 0; count < moveList.size(); count++) {
+  for (unsigned int count = 0; count < moveList.size(); count++) {
     // if hash move available
     if (best_move == moveList[count])
       // score move
@@ -113,9 +113,9 @@ inline int sortMoves(moves &moveList, int best_move) {
   }
 
   // loop over current move within a move list
-  for (int curMove = 0; curMove < moveList.size(); curMove++) {
+  for (unsigned int curMove = 0; curMove < moveList.size(); curMove++) {
     // loop over next move within a move list
-    for (int next_move = curMove + 1; next_move < moveList.size(); next_move++) {
+    for (unsigned int next_move = curMove + 1; next_move < moveList.size(); next_move++) {
       // compare current and next move scores
       if (moveScores[curMove] < moveScores[next_move]) {
         // swap scores
@@ -130,6 +130,7 @@ inline int sortMoves(moves &moveList, int best_move) {
       }
     }
   }
+  return 0;
 }
 
 // position repetition detection
@@ -256,7 +257,7 @@ inline int negamax(int alpha, int beta, int depth) {
   int hash_flag = HASH_FLAG_ALPHA;
 
   // if position repetition occurs
-  if (ply && isRepetition() || fifty >= 100)
+  if ((ply && isRepetition()) || fifty >= 100)
     // return draw score
     return 0;
 
@@ -417,7 +418,7 @@ inline int negamax(int alpha, int beta, int depth) {
   int moves_searched = 0;
 
   // loop over moves within a movelist
-  for (int count = 0; count < moveList.size(); count++) {
+  for (int count : moveList) {
     // preserve board state
     copyBoard();
 
@@ -429,7 +430,7 @@ inline int negamax(int alpha, int beta, int depth) {
     repetitionTable[repetitionIndex] = hashKey;
 
     // make sure to make only legal moves
-    if (makeMove(moveList[count], all_moves) == 0) {
+    if (makeMove(count, all_moves) == 0) {
       // decrement ply
       ply--;
 
@@ -455,8 +456,8 @@ inline int negamax(int alpha, int beta, int depth) {
           moves_searched >= full_depth_moves &&
               depth >= reduction_limit &&
               in_check == 0 &&
-              getMoveCapture(moveList[count]) == 0 &&
-              getMovePromoted(moveList[count]) == 0
+              getMoveCapture(count) == 0 &&
+              getMovePromoted(count) == 0
           )
         // search current move with reduced depth:
         score = -negamax(-alpha - 1, -alpha, depth - 2);
@@ -507,18 +508,18 @@ inline int negamax(int alpha, int beta, int depth) {
       hash_flag = HASH_FLAG_EXACT;
 
       // store best move (for TT)
-      best_move = moveList[count];
+      best_move = count;
 
       // on quiet moves
-      if (getMoveCapture(moveList[count]) == 0)
+      if (getMoveCapture(count) == 0)
         // store history moves
-        history_moves[getMovePiece(moveList[count])][getMoveTarget(moveList[count])] += depth;
+        history_moves[getMovePiece(count)][getMoveTarget(count)] += depth;
 
       // PV node (position)
       alpha = score;
 
       // write PV move
-      pvTable[ply][ply] = moveList[count];
+      pvTable[ply][ply] = count;
 
       // loop over the next ply
       for (int next_ply = ply + 1; next_ply < pvLength[ply + 1]; next_ply++)
@@ -534,10 +535,10 @@ inline int negamax(int alpha, int beta, int depth) {
         writeHashEntry(beta, best_move, depth, HASH_FLAG_BETA);
 
         // on quiet moves
-        if (getMoveCapture(moveList[count]) == 0) {
+        if (getMoveCapture(count) == 0) {
           // store killer moves
           killer_moves[1][ply] = killer_moves[0][ply];
-          killer_moves[0][ply] = moveList[count];
+          killer_moves[0][ply] = count;
         }
 
         // node (position) fails high
@@ -572,7 +573,7 @@ void searchPosition(int depth) {
   int start = getTimeMs();
 
   // define best score variable
-  int score = 0;
+  int score;
 
   // reset nodes counter
   nodes = 0;
