@@ -1,6 +1,7 @@
 import {
   addGame,
   addUser,
+  endGame,
   getGame,
   getGames,
   getUser,
@@ -89,5 +90,15 @@ describe("existing game", () => {
     const hasOngoingGame = await userHasExistingGame(johndoe);
     expect(ongoingGame?.dataValues.status).toBe("STARTED");
     expect(hasOngoingGame).toBeTruthy();
+  });
+});
+
+describe("end game", () => {
+  test("changes game status to be ENDED", async () => {
+    await addUser("johndoe");
+    const game = await addGame(1);
+    await endGame(game);
+    const updatedGame = await getGame(1);
+    expect(updatedGame?.dataValues.status).toBe("ENDED");
   });
 });
