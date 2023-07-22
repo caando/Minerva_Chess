@@ -1,13 +1,21 @@
 import {
   addGame,
+  addGameHistory,
   addUser,
   endGame,
+  forfeitGame,
   getGame,
+  getGameHistory,
   getGames,
   getUser,
   getUserOngoingGame,
-  userHasExistingGame
+  setGameStatus,
+  updateGameFen,
+  userHasExistingGame,
+  whiteStartPos
 } from "../services/database";
+import { GameStatus } from "../services/models/game";
+import { HistoryPlayer } from "../services/models/history";
 
 describe("getGames", () => {
   beforeEach(() => {
@@ -93,12 +101,80 @@ describe("existing game", () => {
   });
 });
 
-describe("end game", () => {
-  test("changes game status to be ENDED", async () => {
+describe("game status changes", () => {
+  beforeEach(async () => {
     await addUser("johndoe");
-    const game = await addGame(1);
+    await addGame(1);
+  });
+
+  test("forfeitGame changes game status to be FORFEITED", async () => {
+    const game = await getGame(1);
+    if (!game) return;
+    await forfeitGame(game);
+    const updatedGame = await getGame(1);
+    expect(updatedGame?.dataValues.status).toBe("FORFEITED");
+  });
+
+  test("endGame changes game status to be ENDED", async () => {
+    const game = await getGame(1);
+    if (!game) return;
     await endGame(game);
     const updatedGame = await getGame(1);
     expect(updatedGame?.dataValues.status).toBe("ENDED");
+  });
+
+  test("setGameStatus changes game status to be value specified", async () => {
+    const game = await getGame(1);
+    if (!game) return;
+    await setGameStatus(game, GameStatus.STALEMATE);
+    const updatedGame = await getGame(1);
+    expect(updatedGame?.dataValues.status).toBe(GameStatus.STALEMATE);
+  });
+});
+
+describe("update game fen", () => {
+  test("sets fen field in database", async () => {
+    await addUser("johndoe");
+    const game = await addGame(1);
+    await updateGameFen(game, "mock fen");
+    const updatedGame = await getGame(1);
+    expect(updatedGame?.dataValues.fen).toBe("mock fen");
+  });
+});
+
+// Note that these test cases are independent of any engine moves (those are
+// tested separately under the service layer)
+describe("game history", () => {
+  beforeEach(() => {
+    return addUser("johndoe");
+  });
+
+  test("new game has one history", async () => {
+    const game = await addGame(1);
+    if (!game) return;
+    const history = await getGameHistory(game);
+    expect(history).toHaveLength(1);
+    expect(history[0].fen).toBe(whiteStartPos);
+  });
+
+  test("game with N moves has N + 1 history", async () => {
+    const game = await addGame(1);
+    if (!game) return;
+    const expected = [
+      { fen: whiteStartPos, move: "startpos", player: HistoryPlayer.USER },
+      { fen: "mock fen 1", move: "e2e4", player: HistoryPlayer.BOT },
+      { fen: "mock fen 2", move: "Kd2e5", player: HistoryPlayer.USER },
+      { fen: "mock fen 3", move: "Bc6c8", player: HistoryPlayer.BOT }
+    ];
+    await addGameHistory(game, "e2e4", "mock fen 1", HistoryPlayer.BOT);
+    await addGameHistory(game, "Kd2e5", "mock fen 2", HistoryPlayer.USER);
+    await addGameHistory(game, "Bc6c8", "mock fen 3", HistoryPlayer.BOT);
+    const history = await getGameHistory(game);
+    expect(history).toHaveLength(4);
+    for (let i = 0; i < 4; i++) {
+      expect(history[i].fen).toBe(expected[i].fen);
+      expect(history[i].move).toBe(expected[i].move);
+      expect(history[i].player).toBe(expected[i].player);
+    }
   });
 });
