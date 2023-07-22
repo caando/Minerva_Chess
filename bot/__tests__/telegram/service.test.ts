@@ -1,9 +1,7 @@
 import { Chess } from "chess.js";
-import { exec } from "child_process";
 import {
   addGame,
   addUser,
-  getGame,
   getGameHistory,
   getUser,
   getUserGames,
@@ -21,6 +19,8 @@ import {
   makeMove,
   startGame
 } from "../../services/telegram/service";
+
+jest.mock("../../services/engine");
 
 describe("start game", () => {
   beforeEach(() => {

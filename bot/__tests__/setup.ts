@@ -3,7 +3,7 @@ import { exec } from "child_process";
 // Before every test, create the database from scratch to ensure data purity
 beforeEach(() => {
   return new Promise((resolve, reject) => {
-    exec("sequelize db:migrate", { env: process.env }, (err) =>
+    exec("sequelize db:migrate --debug", { env: process.env }, (err) =>
       err ? reject(err) : resolve(null)
     );
   });
@@ -17,5 +17,3 @@ afterEach(() => {
     );
   });
 });
-
-jest.mock("../../services/engine");

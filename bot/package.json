@@ -15,7 +15,7 @@
     "format": "yarn format:prettier && yarn format:lint",
     "husky": "cd ../ && npx husky install && npx husky add .husky/pre-commit \"cd ./bot && npx lint-staged\"",
     "migrate": "npx sequelize-cli db:migrate",
-    "test": "jest"
+    "test": "jest --runInBand --verbose"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
