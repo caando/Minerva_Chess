@@ -6,13 +6,22 @@ import { History, HistoryPlayer } from "./models/history";
 
 const models = [Game, User, History];
 
-const db = new Sequelize({
-  database: "database_development",
+const database =
+  process.env.NODE_ENV === "test" ? "database_test" : "database_development";
+const databaseFilename =
+  process.env.NODE_ENV === "test"
+    ? "./minerva_chess_test.db"
+    : "./minerva_chess.db";
+const logging = process.env.NODE_ENV === "test" ? false : console.log;
+
+export const db = new Sequelize({
+  database: database,
   dialect: "sqlite",
   username: "root",
   password: "",
-  storage: "./minerva_chess.db",
-  models: models
+  storage: databaseFilename,
+  models: models,
+  logging: logging
 });
 
 export const whiteStartPos =

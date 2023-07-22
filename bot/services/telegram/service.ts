@@ -1,8 +1,11 @@
 // Service layer for Telegram <> Chess Engine <> Database interactions
 
 import { Chess } from "chess.js";
-import { Context } from "telegraf";
-import { InlineKeyboardButton } from "telegraf/typings/core/types/typegram";
+import { Context, Telegraf } from "telegraf";
+import {
+  InlineKeyboardButton,
+  Update
+} from "telegraf/typings/core/types/typegram";
 import {
   addGame,
   addGameHistory,
@@ -24,7 +27,6 @@ import {
   missingGameError,
   ongoingGameError
 } from "./errors";
-import bot from "./telegram";
 import { gameStatusToText, getBoardImage } from "./utility";
 
 export async function startGame(username: string) {
@@ -165,6 +167,7 @@ export function getTutorTextConfiguration(): replyConfiguration {
 
 // Renders the board state for historical look
 export async function renderBoard(
+  bot: Telegraf<Context<Update>>,
   ctx: Context,
   gameId: number,
   step: number,
@@ -287,7 +290,7 @@ export async function chunkSelectGamesAction(
   for (let i = 0; i < limit; i += chunkSize) {
     let j = i + 1;
     toDisplay.push(
-      games.slice(i, i + chunkSize).map((game) => ({
+      games.slice(i, Math.min(i + chunkSize, limit)).map((game) => ({
         text: `${j++}`,
         callback_data: `render-board:${game.id}:${-1}`
       }))

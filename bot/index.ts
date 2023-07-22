@@ -1,9 +1,10 @@
 import * as dotenv from "dotenv";
+import { addCommands, connect } from "./services/telegram/telegram";
 dotenv.config();
 
-import bot from "./services/telegram/telegram";
-
 async function main() {
+  const bot = connect();
+  addCommands(bot);
   await bot.launch();
 
   // Enable graceful stop
