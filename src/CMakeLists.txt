@@ -2,7 +2,7 @@ add_executable(
         minerva_chess
         nnue/nnue.h nnue/nnue.cpp
         nnue/misc.h nnue/misc.cpp
-        types.h types.cpp
+        types.h
         magic_constants.h magic_constant.cpp
         attack.h attack.cpp
         perft.h perft.cpp
@@ -19,3 +19,9 @@ add_executable(
         debug.h debug.cpp
         main.cpp
 )
+
+add_custom_command(
+        TARGET minerva_chess  POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/../nn-eba324f53044.nnue
+        ${CMAKE_CURRENT_BINARY_DIR}/abc)

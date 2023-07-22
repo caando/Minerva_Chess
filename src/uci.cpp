@@ -26,7 +26,7 @@
 // parse user/GUI move string input (e.g. "e7e8q")
 int parseMove(char *move_string) {
   // create move list instance
-  moves moveList[1];
+  moves moveList;
 
   // generate moves
   generateMoves(moveList);
@@ -38,9 +38,9 @@ int parseMove(char *move_string) {
   int target_square = (move_string[2] - 'a') + (8 - (move_string[3] - '0')) * 8;
 
   // loop over the moves within a move list
-  for (int move_count = 0; move_count < moveList->count; move_count++) {
+  for (int move_count = 0; move_count < moveList.size(); move_count++) {
     // init move
-    int move = moveList->moves[move_count];
+    int move = moveList[move_count];
 
     // make sure source & target squares are available within the generated move
     if (source_square == getMoveSource(move) && target_square == getMoveTarget(move)) {

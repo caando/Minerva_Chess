@@ -38,9 +38,9 @@ void print_attacked_squares(Colour side) {
 }
 
 // print move list
-void print_move_list(moves *move_list) {
+void print_move_list(moves move_list) {
   // do nothing on empty move list
-  if (!move_list->count) {
+  if (!move_list.size()) {
     printf("\n     No move in the move list!\n");
     return;
   }
@@ -48,9 +48,9 @@ void print_move_list(moves *move_list) {
   printf("\n     move    piece     capture   double    enpass    castling\n\n");
 
   // loop over moves within a move list
-  for (int move_count = 0; move_count < move_list->count; move_count++) {
+  for (int move_count = 0; move_count < move_list.size(); move_count++) {
     // init move
-    int move = move_list->moves[move_count];
+    int move = move_list[move_count];
 
 #ifdef WIN64
     // print move
@@ -77,7 +77,7 @@ void print_move_list(moves *move_list) {
   }
 
   // print total number of moves
-  printf("\n\n     Total number of moves: %d\n\n", move_list->count);
+  printf("\n\n     Total number of moves: %d\n\n", move_list.size());
 
 }
 

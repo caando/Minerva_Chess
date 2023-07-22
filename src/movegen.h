@@ -69,11 +69,11 @@ enum { all_moves, only_captures };
 
 bool isSquareAttacked(Square square, Colour side);
 
-inline void addMove(moves *move_list, int move);
+inline void addMove(moves &move_list, int move);
 
 int makeMove(int move, int moveFlag);
 
-void generateMoves(moves *moveList);
+void generateMoves(moves &moveList);
 
 // print move (for UCI purposes)
 void printMove(int move);

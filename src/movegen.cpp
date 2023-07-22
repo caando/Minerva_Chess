@@ -7,7 +7,6 @@
 #include "magic.h"
 #include "variables.h"
 #include "zobrist.h"
-#include <string>
 
 // is square current given attacked by the current given side
 bool isSquareAttacked(Square square, Colour side) {
@@ -39,13 +38,9 @@ bool isSquareAttacked(Square square, Colour side) {
 }
 
 // add move to the move list
-inline void addMove(moves *moveList, int move) {
+inline void addMove(moves &moveList, int move) {
 // store move
-  moveList->moves[moveList->count] =
-      move;
-
-// increment move count
-  moveList->count++;
+  moveList.emplace_back(move);
 }
 
 // make move on chess board
@@ -312,10 +307,7 @@ int makeMove(int move, int moveFlag) {
 }
 
 // generate all moves
-void generateMoves(moves *moveList) {
-  // init move count
-  moveList->count = 0;
-
+void generateMoves(moves &moveList) {
   // define source & target squares
   int sourceSquare, targetSquare;
 

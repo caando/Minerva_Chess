@@ -33,8 +33,13 @@ int main()
   // init all
   initAll();
 
+
+
   // connect to GUI
-  uciLoop();
+//  uciLoop();
+  parsePosition("position startpos");
+  parseGo("movetime 1000");
+
 
   // free hash table memory on exit
   free(hash_table);
