@@ -93,8 +93,6 @@ inline int scoreMove(int move) {
     else
       return history_moves[getMovePiece(move)][getMoveTarget(move)];
   }
-
-  return 0;
 }
 
 // sort moves in descending order
