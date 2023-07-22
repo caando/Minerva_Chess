@@ -8,6 +8,7 @@ import {
   getGameHistory,
   getGames,
   getUser,
+  getUserGames,
   getUserOngoingGame,
   setGameStatus,
   updateGameFen,
@@ -176,5 +177,33 @@ describe("game history", () => {
       expect(history[i].move).toBe(expected[i].move);
       expect(history[i].player).toBe(expected[i].player);
     }
+  });
+});
+
+describe("get user games", () => {
+  test("retrieves all relevant user games only", async () => {
+    await addUser("johndoe");
+    await addUser("maryanne");
+    await addUser("peterpan");
+
+    await addGame(1);
+    await addGame(1);
+    await addGame(1);
+    await addGame(2);
+    await addGame(2);
+    await addGame(3);
+
+    const johnGames = await getUserGames("johndoe");
+    expect(johnGames).toHaveLength(3);
+    for (let i = 0; i < 3; i++)
+      expect(johnGames[i].player.username).toBe("johndoe");
+    const maryGames = await getUserGames("maryanne");
+    expect(maryGames).toHaveLength(2);
+    for (let i = 0; i < 2; i++)
+      expect(maryGames[i].player.username).toBe("maryanne");
+    const peterGames = await getUserGames("peterpan");
+    expect(peterGames).toHaveLength(1);
+    for (let i = 0; i < 1; i++)
+      expect(peterGames[i].player.username).toBe("peterpan");
   });
 });
