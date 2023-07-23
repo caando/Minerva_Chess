@@ -1,6 +1,3 @@
-[submodule "bot/dependencies/Stockfish"]
-	path = bot/dependencies/Stockfish
-	url = https://github.com/official-stockfish/Stockfish
 [submodule "test/STS-Rating"]
 	path = test/STS-Rating
 	url = https://github.com/fsmosca/STS-Rating.git
