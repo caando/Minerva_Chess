@@ -14,24 +14,27 @@ class EngineService {
 
   async getMove(FEN: string): Promise<string | null> {
     const engine = await spawn(this.executable); // does not have a defined type yet
-    let prevMessage = "";
-    let lastMessage = "";
+    const messages: string[] = [];
     engine.stdout.on("data", (data: Buffer) => {
-      const lines = data.toString().split(/\r?\n/)
-      lastMessage = lastMessage.concat(lines[0]);
-      if (lines.length > 1) {
-        prevMessage = lastMessage;
-        lastMessage = lines[lines.length-1];
-      }
+      messages.push(data.toString());
     });
     engine.stdin.write(`ucinewgame\n`);
     engine.stdin.write(`position fen ${FEN}\n`);
     engine.stdin.write(`go movetime ${COMPUTING_TIME_PER_MOVE}\n`);
     await this.sleep(COMPUTING_TIME_PER_MOVE * 2);
-    const match = prevMessage.match(/bestmove ([+a-zA-Z0-9]+)/);
     engine.stdin.write(`quit\n`);
+    const allData = messages
+      .join("")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
+    let bestMove = null;
+    for (const line of allData) {
+      const match = line.match(/bestmove ([+a-zA-Z0-9]+)/);
+      if (match) bestMove = match[1];
+    }
     engine.kill("SIGKILL");
-    return match ? match[1] : null;
+    return bestMove === "" ? null : bestMove;
   }
 }
 
