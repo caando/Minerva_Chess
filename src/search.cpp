@@ -11,6 +11,7 @@
 #include "util.h"
 #include "communication.h"
 #include "debug.h"
+#include <array>
 
 // score moves
 inline int scoreMove(int move) {
@@ -99,10 +100,10 @@ inline int scoreMove(int move) {
 // sort moves in descending order
 inline int sortMoves(moves &moveList, int best_move) {
   // move scores
-  std::vector<int> moveScores(moveList.size(), 0);
+  std::array<int, 256> moveScores{};
 
   // score all the moves within a move list
-  for (unsigned int count = 0; count < moveList.size(); count++) {
+  for (int count = 0; count < moveList.size(); count++) {
     // if hash move available
     if (best_move == moveList[count])
       // score move
@@ -114,9 +115,9 @@ inline int sortMoves(moves &moveList, int best_move) {
   }
 
   // loop over current move within a move list
-  for (unsigned int curMove = 0; curMove < moveList.size(); curMove++) {
+  for (int curMove = 0; curMove < moveList.size(); curMove++) {
     // loop over next move within a move list
-    for (unsigned int next_move = curMove + 1; next_move < moveList.size(); next_move++) {
+    for (int next_move = curMove + 1; next_move < moveList.size(); next_move++) {
       // compare current and next move scores
       if (moveScores[curMove] < moveScores[next_move]) {
         // swap scores
@@ -305,7 +306,7 @@ inline int negamax(int alpha, int beta, int depth) {
   int staticEval = evaluate();
 
   // evaluation pruning / static null move pruning
-  if (depth < 3 && !pv_node && !in_check && abs(beta - 1) > -INFINITY + 100) {
+  if (depth < 3 && !pv_node && !in_check && abs(beta - 1) > -INFINITY_CHESS + 100) {
     // define evaluation margin
     int eval_margin = 120 * depth;
 
@@ -402,7 +403,7 @@ inline int negamax(int alpha, int beta, int depth) {
 
   // create move list instance
   moves moveList;
-  moveList.reserve(20);
+  moveList.reserve(256);
 
   // generate moves
   generateMoves(moveList);
@@ -593,8 +594,8 @@ void searchPosition(int depth) {
   memset(pvLength, 0, sizeof(pvLength));
 
   // define initial alpha beta bounds
-  int alpha = -INFINITY;
-  int beta = INFINITY;
+  int alpha = -INFINITY_CHESS;
+  int beta = INFINITY_CHESS;
 
   // iterative deepening
   for (int current_depth = 1; current_depth <= depth; current_depth++) {
@@ -611,8 +612,8 @@ void searchPosition(int depth) {
 
     // we fell outside the window, so try again with a full-width window (and the same depth)
     if ((score <= alpha) || (score >= beta)) {
-      alpha = -INFINITY;
-      beta = INFINITY;
+      alpha = -INFINITY_CHESS;
+      beta = INFINITY_CHESS;
       continue;
     }
 
@@ -653,7 +654,7 @@ void searchPosition(int depth) {
   }
 
   // print best move
-  printf("bestmove ");
+  std::cout << "bestmove ";
 
   if (pvTable[0][0])
     printMove(pvTable[0][0]);
@@ -661,6 +662,5 @@ void searchPosition(int depth) {
   else
     // shouldn't get here
     printf("(none)");
-
-  printf("\n");
+  std::cout << std::endl;
 }

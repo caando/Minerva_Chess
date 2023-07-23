@@ -8,7 +8,7 @@
 #include "types.h"
 #include "movegen.h"
 
-#define INFINITY 50000
+#define INFINITY_CHESS 50000
 #define MATE_VALUE 49000
 #define MATE_SCORE 48000
 // max ply that we can reach within a search
