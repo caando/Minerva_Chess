@@ -23,12 +23,12 @@ inline void perftDriver(int depth) {
   generateMoves(move_list);
 
   // loop over generated moves
-  for (int move_count = 0; move_count < move_list.size(); move_count++) {
+  for (int move_count : move_list) {
     // preserve board state
     copyBoard();
 
     // make move
-    if (!makeMove(move_list[move_count], all_moves))
+    if (!makeMove(move_count, all_moves))
       // skip to the next move
       continue;
 

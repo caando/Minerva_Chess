@@ -299,7 +299,7 @@ int makeMove(int move, int moveFlag) {
     // make sure move is the capture
     if (getMoveCapture(move)) {
       makeMove(move, all_moves);
-      return 0;
+      return 1;
 
       // otherwise the move is not a capture
     } else
@@ -310,6 +310,8 @@ int makeMove(int move, int moveFlag) {
 
 // generate all moves
 void generateMoves(moves &moveList) {
+  moveList.clear();
+
   // define source & target squares
   int sourceSquare, targetSquare;
 

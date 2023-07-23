@@ -7,16 +7,16 @@
 #include <cstdio>
 
 // killer moves [id][ply]
-int killer_moves[2][MAX_PLY] = {0};
+int killer_moves[2][MAX_PLY] = {{0}};
 
 // history moves [piece][square]
-int history_moves[PieceCount][SquareCount] = {0};
+int history_moves[PieceCount][SquareCount] = {{0}};
 
 // PV length [ply]
 int pvLength[MAX_PLY] = {0};
 
 // PV table [ply][ply]
-int pvTable[MAX_PLY][MAX_PLY] = {0};
+int pvTable[MAX_PLY][MAX_PLY] = {{0}};
 
 // follow PV & score PV move
 int followPv = 0, scorePv = 0;
