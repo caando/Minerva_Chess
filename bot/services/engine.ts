@@ -15,15 +15,20 @@ class EngineService {
   async getMove(FEN: string): Promise<string | null> {
     const engine = await spawn(this.executable); // does not have a defined type yet
 
-    let lastMessage: Buffer = Buffer.alloc(0);
+    let lastMessage = "";
     engine.stdout.on("data", (data: Buffer) => {
-      lastMessage = data;
+      const lines = data.toString().split(/\r?\n/)
+      if (lines.length == 1) {
+        lastMessage.concat(lines[0]);
+      } else {
+        lastMessage = lines[-1];
+      }
     });
     engine.stdin.write(`ucinewgame\n`);
     engine.stdin.write(`position fen ${FEN}\n`);
     engine.stdin.write(`go movetime ${COMPUTING_TIME_PER_MOVE}\n`);
     await this.sleep(COMPUTING_TIME_PER_MOVE * 2);
-    const match = lastMessage.toString().match(/bestmove ([+a-zA-Z0-9]+)/);
+    const match = lastMessage.match(/bestmove ([+a-zA-Z0-9]+)/);
     engine.stdin.write(`quit\n`);
     engine.kill("SIGKILL");
     return match ? match[1] : null;
