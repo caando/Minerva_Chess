@@ -23,6 +23,7 @@ import {
   startGame
 } from "./service";
 import {
+  deleteButtons,
   gameStatusToText,
   menuText,
   sendEditableMessage,
@@ -77,42 +78,44 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     { command: "board", description: "View your ongoing game if any" }
   ]);
 
-  bot.on(message("new_chat_members"), (ctx) => {
+  bot.on(message("new_chat_members"), async (ctx) => {
     if (!ctx.botInfo || ctx.botInfo.username !== bot.botInfo?.username) return;
-    ctx.reply(menuText, getMenuTextConfiguration());
+    await ctx.reply(menuText, getMenuTextConfiguration());
   });
 
-  bot.command("ping", (ctx) => {
-    ctx.reply(`Hello ${ctx.from.first_name}!`);
+  bot.command("ping", async (ctx) => {
+    await ctx.reply(`Hello ${ctx.from.first_name}!`);
   });
 
-  bot.action("tutor", (ctx) => {
+  bot.action("tutor", async (ctx) => {
     const message = ctx.update.callback_query.message;
     if (!message) {
-      ctx.reply(tutorText, getTutorTextConfiguration());
+      await ctx.reply(tutorText, getTutorTextConfiguration());
     } else {
-      ctx.editMessageText(tutorText, getTutorTextConfiguration());
+      await deleteButtons(ctx);
+      await ctx.editMessageText(tutorText, getTutorTextConfiguration());
     }
   });
 
-  bot.help((ctx) => {
-    ctx.reply(tutorText, getTutorTextConfiguration());
+  bot.help(async (ctx) => {
+    await ctx.reply(tutorText, getTutorTextConfiguration());
   });
 
-  bot.command("menu", (ctx) => {
-    ctx.reply(menuText, getMenuTextConfiguration());
+  bot.command("menu", async (ctx) => {
+    await ctx.reply(menuText, getMenuTextConfiguration());
   });
 
-  bot.action("show-menu", (ctx) => {
+  bot.action("show-menu", async (ctx) => {
     const message = ctx.update.callback_query.message;
     if (!message) {
-      ctx.reply(menuText, getMenuTextConfiguration());
+      await ctx.reply(menuText, getMenuTextConfiguration());
     } else {
+      await deleteButtons(ctx);
       if ("caption" in message) {
-        bot.telegram.deleteMessage(message.chat.id, message.message_id);
-        ctx.reply(menuText, getMenuTextConfiguration());
+        await bot.telegram.deleteMessage(message.chat.id, message.message_id);
+        await ctx.reply(menuText, getMenuTextConfiguration());
       } else {
-        ctx.editMessageText(menuText, getMenuTextConfiguration());
+        await ctx.editMessageText(menuText, getMenuTextConfiguration());
       }
     }
   });
@@ -121,7 +124,7 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     const username = ctx.from?.username;
     if (!username) return;
 
-    // TODO: Expand stats to include speed of loss/wins
+    await deleteButtons(ctx);
     const games = await getUserGames(username);
     const wins = games.filter(
       (game) => game.status === GameStatus.USER_WIN
@@ -168,10 +171,9 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
   `.replace(/  +/g, "");
 
     // Only reachable using menu
-    ctx.editMessageText(text, getTutorTextConfiguration());
+    await ctx.editMessageText(text, getTutorTextConfiguration());
   });
 
-  // TODO: Abstract the behavior to work for both scenarios
   bot.action("start-game", async (ctx) => {
     const message = ctx.update.callback_query.message;
     const username = ctx.from?.username;
@@ -179,27 +181,19 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
 
     const game = await startGame(username);
 
+    await deleteButtons(ctx);
     if (game instanceof Error) {
+      console.log("error: ", game);
       if (game === createGameError) {
-        if (!message || !("photo" in message)) {
-          ctx.reply(
-            "Failed to create a new challenge, contact @woojiahao to receive support"
-          );
-        } else {
-          ctx.editMessageText(
-            "Failed to create a new challenge, contact @woojiahao to receive support"
-          );
-        }
+        await ctx.reply(
+          "Failed to create a new challenge, contact @woojiahao to receive support"
+        );
       } else if (game === chessEngineError) {
-        if (!message || !("photo" in message)) {
-          ctx.reply("Something went wrong internally");
-        } else {
-          ctx.editMessageText("Something went wrong internally");
-        }
+        await ctx.reply("Something went wrong internally");
       } else if (game === ongoingGameError) {
         const ongoingGame = await getUserCurrentGame(username);
         if (!ongoingGame) return;
-        renderBoard(
+        await renderBoard(
           bot,
           ctx,
           ongoingGame.id,
@@ -213,7 +207,7 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
         return;
       }
     } else {
-      renderBoard(
+      await renderBoard(
         bot,
         ctx,
         game.id,
@@ -233,13 +227,14 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
 
     const game = await startGame(username);
 
+    await deleteButtons(ctx);
     if (game instanceof Error) {
       if (game === createGameError) {
-        ctx.reply(
+        await ctx.reply(
           "Failed to create a new challenge, contact @woojiahao to receive support"
         );
       } else if (game === chessEngineError) {
-        ctx.reply("Something went wrong internally");
+        await ctx.reply("Something went wrong internally");
       } else if (game === ongoingGameError) {
         const ongoingGame = await getUserCurrentGame(username);
         if (!ongoingGame) return;
@@ -278,8 +273,9 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     if (!username) return;
     const game = await getUserCurrentGame(username);
 
+    await deleteButtons(ctx);
     if (!game) {
-      ctx.editMessageText(
+      await ctx.editMessageText(
         "You do not have any ongoing games, use /start to create one",
         {
           reply_markup: {
@@ -303,8 +299,9 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     if (!username) return;
     const game = await getUserCurrentGame(username);
 
+    await deleteButtons(ctx);
     if (!game) {
-      ctx.reply(
+      await ctx.reply(
         "You do not have any ongoing games, use the button below or send /start",
         {
           reply_markup: {
@@ -317,14 +314,14 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
       return;
     }
 
-    renderBoard(bot, ctx, game.id, -1);
+    await renderBoard(bot, ctx, game.id, -1);
   });
 
   bot.action(/^render-board:(\d+):([-\d]+)$/, async (ctx) => {
     const gameId = parseInt(ctx.match[1]);
     const step = parseInt(ctx.match[2]);
 
-    renderBoard(bot, ctx, gameId, step);
+    await renderBoard(bot, ctx, gameId, step);
   });
 
   bot.hears(/./, async (ctx) => {
@@ -353,16 +350,16 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
 
       if (game instanceof Error) {
         if (game === missingGameError) {
-          editMessage(
+          await editMessage(
             "You do not have any ongoing games, use /start to create one"
           );
         } else if (game === chessEngineError) {
-          editMessage("Something wrong happened internally");
+          await editMessage("Something wrong happened internally");
         } else if (game === invalidMoveError) {
-          editMessage("Invalid move");
+          await editMessage("Invalid move");
         }
       } else {
-        ctx.deleteMessage(message.message_id);
+        await ctx.deleteMessage(message.message_id);
         if (game.status === GameStatus.STARTED) {
           // Game still progressing as per usual, check if in check
           chess.clear();
@@ -418,20 +415,24 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     // If no ongoing game, ignore the forfeit
     if (!ongoingGame) return;
 
-    ctx.editMessageCaption("Are you sure you want to forfeit this match?", {
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: "Yes 🏳", callback_data: "forfeit-game" },
-            {
-              text: "No! 💪🏻",
-              callback_data: `render-board:${ongoingGame.id}:-1`
-            }
+    await deleteButtons(ctx);
+    await ctx.editMessageCaption(
+      "Are you sure you want to forfeit this match?",
+      {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: "Yes 🏳", callback_data: "forfeit-game" },
+              {
+                text: "No! 💪🏻",
+                callback_data: `render-board:${ongoingGame.id}:-1`
+              }
+            ]
           ]
-        ]
+        }
       }
-    });
+    );
   });
 
   bot.action("forfeit-game", async (ctx) => {
@@ -442,22 +443,27 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     // If no ongoing game, ignore the forfeit
     if (!ongoingGame) return;
 
-    forfeitGame(ongoingGame);
-    ctx.editMessageCaption("You have forfeited the match, Minerva Chess wins", {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "Start another 🔁", callback_data: "start-game" }],
-          [{ text: "View menu 🔎", callback_data: "show-menu" }]
-        ]
+    await deleteButtons(ctx);
+    await forfeitGame(ongoingGame);
+    await ctx.editMessageCaption(
+      "You have forfeited the match, Minerva Chess wins",
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Start another 🔁", callback_data: "start-game" }],
+            [{ text: "View menu 🔎", callback_data: "show-menu" }]
+          ]
+        }
       }
-    });
+    );
   });
 
   bot.action("view-games", async (ctx) => {
     const username = ctx.from?.username;
     if (!username) return;
     const toDisplay = await chunkSelectGamesAction(username, 8, 50);
-    ctx.editMessageText(
+    await deleteButtons(ctx);
+    await ctx.editMessageText(
       `Review your play history of your most recent ${50} games`,
       {
         reply_markup: {
@@ -471,11 +477,15 @@ export function addCommands(bot: Telegraf<Context<Update>>) {
     const username = ctx.from?.username;
     if (!username) return;
     const toDisplay = await chunkSelectGamesAction(username, 8, 50);
-    ctx.reply(`Review your play history of your most recent ${50} games`, {
-      reply_markup: {
-        inline_keyboard: toDisplay
+    await deleteButtons(ctx);
+    await ctx.reply(
+      `Review your play history of your most recent ${50} games`,
+      {
+        reply_markup: {
+          inline_keyboard: toDisplay
+        }
       }
-    });
+    );
   });
 
   bot.command("teabag", async (ctx) => {

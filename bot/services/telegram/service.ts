@@ -176,9 +176,9 @@ export async function renderBoard(
   const game = await getGame(gameId);
   if (!game) {
     if ("callback_query" in ctx.update && ctx.update.callback_query.message) {
-      ctx.editMessageText("Invalid game");
+      await ctx.editMessageText("Invalid game");
     } else {
-      ctx.reply("Invalid game");
+      await ctx.reply("Invalid game");
     }
     return;
   }
@@ -186,9 +186,9 @@ export async function renderBoard(
   const history = await getGameHistory(game);
   if (step !== -1 && (step < 0 || step >= history.length)) {
     if ("callback_query" in ctx.update && ctx.update.callback_query.message) {
-      ctx.editMessageText("Invalid step");
+      await ctx.editMessageText("Invalid step");
     } else {
-      ctx.reply("Invalid step");
+      await ctx.reply("Invalid step");
     }
     return;
   }
