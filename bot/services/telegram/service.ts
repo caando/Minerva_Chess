@@ -198,28 +198,31 @@ export async function renderBoard(
   const prevStep = actualStep - 1;
   const nextStep = actualStep + 1;
 
-  actions.push([
-    prevStep >= 0
-      ? {
-          text: "Previous move ⏪",
-          callback_data: `render-board:${gameId}:${prevStep}`
-        }
-      : { text: "Invalid 🚫", callback_data: "invalid" },
-    nextStep < history.length
-      ? {
-          text: "Next move ⏩",
-          callback_data: `render-board:${gameId}:${nextStep}`
-        }
-      : { text: "Invalid 🚫", callback_data: "invalid" }
-  ]);
+  const scrubButtons = [];
+  if (prevStep >= 0)
+    scrubButtons.push({
+      text: "Previous move ⏪",
+      callback_data: `render-board:${gameId}:${prevStep}`
+    });
+  if (nextStep < history.length)
+    scrubButtons.push({
+      text: "Next move ⏩",
+      callback_data: `render-board:${gameId}:${nextStep}`
+    });
+  actions.push(scrubButtons);
 
-  actions.push([
-    { text: "Very beginning 🦕", callback_data: `render-board:${game.id}:0` },
-    {
+  const extremeButtons = [];
+  if (actualStep !== 0)
+    extremeButtons.push({
+      text: "Very beginning 🦕",
+      callback_data: `render-board:${game.id}:0`
+    });
+  if (actualStep !== history.length - 1)
+    extremeButtons.push({
       text: "Present board 🦉",
       callback_data: `render-board:${game.id}:${history.length - 1}`
-    }
-  ]);
+    });
+  actions.push(extremeButtons);
 
   if (game.status === "STARTED") {
     // Only allow forfeits on current matches
