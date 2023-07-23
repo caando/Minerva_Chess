@@ -176,9 +176,9 @@ export async function renderBoard(
   const game = await getGame(gameId);
   if (!game) {
     if ("callback_query" in ctx.update && ctx.update.callback_query.message) {
-      ctx.editMessageText("Invalid game");
+      await ctx.editMessageText("Invalid game");
     } else {
-      ctx.reply("Invalid game");
+      await ctx.reply("Invalid game");
     }
     return;
   }
@@ -186,9 +186,9 @@ export async function renderBoard(
   const history = await getGameHistory(game);
   if (step !== -1 && (step < 0 || step >= history.length)) {
     if ("callback_query" in ctx.update && ctx.update.callback_query.message) {
-      ctx.editMessageText("Invalid step");
+      await ctx.editMessageText("Invalid step");
     } else {
-      ctx.reply("Invalid step");
+      await ctx.reply("Invalid step");
     }
     return;
   }
@@ -198,28 +198,31 @@ export async function renderBoard(
   const prevStep = actualStep - 1;
   const nextStep = actualStep + 1;
 
-  actions.push([
-    prevStep >= 0
-      ? {
-          text: "Previous move ⏪",
-          callback_data: `render-board:${gameId}:${prevStep}`
-        }
-      : { text: "Invalid 🚫", callback_data: "invalid" },
-    nextStep < history.length
-      ? {
-          text: "Next move ⏩",
-          callback_data: `render-board:${gameId}:${nextStep}`
-        }
-      : { text: "Invalid 🚫", callback_data: "invalid" }
-  ]);
+  const scrubButtons = [];
+  if (prevStep >= 0)
+    scrubButtons.push({
+      text: "Previous move ⏪",
+      callback_data: `render-board:${gameId}:${prevStep}`
+    });
+  if (nextStep < history.length)
+    scrubButtons.push({
+      text: "Next move ⏩",
+      callback_data: `render-board:${gameId}:${nextStep}`
+    });
+  actions.push(scrubButtons);
 
-  actions.push([
-    { text: "Very beginning 🦕", callback_data: `render-board:${game.id}:0` },
-    {
+  const extremeButtons = [];
+  if (actualStep !== 0)
+    extremeButtons.push({
+      text: "Very beginning 🦕",
+      callback_data: `render-board:${game.id}:0`
+    });
+  if (actualStep !== history.length - 1)
+    extremeButtons.push({
       text: "Present board 🦉",
       callback_data: `render-board:${game.id}:${history.length - 1}`
-    }
-  ]);
+    });
+  actions.push(extremeButtons);
 
   if (game.status === "STARTED") {
     // Only allow forfeits on current matches

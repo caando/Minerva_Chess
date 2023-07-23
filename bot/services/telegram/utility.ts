@@ -104,12 +104,16 @@ export async function editMessage(
   message: Message,
   text: string
 ) {
-  bot.telegram.editMessageText(
-    message.chat.id,
-    message.message_id,
-    undefined,
-    text
-  );
+  try {
+    await bot.telegram.editMessageText(
+      message.chat.id,
+      message.message_id,
+      undefined,
+      text
+    );
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 // Helper function to send image with markdown caption
@@ -158,5 +162,13 @@ export function gameStatusToText(status: GameStatus) {
       return "The game was ended";
     case GameStatus.STARTED:
       return "Game is ongoing";
+  }
+}
+
+export async function deleteButtons(context: Context<Update>) {
+  try {
+    await context.editMessageReplyMarkup(undefined);
+  } catch (e) {
+    console.log(e);
   }
 }

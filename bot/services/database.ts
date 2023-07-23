@@ -51,7 +51,8 @@ export async function getGames() {
 }
 
 export async function addGame(userId: number): Promise<Game> {
-  const playerIsWhite: boolean = Math.random() >= 0.5;
+  // const playerIsWhite: boolean = Math.random() >= 0.5;
+  const playerIsWhite = true;
   return await Game.create(
     {
       status: "STARTED",
