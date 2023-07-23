@@ -12,3 +12,5 @@ _deps
 cmake-build-debug/
 .idea/
 build/
+bot/*.nnue
+bot/dependencies/minerva_chess
