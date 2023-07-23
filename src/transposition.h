@@ -37,7 +37,21 @@ typedef struct {
 */
 
 // MVV LVA [attacker][victim]
-extern const int MvvLva[12][12];
+constexpr int MvvLva[PieceCount][PieceCount] = {
+{105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
+{104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604},
+{103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603},
+{102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602},
+{101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601},
+{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600},
+
+{105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605},
+{104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604},
+{103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603},
+{102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602},
+{101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601},
+{100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600}
+};
 
 // killer moves [id][ply]
 extern int killer_moves[2][MAX_PLY];
@@ -99,6 +113,6 @@ int readHashEntry(int alpha, int beta, int* bestMove, int depth);
 
 void writeHashEntry(int score, int best_move, int depth, int hashFlag);
 
-void enable_pv_scoring(moves *move_list);
+void enable_pv_scoring(moves &move_list);
 
 #endif //MINERVA_CHESS_SRC_TRANSPOSITION_H_

@@ -6,34 +6,17 @@
 #include "variables.h"
 #include <cstdio>
 
-// MVV LVA [attacker][victim]
-const int MvvLva[PieceCount][PieceCount] = {
-    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
-
-    105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
-    104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
-    103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
-    102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
-    101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
-    100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
-};
-
 // killer moves [id][ply]
-int killer_moves[2][MAX_PLY] = {0};
+int killer_moves[2][MAX_PLY] = {{0}};
 
 // history moves [piece][square]
-int history_moves[PieceCount][SquareCount] = {0};
+int history_moves[PieceCount][SquareCount] = {{0}};
 
 // PV length [ply]
 int pvLength[MAX_PLY] = {0};
 
 // PV table [ply][ply]
-int pvTable[MAX_PLY][MAX_PLY] = {0};
+int pvTable[MAX_PLY][MAX_PLY] = {{0}};
 
 // follow PV & score PV move
 int followPv = 0, scorePv = 0;
@@ -171,16 +154,16 @@ void writeHashEntry(int score, int best_move, int depth, int hashFlag)
 }
 
 // enable PV move scoring
-void enable_pv_scoring(moves *move_list)
+void enable_pv_scoring(moves &move_list)
 {
   // disable following PV
   followPv = 0;
 
   // loop over the moves within a move list
-  for (int count = 0; count < move_list->count; count++)
+  for (int count : move_list)
   {
     // make sure we hit PV move
-    if (pvTable[0][ply] == move_list->moves[count])
+    if (pvTable[0][ply] == count)
     {
       // enable move scoring
       scorePv = 1;

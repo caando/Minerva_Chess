@@ -10,11 +10,7 @@
 #include "zobrist.h"
 #include "util.h"
 #include "communication.h"
-
-const int full_depth_moves = 4;
-
-// depth limit to consider reduction
-const int reduction_limit = 3;
+#include "debug.h"
 
 // score moves
 inline int scoreMove(int move) {
@@ -98,31 +94,29 @@ inline int scoreMove(int move) {
     else
       return history_moves[getMovePiece(move)][getMoveTarget(move)];
   }
-
-  return 0;
 }
 
 // sort moves in descending order
-inline int sortMoves(moves *moveList, int best_move) {
+inline int sortMoves(moves &moveList, int best_move) {
   // move scores
-  int moveScores[moveList->count];
+  std::vector<int> moveScores(moveList.size(), 0);
 
   // score all the moves within a move list
-  for (int count = 0; count < moveList->count; count++) {
+  for (unsigned int count = 0; count < moveList.size(); count++) {
     // if hash move available
-    if (best_move == moveList->moves[count])
+    if (best_move == moveList[count])
       // score move
       moveScores[count] = 30000;
 
     else
       // score move
-      moveScores[count] = scoreMove(moveList->moves[count]);
+      moveScores[count] = scoreMove(moveList[count]);
   }
 
   // loop over current move within a move list
-  for (int curMove = 0; curMove < moveList->count; curMove++) {
+  for (unsigned int curMove = 0; curMove < moveList.size(); curMove++) {
     // loop over next move within a move list
-    for (int next_move = curMove + 1; next_move < moveList->count; next_move++) {
+    for (unsigned int next_move = curMove + 1; next_move < moveList.size(); next_move++) {
       // compare current and next move scores
       if (moveScores[curMove] < moveScores[next_move]) {
         // swap scores
@@ -131,12 +125,13 @@ inline int sortMoves(moves *moveList, int best_move) {
         moveScores[next_move] = temp_score;
 
         // swap moves
-        int temp_move = moveList->moves[curMove];
-        moveList->moves[curMove] = moveList->moves[next_move];
-        moveList->moves[next_move] = temp_move;
+        int temp_move = moveList[curMove];
+        moveList[curMove] = moveList[next_move];
+        moveList[next_move] = temp_move;
       }
     }
   }
+  return 0;
 }
 
 // position repetition detection
@@ -183,7 +178,7 @@ inline int quiescence(int alpha, int beta) {
   }
 
   // create move list instance
-  moves moveList[1];
+  moves moveList;
 
   // generate moves
   generateMoves(moveList);
@@ -192,7 +187,7 @@ inline int quiescence(int alpha, int beta) {
   sortMoves(moveList, 0);
 
   // loop over moves within a movelist
-  for (int count = 0; count < moveList->count; count++) {
+  for (int count = 0; count < moveList[count]; count++) {
     // preserve board state
     copyBoard();
 
@@ -205,7 +200,7 @@ inline int quiescence(int alpha, int beta) {
 
 
     // make sure to make only legal moves
-    if (makeMove(moveList->moves[count], only_captures) == 0) {
+    if (makeMove(moveList[count], only_captures) == 0) {
       // decrement ply
       ply--;
 
@@ -263,7 +258,7 @@ inline int negamax(int alpha, int beta, int depth) {
   int hash_flag = HASH_FLAG_ALPHA;
 
   // if position repetition occurs
-  if (ply && isRepetition() || fifty >= 100)
+  if ((ply && isRepetition()) || fifty >= 100)
     // return draw score
     return 0;
 
@@ -406,7 +401,8 @@ inline int negamax(int alpha, int beta, int depth) {
   }
 
   // create move list instance
-  moves moveList[1];
+  moves moveList;
+  moveList.reserve(20);
 
   // generate moves
   generateMoves(moveList);
@@ -423,7 +419,7 @@ inline int negamax(int alpha, int beta, int depth) {
   int moves_searched = 0;
 
   // loop over moves within a movelist
-  for (int count = 0; count < moveList->count; count++) {
+  for (int count : moveList) {
     // preserve board state
     copyBoard();
 
@@ -435,7 +431,7 @@ inline int negamax(int alpha, int beta, int depth) {
     repetitionTable[repetitionIndex] = hashKey;
 
     // make sure to make only legal moves
-    if (makeMove(moveList->moves[count], all_moves) == 0) {
+    if (makeMove(count, all_moves) == 0) {
       // decrement ply
       ply--;
 
@@ -461,8 +457,8 @@ inline int negamax(int alpha, int beta, int depth) {
           moves_searched >= full_depth_moves &&
               depth >= reduction_limit &&
               in_check == 0 &&
-              getMoveCapture(moveList->moves[count]) == 0 &&
-              getMovePromoted(moveList->moves[count]) == 0
+              getMoveCapture(count) == 0 &&
+              getMovePromoted(count) == 0
           )
         // search current move with reduced depth:
         score = -negamax(-alpha - 1, -alpha, depth - 2);
@@ -513,18 +509,18 @@ inline int negamax(int alpha, int beta, int depth) {
       hash_flag = HASH_FLAG_EXACT;
 
       // store best move (for TT)
-      best_move = moveList->moves[count];
+      best_move = count;
 
       // on quiet moves
-      if (getMoveCapture(moveList->moves[count]) == 0)
+      if (getMoveCapture(count) == 0)
         // store history moves
-        history_moves[getMovePiece(moveList->moves[count])][getMoveTarget(moveList->moves[count])] += depth;
+        history_moves[getMovePiece(count)][getMoveTarget(count)] += depth;
 
       // PV node (position)
       alpha = score;
 
       // write PV move
-      pvTable[ply][ply] = moveList->moves[count];
+      pvTable[ply][ply] = count;
 
       // loop over the next ply
       for (int next_ply = ply + 1; next_ply < pvLength[ply + 1]; next_ply++)
@@ -540,10 +536,10 @@ inline int negamax(int alpha, int beta, int depth) {
         writeHashEntry(beta, best_move, depth, HASH_FLAG_BETA);
 
         // on quiet moves
-        if (getMoveCapture(moveList->moves[count]) == 0) {
+        if (getMoveCapture(count) == 0) {
           // store killer moves
           killer_moves[1][ply] = killer_moves[0][ply];
-          killer_moves[0][ply] = moveList->moves[count];
+          killer_moves[0][ply] = count;
         }
 
         // node (position) fails high
@@ -578,7 +574,7 @@ void searchPosition(int depth) {
   int start = getTimeMs();
 
   // define best score variable
-  int score = 0;
+  int score;
 
   // reset nodes counter
   nodes = 0;

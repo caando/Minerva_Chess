@@ -8,14 +8,14 @@
 #include "types.h"
 
 // full depth moves counter
-extern const int full_depth_moves;
+constexpr int full_depth_moves = 4;
 
 // depth limit to consider reduction
-extern const int reduction_limit;
+constexpr int reduction_limit = 3;
 
 inline int scoreMove(int move);
 
-inline int sortMoves(moves *move_list, int best_move);
+inline int sortMoves(moves &move_list, int best_move);
 
 inline int isRepetition();
 

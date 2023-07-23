@@ -7,7 +7,7 @@
 #include "magic.h"
 #include "variables.h"
 #include "zobrist.h"
-#include <string>
+#include "debug.h"
 
 // is square current given attacked by the current given side
 bool isSquareAttacked(Square square, Colour side) {
@@ -39,13 +39,9 @@ bool isSquareAttacked(Square square, Colour side) {
 }
 
 // add move to the move list
-inline void addMove(moves *moveList, int move) {
+inline void addMove(moves &moveList, int move) {
 // store move
-  moveList->moves[moveList->count] =
-      move;
-
-// increment move count
-  moveList->count++;
+  moveList.emplace_back(move);
 }
 
 // make move on chess board
@@ -301,20 +297,18 @@ int makeMove(int move, int moveFlag) {
     // capture moves
   else {
     // make sure move is the capture
-    if (getMoveCapture(move))
-      makeMove(move, all_moves);
-
+    if (getMoveCapture(move)) {
+      return makeMove(move, all_moves);
       // otherwise the move is not a capture
-    else
+    } else
       // don't make it
       return 0;
   }
 }
 
 // generate all moves
-void generateMoves(moves *moveList) {
-  // init move count
-  moveList->count = 0;
+void generateMoves(moves &moveList) {
+  moveList.clear();
 
   // define source & target squares
   int sourceSquare, targetSquare;
@@ -353,7 +347,7 @@ void generateMoves(moves *moveList) {
 
               // two squares ahead pawn move
               if ((sourceSquare >= a2 && sourceSquare <= h2) && !getBit(occupancies[Both], targetSquare - 8))
-                addMove(moveList, encodeMove(sourceSquare, targetSquare - 8, piece, 0, 0, 1, 0, 0));
+                addMove(moveList, encodeMove(sourceSquare, (targetSquare - 8), piece, 0, 0, 1, 0, 0));
             }
           }
 
@@ -447,7 +441,7 @@ void generateMoves(moves *moveList) {
 
               // two squares ahead pawn move
               if ((sourceSquare >= a7 && sourceSquare <= h7) && !getBit(occupancies[Both], targetSquare + 8))
-                addMove(moveList, encodeMove(sourceSquare, targetSquare + 8, piece, 0, 0, 1, 0, 0));
+                addMove(moveList, encodeMove(sourceSquare, (targetSquare + 8), piece, 0, 0, 1, 0, 0));
             }
           }
 
@@ -549,7 +543,7 @@ void generateMoves(moves *moveList) {
     }
 
     // generate bishop moves
-    if ((side == White) ? piece == WBishop : piece == WBishop) {
+    if ((side == White) ? piece == WBishop : piece == BBishop) {
       // loop over source squares of piece bitboard copy
       while (bitboard) {
         // init source square

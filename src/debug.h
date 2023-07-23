@@ -11,7 +11,7 @@
 void print_attacked_squares(Colour side);
 
 // print move list
-void print_move_list(moves *move_list);
+void print_move_list(moves &move_list);
 
 // print board
 void print_board();

@@ -22,8 +22,6 @@ int castle = 0;
 // hashed value of current position, with 1/2^64 chance of collision
 U64 hashKey = 0;
 
-const int MAX_MOVES = 500;
-
 // positions repetition table
 U64 repetitionTable[1000] = {0};
 

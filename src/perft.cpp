@@ -17,18 +17,18 @@ inline void perftDriver(int depth) {
   }
 
   // create move list instance
-  moves move_list[1];
+  moves move_list;
 
   // generate moves
   generateMoves(move_list);
 
   // loop over generated moves
-  for (int move_count = 0; move_count < move_list->count; move_count++) {
+  for (int move_count : move_list) {
     // preserve board state
     copyBoard();
 
     // make move
-    if (!makeMove(move_list->moves[move_count], all_moves))
+    if (!makeMove(move_count, all_moves))
       // skip to the next move
       continue;
 
@@ -48,7 +48,7 @@ void perftTest(int depth) {
   printf("\n     Performance test\n\n");
 
   // create move list instance
-  moves move_list[1];
+  moves move_list;
 
   // generate moves
   generateMoves(move_list);
@@ -57,12 +57,12 @@ void perftTest(int depth) {
   long start = getTimeMs();
 
   // loop over generated moves
-  for (int move_count = 0; move_count < move_list->count; move_count++) {
+  for (int move_count = 0; move_count < move_list.size(); move_count++) {
     // preserve board state
     copyBoard();
 
     // make move
-    if (!makeMove(move_list->moves[move_count], all_moves))
+    if (!makeMove(move_list[move_count], all_moves))
       // skip to the next move
       continue;
 
@@ -79,9 +79,9 @@ void perftTest(int depth) {
     takeBack();
 
     // print move
-    printf("     move: %s%s%c  nodes: %ld\n", squareToCoordinates[getMoveSource(move_list->moves[move_count])],
-           squareToCoordinates[getMoveTarget(move_list->moves[move_count])],
-           getMovePromoted(move_list->moves[move_count]) ? promotedPieces[getMovePromoted(move_list->moves[move_count])]
+    printf("     move: %s%s%c  nodes: %ld\n", squareToCoordinates[getMoveSource(move_list[move_count])],
+           squareToCoordinates[getMoveTarget(move_list[move_count])],
+           getMovePromoted(move_list[move_count]) ? promotedPieces[getMovePromoted(move_list[move_count])]
                                                          : ' ',
            old_nodes);
   }
