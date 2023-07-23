@@ -17,7 +17,6 @@ class EngineService {
 
     let lastMessage: Buffer = Buffer.alloc(0);
     engine.stdout.on("data", (data: Buffer) => {
-      console.log("data:", data.toString());
       lastMessage = data;
     });
     engine.stdin.write(`ucinewgame\n`);
