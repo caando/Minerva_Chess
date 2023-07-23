@@ -34,7 +34,7 @@ class EngineService {
       if (match) bestMove = match[1];
     }
     engine.kill("SIGKILL");
-    return bestMove === "" ? null : bestMove;
+    return bestMove;
   }
 }
 
