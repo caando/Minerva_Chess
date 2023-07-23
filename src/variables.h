@@ -26,8 +26,6 @@ extern int castle;
 // hashed value of current position, with 1/2^64 chance of collision
 extern U64 hashKey;
 
-extern const int MAX_MOVES;
-
 // positions repetition table
 extern U64 repetitionTable[1000];
 

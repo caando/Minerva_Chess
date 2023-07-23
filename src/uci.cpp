@@ -12,6 +12,7 @@
 #include "search.h"
 #include "transposition.h"
 #include "perft.h"
+#include "debug.h"
 
 /**********************************\
  ==================================
@@ -26,7 +27,7 @@
 // parse user/GUI move string input (e.g. "e7e8q")
 int parseMove(char *move_string) {
   // create move list instance
-  moves moveList[1];
+  moves moveList;
 
   // generate moves
   generateMoves(moveList);
@@ -38,10 +39,8 @@ int parseMove(char *move_string) {
   int target_square = (move_string[2] - 'a') + (8 - (move_string[3] - '0')) * 8;
 
   // loop over the moves within a move list
-  for (int move_count = 0; move_count < moveList->count; move_count++) {
+  for (int move : moveList) {
     // init move
-    int move = moveList->moves[move_count];
-
     // make sure source & target squares are available within the generated move
     if (source_square == getMoveSource(move) && target_square == getMoveTarget(move)) {
       // init promoted piece
@@ -251,7 +250,7 @@ void parsePosition(char *command) {
     currentChar = strstr(command, "fen");
 
     // if no "fen" command is available within command string
-    if (currentChar == NULL)
+    if (currentChar == nullptr)
       // init chess board with start position
       parseFen(START_BOARD);
 
@@ -269,7 +268,7 @@ void parsePosition(char *command) {
   currentChar = strstr(command, "moves");
 
   // moves available
-  if (currentChar != NULL) {
+  if (currentChar != nullptr) {
     // shift pointer to the right where next token begins
     currentChar += 6;
 
@@ -324,7 +323,7 @@ void parseGo(char *command) {
   int depth = -1;
 
   // init argument
-  char *argument = NULL;
+  char *argument = nullptr;
 
   // infinite search
   if ((argument = strstr(command, "infinite"))) {}
@@ -447,8 +446,8 @@ void uciLoop() {
   int mb = 256;
 
   // reset STDIN & STDOUT buffers
-  setbuf(stdin, NULL);
-  setbuf(stdout, NULL);
+  setbuf(stdin, nullptr);
+  setbuf(stdout, nullptr);
 
   // define user / GUI input buffer
   char input[INPUT_BUFFER];

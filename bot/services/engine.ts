@@ -30,6 +30,6 @@ class EngineService {
   }
 }
 
-const engine = new EngineService("./dependencies/Stockfish/src/stockfish");
+const engine = new EngineService("./dependencies/minerva_chess");
 
 export { EngineService, engine };
