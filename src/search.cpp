@@ -187,7 +187,7 @@ inline int quiescence(int alpha, int beta) {
   sortMoves(moveList, 0);
 
   // loop over moves within a movelist
-  for (int count = 0; count < moveList[count]; count++) {
+  for (int count = 0; count < moveList.size(); count++) {
     // preserve board state
     copyBoard();
 
