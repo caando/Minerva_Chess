@@ -443,7 +443,7 @@ void uciLoop() {
   int maxHash = 256;
 
   // default MB value
-  int mb = 256;
+  int mb = 128;
 
   // reset STDIN & STDOUT buffers
   setbuf(stdin, nullptr);
@@ -505,7 +505,7 @@ void uciLoop() {
       // parse UCI "uci" command
     else if (strncmp(input, "uci", 3) == 0) {
       // print engine info
-      printf("id name MinervaChess %s\n");
+      printf("id name MinervaChess %s\n", version);
       printf("id author caan_do\n");
       printf("option name Hash type spin default 64 min 4 max %d\n", maxHash);
       printf("uciok\n");

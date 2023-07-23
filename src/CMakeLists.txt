@@ -7,12 +7,12 @@ add_executable(
         attack.h attack.cpp
         perft.h perft.cpp
         magic.h magic.cpp
-        movegen.h movegen.cpp
-        eval.h eval.cpp
+        movegen.h
+        eval.h
         search.h search.cpp
         transposition.h transposition.cpp
         uci.h uci.cpp
-        util.h util.cpp
+        util.h
         variables.h variables.cpp
         zobrist.h zobrist.cpp
         communication.h communication.cpp

@@ -91,13 +91,13 @@ constexpr char promotedPieces[PieceCount] = {
     'p',
     'n', // WKnight
     'b', // WBishop
-    'p', // WRook
+    'r', // WRook
     'q', // WQueen
     'p',
     'k',
     'n', // BKnight
     'b', // BBishop
-    'p', // BRook
+    'r', // BRook
     'q', // BQueen
     'k'
 };
