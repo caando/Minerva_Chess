@@ -10,6 +10,7 @@
 #include "zobrist.h"
 #include "util.h"
 #include "communication.h"
+#include "debug.h"
 
 // score moves
 inline int scoreMove(int move) {

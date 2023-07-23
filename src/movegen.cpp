@@ -298,9 +298,7 @@ int makeMove(int move, int moveFlag) {
   else {
     // make sure move is the capture
     if (getMoveCapture(move)) {
-      makeMove(move, all_moves);
-      return 1;
-
+      return makeMove(move, all_moves);
       // otherwise the move is not a capture
     } else
       // don't make it
