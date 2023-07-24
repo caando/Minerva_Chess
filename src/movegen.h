@@ -328,7 +328,7 @@ constexpr inline int makeMove(int move, int moveFlag) {
     // loop over White pieces bitboards
     for (int bb_piece = WPawn; bb_piece <= WKing; bb_piece++)
       // update White occupancies
-      occupancies[White] |= bitboards[piece];
+      occupancies[White] |= bitboards[bb_piece];
 
     // loop over Black pieces bitboards
     for (int bb_piece = BPawn; bb_piece <= BKing; bb_piece++)
