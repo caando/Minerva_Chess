@@ -1,5 +1,5 @@
-add_executable(
-        minerva_chess
+set(
+        source_files
         nnue/nnue.h nnue/nnue.cpp
         nnue/misc.h nnue/misc.cpp
         types.h
@@ -17,6 +17,13 @@ add_executable(
         zobrist.h zobrist.cpp
         communication.h communication.cpp
         debug.h debug.cpp
+)
+
+include_directories(.)
+
+add_executable(
+        minerva_chess
+        ${source_files}
         main.cpp
 )
 
@@ -24,4 +31,10 @@ add_custom_command(
         TARGET minerva_chess  POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/../nn-eba324f53044.nnue
-        ${CMAKE_CURRENT_BINARY_DIR}/abc)
+        ${CMAKE_CURRENT_BINARY_DIR}/abc
+)
+
+add_library(
+        source_library
+        ${source_files}
+)
