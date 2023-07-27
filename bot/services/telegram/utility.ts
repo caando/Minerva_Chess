@@ -78,7 +78,8 @@ export const tutorText = `
   `.replace(/  +/g, "");
 
 export function getBoardImage(fen: string, side: UserSide) {
-  return `https://fen2image.chessvision.ai/${fen}?pov=${side.toLowerCase()}`;
+  const r = Math.floor(Math.random() * 101);
+  return `https://fen2image.chessvision.ai/${fen}?pov=${side.toLowerCase()}&random=${r}`;
 }
 
 export async function sendEditableMessage(
