@@ -8,15 +8,9 @@
 #include "types.h"
 #include "util.h"
 
-// random piece keys [piece][square]
 extern U64 pieceKey[PieceCount][SquareCount];
-
-// random enpassant keys [square]
 extern U64 enpassantKey[SquareCount];
-
-// random castling keys [castling state]
 extern U64 castlingKey[16];
-
 extern U64 sideKey;
 
 void initialiseKeys();

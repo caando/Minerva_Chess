@@ -108,7 +108,6 @@ typedef U64 Bitboard;
 #define getBit(bitboard, square) ((bitboard) & (1ULL << (square)))
 #define remBit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
 
-// move list structure
 typedef std::vector<int> moves;
 
 #endif //MINERVA_CHESS_SRC_CONSTANTS_H_

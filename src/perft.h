@@ -5,7 +5,7 @@
 #ifndef MINERVA_CHESS_SRC_PERFT_H_
 #define MINERVA_CHESS_SRC_PERFT_H_
 
-inline void perftDriver(int depth);
+void perftDriver(int depth);
 
 void perftTest(int depth);
 

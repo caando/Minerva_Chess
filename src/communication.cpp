@@ -1,7 +1,3 @@
-//
-// Created by Jikun on 26/6/23.
-//
-
 /*
 
   Function to "listen" to GUI's input during search.
@@ -106,14 +102,10 @@ void readInput() {
   }
 }
 
-// a bridge function to interact between search and GUI input
 void communicate() {
-  // if time is up break here
   if (timeset == 1 && getTimeMs() > stopTime) {
-    // tell engine to stop calculating
     stopped = 1;
   }
 
-  // read GUI input
   readInput();
 }

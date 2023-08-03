@@ -7,8 +7,8 @@ set(
         attack.h attack.cpp
         perft.h perft.cpp
         magic.h magic.cpp
-        movegen.h
-        eval.h
+        movegen.h movegen.cpp
+        eval.h eval.cpp
         search.h search.cpp
         transposition.h transposition.cpp
         uci.h uci.cpp

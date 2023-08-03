@@ -1,10 +1,3 @@
-//
-// Created by Jikun on 26/6/23.
-//
-
-#ifndef MINERVA_CHESS_SRC_COMMUNICATION_H_
-#define MINERVA_CHESS_SRC_COMMUNICATION_H_
-
 /*
 
   Function to "listen" to GUI's input during search.
