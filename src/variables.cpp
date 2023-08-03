@@ -4,14 +4,15 @@
 
 #include "variables.h"
 
-// Board
-Bitboard bitboards[PieceCount] = {0};
-Bitboard occupancies[ColourCount] = {0};
-Colour side = White;
-Square enpassant = no_sq;
-int castle = 0;
-int fifty = 0;
-U64 hashKey = 0;
+BoardState board{
+    .bitboards = {0},
+    .occupancies = {0},
+    .side = White,
+    .enpassant = no_sq,
+    .castle = 0,
+    .fifty = 0,
+    .hashKey = 0
+};
 
 U64 repetitionTable[1000] = {0};
 int repetitionIndex = 0;

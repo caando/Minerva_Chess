@@ -16,20 +16,24 @@ void printMove(int move) {
 }
 
 bool isSquareAttacked(Square square, Colour side) {
-  if ((side == White) && (pawnAttacks[Black][square] & bitboards[WPawn])) return true;
-  if ((side == Black) && (pawnAttacks[White][square] & bitboards[BPawn])) return true;
+  if ((side == White) && (pawnAttacks[Black][square] & board.bitboards[WPawn])) return true;
+  if ((side == Black) && (pawnAttacks[White][square] & board.bitboards[BPawn])) return true;
 
-  if (knightAttacks[square] & ((side == White) ? bitboards[WKnight] : bitboards[BKnight])) return true;
+  if (knightAttacks[square] & ((side == White) ? board.bitboards[WKnight] : board.bitboards[BKnight])) return true;
 
-  if (getBishopAttacks(square, occupancies[Both]) & ((side == White) ? bitboards[WBishop] : bitboards[BBishop]))
+  if (getBishopAttacks(square, board.occupancies[Both])
+      & ((side == White) ? board.bitboards[WBishop] : board.bitboards[BBishop]))
     return true;
 
-  if (getRookAttacks(square, occupancies[Both]) & ((side == White) ? bitboards[WRook] : bitboards[BRook])) return true;
-
-  if (getQueenAttacks(square, occupancies[Both]) & ((side == White) ? bitboards[WQueen] : bitboards[BQueen]))
+  if (getRookAttacks(square, board.occupancies[Both])
+      & ((side == White) ? board.bitboards[WRook] : board.bitboards[BRook]))
     return true;
 
-  if (kingAttacks[square] & ((side == White) ? bitboards[WKing] : bitboards[BKing])) return true;
+  if (getQueenAttacks(square, board.occupancies[Both])
+      & ((side == White) ? board.bitboards[WQueen] : board.bitboards[BQueen]))
+    return true;
+
+  if (kingAttacks[square] & ((side == White) ? board.bitboards[WKing] : board.bitboards[BKing])) return true;
 
   return false;
 }
@@ -47,34 +51,34 @@ int makeMove(int move, int moveFlag) {
     int piece = getMovePiece(move);
     int promotedPiece = getMovePromoted(move);
 
-    remBit(bitboards[piece], sourceSquare);
-    setBit(bitboards[piece], targetSquare);
+    remBit(board.bitboards[piece], sourceSquare);
+    setBit(board.bitboards[piece], targetSquare);
 
-    hashKey ^= pieceKey[piece][sourceSquare];
-    hashKey ^= pieceKey[piece][targetSquare];
+    board.hashKey ^= pieceKey[piece][sourceSquare];
+    board.hashKey ^= pieceKey[piece][targetSquare];
 
-    fifty++;
+    board.fifty++;
 
     if (piece == WPawn || piece == BPawn) {
-      fifty = 0;
+      board.fifty = 0;
     }
 
     if (getMoveCapture(move)) {
-      fifty = 0;
+      board.fifty = 0;
 
-      if (side == White) {
+      if (board.side == White) {
         for (int bbPiece = BPawn; bbPiece <= BKing; bbPiece++) {
-          if (getBit(bitboards[bbPiece], targetSquare)) {
-            remBit(bitboards[bbPiece], targetSquare);
-            hashKey ^= pieceKey[bbPiece][targetSquare];
+          if (getBit(board.bitboards[bbPiece], targetSquare)) {
+            remBit(board.bitboards[bbPiece], targetSquare);
+            board.hashKey ^= pieceKey[bbPiece][targetSquare];
             break;
           }
         }
       } else {
         for (int bbPiece = WPawn; bbPiece <= WKing; bbPiece++) {
-          if (getBit(bitboards[bbPiece], targetSquare)) {
-            remBit(bitboards[bbPiece], targetSquare);
-            hashKey ^= pieceKey[bbPiece][targetSquare];
+          if (getBit(board.bitboards[bbPiece], targetSquare)) {
+            remBit(board.bitboards[bbPiece], targetSquare);
+            board.hashKey ^= pieceKey[bbPiece][targetSquare];
             break;
           }
         }
@@ -82,103 +86,103 @@ int makeMove(int move, int moveFlag) {
     }
 
     if (promotedPiece) {
-      if (side == White) {
-        remBit(bitboards[WPawn], targetSquare);
-        hashKey ^= pieceKey[WPawn][targetSquare];
+      if (board.side == White) {
+        remBit(board.bitboards[WPawn], targetSquare);
+        board.hashKey ^= pieceKey[WPawn][targetSquare];
       } else {
-        remBit(bitboards[BPawn], targetSquare);
-        hashKey ^= pieceKey[BPawn][targetSquare];
+        remBit(board.bitboards[BPawn], targetSquare);
+        board.hashKey ^= pieceKey[BPawn][targetSquare];
       }
-      setBit(bitboards[promotedPiece], targetSquare);
-      hashKey ^= pieceKey[promotedPiece][targetSquare];
+      setBit(board.bitboards[promotedPiece], targetSquare);
+      board.hashKey ^= pieceKey[promotedPiece][targetSquare];
     }
 
     if (getMoveEnpassant(move)) {
-      (side == White) ? remBit(bitboards[BPawn], targetSquare + 8) :
-      remBit(bitboards[WPawn], targetSquare - 8);
-      if (side == White) {
-        remBit(bitboards[BPawn], targetSquare + 8);
-        hashKey ^= pieceKey[BPawn][targetSquare + 8];
+      (board.side == White) ? remBit(board.bitboards[BPawn], targetSquare + 8) :
+      remBit(board.bitboards[WPawn], targetSquare - 8);
+      if (board.side == White) {
+        remBit(board.bitboards[BPawn], targetSquare + 8);
+        board.hashKey ^= pieceKey[BPawn][targetSquare + 8];
       } else {
-        remBit(bitboards[WPawn], targetSquare - 8);
-        hashKey ^= pieceKey[WPawn][targetSquare - 8];
+        remBit(board.bitboards[WPawn], targetSquare - 8);
+        board.hashKey ^= pieceKey[WPawn][targetSquare - 8];
       }
     }
 
-    if (enpassant != no_sq) {
-      hashKey ^= enpassantKey[enpassant];
+    if (board.enpassant != no_sq) {
+      board.hashKey ^= enpassantKey[board.enpassant];
     }
-    enpassant = no_sq;
+    board.enpassant = no_sq;
 
     if (getMoveDouble(move)) {
-      if (side == White) {
-        enpassant = static_cast<Square>(targetSquare + 8);
-        hashKey ^= enpassantKey[targetSquare + 8];
+      if (board.side == White) {
+        board.enpassant = static_cast<Square>(targetSquare + 8);
+        board.hashKey ^= enpassantKey[targetSquare + 8];
       } else {
-        enpassant = static_cast<Square>(targetSquare - 8);
-        hashKey ^= enpassantKey[targetSquare - 8];
+        board.enpassant = static_cast<Square>(targetSquare - 8);
+        board.hashKey ^= enpassantKey[targetSquare - 8];
       }
     }
 
     if (getMoveCastling(move)) {
       switch (targetSquare) {
-        case (g1):remBit(bitboards[WRook], h1);
-          setBit(bitboards[WRook], f1);
+        case (g1):remBit(board.bitboards[WRook], h1);
+          setBit(board.bitboards[WRook], f1);
 
-          hashKey ^= pieceKey[WRook][h1];
-          hashKey ^= pieceKey[WRook][f1];
+          board.hashKey ^= pieceKey[WRook][h1];
+          board.hashKey ^= pieceKey[WRook][f1];
           break;
 
-        case (c1):remBit(bitboards[WRook], a1);
-          setBit(bitboards[WRook], d1);
+        case (c1):remBit(board.bitboards[WRook], a1);
+          setBit(board.bitboards[WRook], d1);
 
-          hashKey ^= pieceKey[WRook][a1];
-          hashKey ^= pieceKey[WRook][d1];
+          board.hashKey ^= pieceKey[WRook][a1];
+          board.hashKey ^= pieceKey[WRook][d1];
           break;
 
-        case (g8):remBit(bitboards[BRook], h8);
-          setBit(bitboards[BRook], f8);
+        case (g8):remBit(board.bitboards[BRook], h8);
+          setBit(board.bitboards[BRook], f8);
 
-          hashKey ^= pieceKey[BRook][h8];
-          hashKey ^= pieceKey[BRook][f8];
+          board.hashKey ^= pieceKey[BRook][h8];
+          board.hashKey ^= pieceKey[BRook][f8];
           break;
 
-        case (c8):remBit(bitboards[BRook], a8);
-          setBit(bitboards[BRook], d8);
+        case (c8):remBit(board.bitboards[BRook], a8);
+          setBit(board.bitboards[BRook], d8);
 
-          hashKey ^= pieceKey[BRook][a8];
-          hashKey ^= pieceKey[BRook][d8];
+          board.hashKey ^= pieceKey[BRook][a8];
+          board.hashKey ^= pieceKey[BRook][d8];
           break;
       }
     }
 
-    hashKey ^= castlingKey[castle];
-    castle &= castlingRights[sourceSquare];
-    castle &= castlingRights[targetSquare];
-    hashKey ^= castlingKey[castle];
-    memset(occupancies, 0ULL, 24);
+    board.hashKey ^= castlingKey[board.castle];
+    board.castle &= castlingRights[sourceSquare];
+    board.castle &= castlingRights[targetSquare];
+    board.hashKey ^= castlingKey[board.castle];
+    memset(board.occupancies, 0ULL, 24);
 
     for (int bbPiece = WPawn; bbPiece <= WKing; bbPiece++) {
-      occupancies[White] |= bitboards[bbPiece];
+      board.occupancies[White] |= board.bitboards[bbPiece];
     }
 
     for (int bbPiece = BPawn; bbPiece <= BKing; bbPiece++) {
-      occupancies[Black] |= bitboards[bbPiece];
+      board.occupancies[Black] |= board.bitboards[bbPiece];
     }
 
-    occupancies[Both] |= occupancies[White];
-    occupancies[Both] |= occupancies[Black];
+    board.occupancies[Both] |= board.occupancies[White];
+    board.occupancies[Both] |= board.occupancies[Black];
 
-    if (side == White) {
-      side = Black;
+    if (board.side == White) {
+      board.side = Black;
     } else {
-      side = White;
+      board.side = White;
     }
 
-    hashKey ^= sideKey;
+    board.hashKey ^= sideKey;
 
-    if (isSquareAttacked(static_cast<Square>((side == White) ? LSOneIdx(bitboards[BKing]) : LSOneIdx(bitboards[WKing])),
-                         side)) {
+    if (isSquareAttacked(static_cast<Square>((board.side == White) ? LSOneIdx(board.bitboards[BKing])
+                                                                   : LSOneIdx(board.bitboards[WKing])), board.side)) {
       takeBack();
       return 0;
     } else {
@@ -199,15 +203,15 @@ void generateMoves(moves &moveList) {
   Bitboard bitboard, attacks;
 
   iterPiece() {
-    bitboard = bitboards[piece];
+    bitboard = board.bitboards[piece];
 
-    if (side == White) {
+    if (board.side == White) {
       if (piece == WPawn) {
         while (bitboard) {
           sourceSquare = LSOneIdx(bitboard);
           targetSquare = sourceSquare - 8;
 
-          if (!(targetSquare < a8) && !getBit(occupancies[Both], targetSquare)) {
+          if (!(targetSquare < a8) && !getBit(board.occupancies[Both], targetSquare)) {
             if (sourceSquare >= a7 && sourceSquare <= h7) {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, WQueen, 0, 0, 0, 0));
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, WRook, 0, 0, 0, 0));
@@ -215,12 +219,12 @@ void generateMoves(moves &moveList) {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, WKnight, 0, 0, 0, 0));
             } else {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
-              if ((sourceSquare >= a2 && sourceSquare <= h2) && !getBit(occupancies[Both], targetSquare - 8))
+              if ((sourceSquare >= a2 && sourceSquare <= h2) && !getBit(board.occupancies[Both], targetSquare - 8))
                 addMove(moveList, encodeMove(sourceSquare, (targetSquare - 8), piece, 0, 0, 1, 0, 0));
             }
           }
 
-          attacks = pawnAttacks[side][sourceSquare] & occupancies[Black];
+          attacks = pawnAttacks[board.side][sourceSquare] & board.occupancies[Black];
 
           while (attacks) {
             targetSquare = LSOneIdx(attacks);
@@ -236,8 +240,8 @@ void generateMoves(moves &moveList) {
             remBit(attacks, targetSquare);
           }
 
-          if (enpassant != no_sq) {
-            U64 enpassantAttacks = pawnAttacks[side][sourceSquare] & (1ULL << enpassant);
+          if (board.enpassant != no_sq) {
+            U64 enpassantAttacks = pawnAttacks[board.side][sourceSquare] & (1ULL << board.enpassant);
             if (enpassantAttacks) {
               int targetEnpassant = LSOneIdx(enpassantAttacks);
               addMove(moveList, encodeMove(sourceSquare, targetEnpassant, piece, 0, 1, 0, 1, 0));
@@ -248,16 +252,17 @@ void generateMoves(moves &moveList) {
       }
 
       if (piece == WKing) {
-        if (castle & WhiteKingSide) {
-          if (!getBit(occupancies[Both], f1) && !getBit(occupancies[Both], g1)) {
+        if (board.castle & WhiteKingSide) {
+          if (!getBit(board.occupancies[Both], f1) && !getBit(board.occupancies[Both], g1)) {
             if (!isSquareAttacked(e1, Black) && !isSquareAttacked(f1, Black)) {
               addMove(moveList, encodeMove(e1, g1, piece, 0, 0, 0, 0, 1));
             }
           }
         }
 
-        if (castle & WhiteQueenSide) {
-          if (!getBit(occupancies[Both], d1) && !getBit(occupancies[Both], c1) && !getBit(occupancies[Both], b1)) {
+        if (board.castle & WhiteQueenSide) {
+          if (!getBit(board.occupancies[Both], d1) && !getBit(board.occupancies[Both], c1)
+              && !getBit(board.occupancies[Both], b1)) {
             if (!isSquareAttacked(e1, Black) && !isSquareAttacked(d1, Black)) {
               addMove(moveList, encodeMove(e1, c1, piece, 0, 0, 0, 0, 1));
             }
@@ -270,7 +275,7 @@ void generateMoves(moves &moveList) {
           sourceSquare = LSOneIdx(bitboard);
           targetSquare = sourceSquare + 8;
 
-          if (!(targetSquare > h1) && !getBit(occupancies[Both], targetSquare)) {
+          if (!(targetSquare > h1) && !getBit(board.occupancies[Both], targetSquare)) {
             if (sourceSquare >= a2 && sourceSquare <= h2) {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, BQueen, 0, 0, 0, 0));
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, BRook, 0, 0, 0, 0));
@@ -278,13 +283,13 @@ void generateMoves(moves &moveList) {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, BKnight, 0, 0, 0, 0));
             } else {
               addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
-              if ((sourceSquare >= a7 && sourceSquare <= h7) && !getBit(occupancies[Both], targetSquare + 8)) {
+              if ((sourceSquare >= a7 && sourceSquare <= h7) && !getBit(board.occupancies[Both], targetSquare + 8)) {
                 addMove(moveList, encodeMove(sourceSquare, (targetSquare + 8), piece, 0, 0, 1, 0, 0));
               }
             }
           }
 
-          attacks = pawnAttacks[side][sourceSquare] & occupancies[White];
+          attacks = pawnAttacks[board.side][sourceSquare] & board.occupancies[White];
 
           while (attacks) {
             targetSquare = LSOneIdx(attacks);
@@ -299,8 +304,8 @@ void generateMoves(moves &moveList) {
             remBit(attacks, targetSquare);
           }
 
-          if (enpassant != no_sq) {
-            U64 enpassantAttacks = pawnAttacks[side][sourceSquare] & (1ULL << enpassant);
+          if (board.enpassant != no_sq) {
+            U64 enpassantAttacks = pawnAttacks[board.side][sourceSquare] & (1ULL << board.enpassant);
             if (enpassantAttacks) {
               int targetEnpassant = LSOneIdx(enpassantAttacks);
               addMove(moveList, encodeMove(sourceSquare, targetEnpassant, piece, 0, 1, 0, 1, 0));
@@ -311,15 +316,16 @@ void generateMoves(moves &moveList) {
       }
 
       if (piece == BKing) {
-        if (castle & BlackKingSide) {
-          if (!getBit(occupancies[Both], f8) && !getBit(occupancies[Both], g8)) {
+        if (board.castle & BlackKingSide) {
+          if (!getBit(board.occupancies[Both], f8) && !getBit(board.occupancies[Both], g8)) {
             if (!isSquareAttacked(e8, White) && !isSquareAttacked(f8, White))
               addMove(moveList, encodeMove(e8, g8, piece, 0, 0, 0, 0, 1));
           }
         }
 
-        if (castle & BlackQueenSide) {
-          if (!getBit(occupancies[Both], d8) && !getBit(occupancies[Both], c8) && !getBit(occupancies[Both], b8)) {
+        if (board.castle & BlackQueenSide) {
+          if (!getBit(board.occupancies[Both], d8) && !getBit(board.occupancies[Both], c8)
+              && !getBit(board.occupancies[Both], b8)) {
             if (!isSquareAttacked(e8, White) && !isSquareAttacked(d8, White))
               addMove(moveList, encodeMove(e8, c8, piece, 0, 0, 0, 0, 1));
           }
@@ -327,13 +333,14 @@ void generateMoves(moves &moveList) {
       }
     }
 
-    if ((side == White) ? piece == WKnight : piece == BKnight) {
+    if ((board.side == White) ? piece == WKnight : piece == BKnight) {
       while (bitboard) {
         sourceSquare = LSOneIdx(bitboard);
-        attacks = knightAttacks[sourceSquare] & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
+        attacks = knightAttacks[sourceSquare]
+            & ((board.side == White) ? ~board.occupancies[White] : ~board.occupancies[Black]);
         while (attacks) {
           targetSquare = LSOneIdx(attacks);
-          if (!getBit(((side == White) ? occupancies[Black] : occupancies[White]), targetSquare)) {
+          if (!getBit(((board.side == White) ? board.occupancies[Black] : board.occupancies[White]), targetSquare)) {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
           } else {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 1, 0, 0, 0));
@@ -344,14 +351,14 @@ void generateMoves(moves &moveList) {
       }
     }
 
-    if ((side == White) ? piece == WBishop : piece == BBishop) {
+    if ((board.side == White) ? piece == WBishop : piece == BBishop) {
       while (bitboard) {
         sourceSquare = LSOneIdx(bitboard);
-        attacks = getBishopAttacks(static_cast<Square>(sourceSquare), occupancies[Both])
-            & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
+        attacks = getBishopAttacks(static_cast<Square>(sourceSquare), board.occupancies[Both])
+            & ((board.side == White) ? ~board.occupancies[White] : ~board.occupancies[Black]);
         while (attacks) {
           targetSquare = LSOneIdx(attacks);
-          if (!getBit(((side == White) ? occupancies[Black] : occupancies[White]), targetSquare)) {
+          if (!getBit(((board.side == White) ? board.occupancies[Black] : board.occupancies[White]), targetSquare)) {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
           } else {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 1, 0, 0, 0));
@@ -362,14 +369,14 @@ void generateMoves(moves &moveList) {
       }
     }
 
-    if ((side == White) ? piece == WRook : piece == BRook) {
+    if ((board.side == White) ? piece == WRook : piece == BRook) {
       while (bitboard) {
         sourceSquare = LSOneIdx(bitboard);
-        attacks = getRookAttacks(static_cast<Square>(sourceSquare), occupancies[Both])
-            & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
+        attacks = getRookAttacks(static_cast<Square>(sourceSquare), board.occupancies[Both])
+            & ((board.side == White) ? ~board.occupancies[White] : ~board.occupancies[Black]);
         while (attacks) {
           targetSquare = LSOneIdx(attacks);
-          if (!getBit(((side == White) ? occupancies[Black] : occupancies[White]), targetSquare)) {
+          if (!getBit(((board.side == White) ? board.occupancies[Black] : board.occupancies[White]), targetSquare)) {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
           } else {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 1, 0, 0, 0));
@@ -380,14 +387,14 @@ void generateMoves(moves &moveList) {
       }
     }
 
-    if ((side == White) ? piece == WQueen : piece == BQueen) {
+    if ((board.side == White) ? piece == WQueen : piece == BQueen) {
       while (bitboard) {
         sourceSquare = LSOneIdx(bitboard);
-        attacks = getQueenAttacks(static_cast<Square>(sourceSquare), occupancies[Both])
-            & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
+        attacks = getQueenAttacks(static_cast<Square>(sourceSquare), board.occupancies[Both])
+            & ((board.side == White) ? ~board.occupancies[White] : ~board.occupancies[Black]);
         while (attacks) {
           targetSquare = LSOneIdx(attacks);
-          if (!getBit(((side == White) ? occupancies[Black] : occupancies[White]), targetSquare)) {
+          if (!getBit(((board.side == White) ? board.occupancies[Black] : board.occupancies[White]), targetSquare)) {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
           } else {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 1, 0, 0, 0));
@@ -398,13 +405,14 @@ void generateMoves(moves &moveList) {
       }
     }
 
-    if ((side == White) ? piece == WKing : piece == BKing) {
+    if ((board.side == White) ? piece == WKing : piece == BKing) {
       while (bitboard) {
         sourceSquare = LSOneIdx(bitboard);
-        attacks = kingAttacks[sourceSquare] & ((side == White) ? ~occupancies[White] : ~occupancies[Black]);
+        attacks =
+            kingAttacks[sourceSquare] & ((board.side == White) ? ~board.occupancies[White] : ~board.occupancies[Black]);
         while (attacks) {
           targetSquare = LSOneIdx(attacks);
-          if (!getBit(((side == White) ? occupancies[Black] : occupancies[White]), targetSquare)) {
+          if (!getBit(((board.side == White) ? board.occupancies[Black] : board.occupancies[White]), targetSquare)) {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 0, 0, 0, 0));
           } else {
             addMove(moveList, encodeMove(sourceSquare, targetSquare, piece, 0, 1, 0, 0, 0));

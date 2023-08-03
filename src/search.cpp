@@ -26,7 +26,7 @@ inline int scoreMove(int move) {
     int targetPiece = WPawn;
     int startPiece, endPiece;
 
-    if (side == White) {
+    if (board.side == White) {
       startPiece = BPawn;
       endPiece = BKing;
     } else {
@@ -35,7 +35,7 @@ inline int scoreMove(int move) {
     }
 
     for (int bbPiece = startPiece; bbPiece <= endPiece; bbPiece++) {
-      if (getBit(bitboards[bbPiece], getMoveTarget(move))) {
+      if (getBit(board.bitboards[bbPiece], getMoveTarget(move))) {
         targetPiece = bbPiece;
         break;
       }
@@ -90,7 +90,7 @@ inline int sortMoves(moves &moveList, int bestMove) {
 
 inline int isRepetition() {
   for (int index = 0; index < repetitionIndex; index++) {
-    if (repetitionTable[index] == hashKey) {
+    if (repetitionTable[index] == board.hashKey) {
       return 1;
     }
   }
@@ -123,7 +123,7 @@ inline int quiescence(int alpha, int beta) {
     saveBoard();
     ply++;
     repetitionIndex++;
-    repetitionTable[repetitionIndex] = hashKey;
+    repetitionTable[repetitionIndex] = board.hashKey;
 
     if (makeMove(move, ONLY_CAPTURES) == 0) {
       ply--;
@@ -152,7 +152,7 @@ inline int negamax(int alpha, int beta, int depth) {
   int bestMove = 0;
   int hashFlag = HASH_FLAG_ALPHA;
 
-  if ((ply && isRepetition()) || fifty >= 100) {
+  if ((ply && isRepetition()) || board.fifty >= 100) {
     return 0;
   }
 
@@ -174,9 +174,9 @@ inline int negamax(int alpha, int beta, int depth) {
 
   nodes++;
 
-  int inCheck = isSquareAttacked(static_cast<Square>((side == White) ? LSOneIdx(bitboards[WKing]) :
-                                                     LSOneIdx(bitboards[BKing])),
-                                 side == White ? Black : White);
+  int inCheck = isSquareAttacked(static_cast<Square>((board.side == White) ? LSOneIdx(board.bitboards[WKing])
+                                                                           : LSOneIdx(board.bitboards[BKing])),
+                                 board.side == White ? Black : White);
 
   if (inCheck) depth++;
   int legalMoves = 0;
@@ -192,15 +192,15 @@ inline int negamax(int alpha, int beta, int depth) {
     saveBoard();
     ply++;
     repetitionIndex++;
-    repetitionTable[repetitionIndex] = hashKey;
-    if (enpassant != no_sq) hashKey ^= enpassantKey[enpassant];
-    enpassant = no_sq;
-    if (side == White) {
-      side = Black;
+    repetitionTable[repetitionIndex] = board.hashKey;
+    if (board.enpassant != no_sq) board.hashKey ^= enpassantKey[board.enpassant];
+    board.enpassant = no_sq;
+    if (board.side == White) {
+      board.side = Black;
     } else {
-      side = White;
+      board.side = White;
     }
-    hashKey ^= sideKey;
+    board.hashKey ^= sideKey;
     score = -negamax(-beta, -beta + 1, depth - 1 - 2);
 
     ply--;
@@ -259,7 +259,7 @@ inline int negamax(int alpha, int beta, int depth) {
     ply++;
 
     repetitionIndex++;
-    repetitionTable[repetitionIndex] = hashKey;
+    repetitionTable[repetitionIndex] = board.hashKey;
 
     if (makeMove(count, ALL_MOVES) == 0) {
       ply--;

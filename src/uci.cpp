@@ -41,13 +41,13 @@ int parseMove(char *moveString) {
 }
 
 void resetBoard() {
-  memset(bitboards, 0ULL, sizeof(bitboards));
-  memset(occupancies, 0ULL, sizeof(occupancies));
-  side = White;
-  enpassant = no_sq;
-  castle = 0;
+  memset(board.bitboards, 0ULL, sizeof(board.bitboards));
+  memset(board.occupancies, 0ULL, sizeof(board.occupancies));
+  board.side = White;
+  board.enpassant = no_sq;
+  board.castle = 0;
   repetitionIndex = 0;
-  fifty = 0;
+  board.fifty = 0;
   memset(repetitionTable, 0ULL, sizeof(repetitionTable));
 }
 
@@ -58,14 +58,14 @@ void parseFen(char *fen) {
       int square = rank * 8 + file;
       if ((*fen >= 'a' && *fen <= 'z') || (*fen >= 'A' && *fen <= 'Z')) {
         int piece = asciiToPieces[*fen];
-        setBit(bitboards[piece], square);
+        setBit(board.bitboards[piece], square);
         fen++;
       }
       if (*fen >= '0' && *fen <= '9') {
         int offset = *fen - '0';
         int piece = -1;
         for (int bb_piece = WPawn; bb_piece <= BKing; bb_piece++) {
-          if (getBit(bitboards[bb_piece], square)) {
+          if (getBit(board.bitboards[bb_piece], square)) {
             piece = bb_piece;
           }
         }
@@ -81,17 +81,21 @@ void parseFen(char *fen) {
     }
   }
   fen++;
-  (*fen == 'w') ? (side = White) : (side = Black);
+  (*fen == 'w') ? (board.side = White) : (board.side = Black);
   fen += 2;
   while (*fen != ' ') {
     switch (*fen) {
-      case 'K': castle |= WhiteKingSide;
+      case 'K':
+        board.castle |= WhiteKingSide;
         break;
-      case 'Q': castle |= WhiteQueenSide;
+      case 'Q':
+        board.castle |= WhiteQueenSide;
         break;
-      case 'k': castle |= BlackKingSide;
+      case 'k':
+        board.castle |= BlackKingSide;
         break;
-      case 'q': castle |= BlackQueenSide;
+      case 'q':
+        board.castle |= BlackQueenSide;
         break;
       case '-': break;
     }
@@ -101,21 +105,21 @@ void parseFen(char *fen) {
   if (*fen != '-') {
     int file = fen[0] - 'a';
     int rank = 8 - (fen[1] - '0');
-    enpassant = static_cast<Square>(rank * 8 + file);
+    board.enpassant = static_cast<Square>(rank * 8 + file);
   } else {
-    enpassant = no_sq;
+    board.enpassant = no_sq;
   }
   fen++;
-  fifty = atoi(fen);
+  board.fifty = atoi(fen);
   for (int piece = WPawn; piece <= WKing; piece++) {
-    occupancies[White] |= bitboards[piece];
+    board.occupancies[White] |= board.bitboards[piece];
   }
   for (int piece = BPawn; piece <= BKing; piece++) {
-    occupancies[Black] |= bitboards[piece];
+    board.occupancies[Black] |= board.bitboards[piece];
   }
-  occupancies[Both] |= occupancies[White];
-  occupancies[Both] |= occupancies[Black];
-  hashKey = generateHashkey();
+  board.occupancies[Both] |= board.occupancies[White];
+  board.occupancies[Both] |= board.occupancies[Black];
+  board.hashKey = generateHashkey();
 }
 
 void parsePosition(char *command) {
@@ -141,7 +145,7 @@ void parsePosition(char *command) {
         break;
       }
       repetitionIndex++;
-      repetitionTable[repetitionIndex] = hashKey;
+      repetitionTable[repetitionIndex] = board.hashKey;
       makeMove(move, ALL_MOVES);
       while (*currentChar && *currentChar != ' ') {
         currentChar++;
@@ -169,16 +173,16 @@ void parseGo(char *command) {
   char *argument = nullptr;
 
   if ((argument = strstr(command, "infinite"))) {}
-  if ((argument = strstr(command, "binc")) && side == Black) {
+  if ((argument = strstr(command, "binc")) && board.side == Black) {
     inc = atoi(argument + 5);
   }
-  if ((argument = strstr(command, "winc")) && side == White) {
+  if ((argument = strstr(command, "winc")) && board.side == White) {
     inc = atoi(argument + 5);
   }
-  if ((argument = strstr(command, "wtime")) && side == White) {
+  if ((argument = strstr(command, "wtime")) && board.side == White) {
     timer = atoi(argument + 6);
   }
-  if ((argument = strstr(command, "btime")) && side == Black) {
+  if ((argument = strstr(command, "btime")) && board.side == Black) {
     timer = atoi(argument + 6);
   }
   if ((argument = strstr(command, "movestogo"))) {

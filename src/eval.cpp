@@ -13,7 +13,7 @@ int evaluate() {
   int index = 2;
 
   for (int bb_piece = WPawn; bb_piece <= BKing; bb_piece++) {
-    bitboard = bitboards[bb_piece];
+    bitboard = board.bitboards[bb_piece];
 
     while (bitboard) {
       piece = static_cast<Piece>(bb_piece);
@@ -37,5 +37,5 @@ int evaluate() {
 
   pieces[index] = 0;
   squares[index] = 0;
-  return (nnue_evaluate(side, pieces, squares) * (100 - fifty) / 100);
+  return (nnue_evaluate(board.side, pieces, squares) * (100 - board.fifty) / 100);
 }

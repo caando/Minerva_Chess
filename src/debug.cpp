@@ -69,7 +69,7 @@ void printBoard() {
       int piece = -1;
 
       for (int bbPiece = WPawn; bbPiece <= BKing; bbPiece++) {
-        if (getBit(bitboards[bbPiece], square)) {
+        if (getBit(board.bitboards[bbPiece], square)) {
           piece = bbPiece;
         }
       }
@@ -82,14 +82,14 @@ void printBoard() {
     printf("\n");
   }
   printf("\n     a b c d e f g h\n\n");
-  printf("     Side:     %s\n", !side ? "white" : "black");
-  printf("     Enpassant:   %s\n", (enpassant != no_sq) ? squareToCoordinates[enpassant] : "no");
-  printf("     Castling:  %c%c%c%c\n\n", (castle & WhiteQueenSide) ? 'K' : '-',
-         (castle & WhiteQueenSide) ? 'Q' : '-',
-         (castle & BlackKingSide) ? 'k' : '-',
-         (castle & BlackQueenSide) ? 'q' : '-');
-  printf("     Hash key:  %llx\n", hashKey);
-  printf("     Fifty move: %d\n\n", fifty);
+  printf("     Side:     %s\n", !board.side ? "white" : "black");
+  printf("     Enpassant:   %s\n", (board.enpassant != no_sq) ? squareToCoordinates[board.enpassant] : "no");
+  printf("     Castling:  %c%c%c%c\n\n", (board.castle & WhiteQueenSide) ? 'K' : '-',
+         (board.castle & WhiteQueenSide) ? 'Q' : '-',
+         (board.castle & BlackKingSide) ? 'k' : '-',
+         (board.castle & BlackQueenSide) ? 'q' : '-');
+  printf("     Hash key:  %llx\n", board.hashKey);
+  printf("     Fifty move: %d\n\n", board.fifty);
 }
 
 #endif //MINERVA_CHESS_SRC_DEBUG_H_

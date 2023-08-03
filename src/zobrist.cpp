@@ -33,7 +33,7 @@ U64 generateHashkey() {
   Bitboard bitboard;
 
   iterPiece() {
-    bitboard = bitboards[piece];
+    bitboard = board.bitboards[piece];
     while (bitboard) {
       int square = LSOneIdx(bitboard);
       finalKey ^= pieceKey[piece][square];
@@ -41,11 +41,11 @@ U64 generateHashkey() {
     }
   }
 
-  if (enpassant != no_sq) {
-    finalKey ^= enpassantKey[enpassant];
+  if (board.enpassant != no_sq) {
+    finalKey ^= enpassantKey[board.enpassant];
   }
-  finalKey ^= castlingKey[castle];
-  if (side == Black) {
+  finalKey ^= castlingKey[board.castle];
+  if (board.side == Black) {
     finalKey ^= sideKey;
   }
 

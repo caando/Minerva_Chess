@@ -110,4 +110,16 @@ typedef U64 Bitboard;
 
 typedef std::vector<int> moves;
 
+#pragma pack(push, 1)
+struct BoardState {
+  Bitboard bitboards[PieceCount];
+  Bitboard occupancies[ColourCount];
+  Colour side;
+  Square enpassant;
+  int castle;
+  int fifty;
+  U64 hashKey;
+};
+#pragma pack(pop)
+
 #endif //MINERVA_CHESS_SRC_CONSTANTS_H_

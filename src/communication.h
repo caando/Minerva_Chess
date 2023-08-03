@@ -10,6 +10,9 @@
 
 */
 
+#ifndef MINERVA_CHESS_SRC_COMMUNICATION_H_
+#define MINERVA_CHESS_SRC_COMMUNICATION_H_
+
 int inputWaiting();
 
 // read GUI/user input

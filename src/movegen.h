@@ -24,23 +24,9 @@
     ((enpassant) << 22) | \
     ((castling) << 23))    \
 
-#define saveBoard()                                                      \
-    Bitboard bitboardsCopy[12], occupanciesCopy[3];                     \
-    Colour sideCopy;                                                     \
-    Square enpassantCopy;                                                \
-    int castleCopy, fiftyCopy;                                          \
-    memcpy(bitboardsCopy, bitboards, 96);                                \
-    memcpy(occupanciesCopy, occupancies, 24);                            \
-    sideCopy = side, enpassantCopy = enpassant, castleCopy = castle;   \
-    fiftyCopy = fifty;                                                   \
-    U64 hashKeyCopy = hashKey;                                         \
+#define saveBoard() BoardState prevBoard = board;
 
-#define takeBack()                                                       \
-    memcpy(bitboards, bitboardsCopy, 96);                                \
-    memcpy(occupancies, occupanciesCopy, 24);                            \
-    side = sideCopy, enpassant = enpassantCopy, castle = castleCopy;   \
-    fifty = fiftyCopy;                                                   \
-    hashKey = hashKeyCopy;                                              \
+#define takeBack() board = prevBoard;
 
 #define getMoveSource(move) ((move) & 0b111111)
 

@@ -8,13 +8,7 @@
 #include "types.h"
 
 // Board
-extern Bitboard bitboards[PieceCount];
-extern Bitboard occupancies[ColourCount];
-extern Colour side;
-extern Square enpassant;
-extern int castle;
-extern int fifty;
-extern U64 hashKey;
+extern BoardState board;
 
 // Repetition
 extern U64 repetitionTable[1000];

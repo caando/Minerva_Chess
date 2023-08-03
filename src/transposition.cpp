@@ -42,8 +42,8 @@ void initHashTable(int mb) {
 }
 
 int readHashEntry(int alpha, int beta, int *bestMove, int depth) {
-  TranspositionTable *hashEntry = &hashTable[hashKey % hashEntries];
-  if (hashEntry->hash_key == hashKey) {
+  TranspositionTable *hashEntry = &hashTable[board.hashKey % hashEntries];
+  if (hashEntry->hash_key == board.hashKey) {
     if (hashEntry->depth >= depth) {
       int score = hashEntry->score;
       if (score < -MATE_SCORE) {
@@ -68,10 +68,10 @@ int readHashEntry(int alpha, int beta, int *bestMove, int depth) {
 }
 
 void writeHashEntry(int score, int bestMove, int depth, int hashFlag) {
-  TranspositionTable *hashEntry = &hashTable[hashKey % hashEntries];
+  TranspositionTable *hashEntry = &hashTable[board.hashKey % hashEntries];
   if (score < -MATE_SCORE) score -= ply;
   if (score > MATE_SCORE) score += ply;
-  hashEntry->hash_key = hashKey;
+  hashEntry->hash_key = board.hashKey;
   hashEntry->score = score;
   hashEntry->flag = hashFlag;
   hashEntry->depth = depth;
