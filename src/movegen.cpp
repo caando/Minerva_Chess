@@ -39,7 +39,7 @@ void addMove(moves &moveList, int move) {
 }
 
 int makeMove(int move, int moveFlag) {
-  if (moveFlag == all_moves) {
+  if (moveFlag == ALL_MOVES) {
     saveBoard();
 
     int sourceSquare = getMoveSource(move);
@@ -63,18 +63,18 @@ int makeMove(int move, int moveFlag) {
       fifty = 0;
 
       if (side == White) {
-        for (int bb_piece = BPawn; bb_piece <= BKing; bb_piece++) {
-          if (getBit(bitboards[bb_piece], targetSquare)) {
-            remBit(bitboards[bb_piece], targetSquare);
-            hashKey ^= pieceKey[bb_piece][targetSquare];
+        for (int bbPiece = BPawn; bbPiece <= BKing; bbPiece++) {
+          if (getBit(bitboards[bbPiece], targetSquare)) {
+            remBit(bitboards[bbPiece], targetSquare);
+            hashKey ^= pieceKey[bbPiece][targetSquare];
             break;
           }
         }
       } else {
-        for (int bb_piece = WPawn; bb_piece <= WKing; bb_piece++) {
-          if (getBit(bitboards[bb_piece], targetSquare)) {
-            remBit(bitboards[bb_piece], targetSquare);
-            hashKey ^= pieceKey[bb_piece][targetSquare];
+        for (int bbPiece = WPawn; bbPiece <= WKing; bbPiece++) {
+          if (getBit(bitboards[bbPiece], targetSquare)) {
+            remBit(bitboards[bbPiece], targetSquare);
+            hashKey ^= pieceKey[bbPiece][targetSquare];
             break;
           }
         }
@@ -158,12 +158,12 @@ int makeMove(int move, int moveFlag) {
     hashKey ^= castlingKey[castle];
     memset(occupancies, 0ULL, 24);
 
-    for (int bb_piece = WPawn; bb_piece <= WKing; bb_piece++) {
-      occupancies[White] |= bitboards[bb_piece];
+    for (int bbPiece = WPawn; bbPiece <= WKing; bbPiece++) {
+      occupancies[White] |= bitboards[bbPiece];
     }
 
-    for (int bb_piece = BPawn; bb_piece <= BKing; bb_piece++) {
-      occupancies[Black] |= bitboards[bb_piece];
+    for (int bbPiece = BPawn; bbPiece <= BKing; bbPiece++) {
+      occupancies[Black] |= bitboards[bbPiece];
     }
 
     occupancies[Both] |= occupancies[White];
@@ -187,7 +187,7 @@ int makeMove(int move, int moveFlag) {
 
   } else {
     if (getMoveCapture(move)) {
-      return makeMove(move, all_moves);
+      return makeMove(move, ALL_MOVES);
     } else
       return 0;
   }

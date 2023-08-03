@@ -10,7 +10,7 @@
 #include "movegen.h"
 #include "variables.h"
 
-void print_attacked_squares(Colour side) {
+void printAttackedSquares(Colour side) {
   printf("\n");
   for (int rank = 0; rank < 8; rank++) {
     for (int file = 0; file < 8; file++) {
@@ -25,7 +25,7 @@ void print_attacked_squares(Colour side) {
   printf("\n     a b c d e f g h\n\n");
 }
 
-void print_move_list(moves &move_list) {
+void printMoveList(moves &move_list) {
   if (move_list.empty()) {
     printf("\n     No move in the move list!\n");
     return;
@@ -58,7 +58,7 @@ void print_move_list(moves &move_list) {
 
 }
 
-void print_board() {
+void printBoard() {
   printf("\n");
   for (int rank = 0; rank < 8; rank++) {
     for (int file = 0; file < 8; file++) {
@@ -68,9 +68,9 @@ void print_board() {
       }
       int piece = -1;
 
-      for (int bb_piece = WPawn; bb_piece <= BKing; bb_piece++) {
-        if (getBit(bitboards[bb_piece], square)) {
-          piece = bb_piece;
+      for (int bbPiece = WPawn; bbPiece <= BKing; bbPiece++) {
+        if (getBit(bitboards[bbPiece], square)) {
+          piece = bbPiece;
         }
       }
 #ifdef WIN64

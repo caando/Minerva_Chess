@@ -12,12 +12,12 @@ void perftDriver(int depth) {
     nodes++;
     return;
   }
-  moves move_list;
-  generateMoves(move_list);
+  moves moveList;
+  generateMoves(moveList);
 
-  for (int move_count : move_list) {
+  for (int move : moveList) {
     saveBoard();
-    if (!makeMove(move_count, all_moves)) {
+    if (!makeMove(move, ALL_MOVES)) {
       continue;
     }
     perftDriver(depth - 1);
@@ -34,7 +34,7 @@ void perftTest(int depth) {
 
   for (auto move : moveList) {
     saveBoard();
-    if (!makeMove(move, all_moves)) {
+    if (!makeMove(move, ALL_MOVES)) {
       continue;
     }
     long cummulativeNodes = nodes;

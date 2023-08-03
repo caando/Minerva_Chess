@@ -125,7 +125,7 @@ inline int quiescence(int alpha, int beta) {
     repetitionIndex++;
     repetitionTable[repetitionIndex] = hashKey;
 
-    if (makeMove(move, only_captures) == 0) {
+    if (makeMove(move, ONLY_CAPTURES) == 0) {
       ply--;
       repetitionIndex--;
       continue;
@@ -156,9 +156,9 @@ inline int negamax(int alpha, int beta, int depth) {
     return 0;
   }
 
-  int pv_node = beta - alpha > 1;
+  int pvNode = beta - alpha > 1;
 
-  if (ply && (score = readHashEntry(alpha, beta, &bestMove, depth)) != NO_HASH_ENTRY && pv_node == 0) {
+  if (ply && (score = readHashEntry(alpha, beta, &bestMove, depth)) != NO_HASH_ENTRY && pvNode == 0) {
     return score;
   }
 
@@ -176,15 +176,15 @@ inline int negamax(int alpha, int beta, int depth) {
 
   int inCheck = isSquareAttacked(static_cast<Square>((side == White) ? LSOneIdx(bitboards[WKing]) :
                                                      LSOneIdx(bitboards[BKing])),
-                                  side == White ? Black : White);
+                                 side == White ? Black : White);
 
   if (inCheck) depth++;
   int legalMoves = 0;
   int staticEval = evaluate();
-  if (depth < 3 && !pv_node && !inCheck && abs(beta - 1) > -INFINITY_CHESS + 100) {
-    int eval_margin = 120 * depth;
-    if (staticEval - eval_margin >= beta) {
-      return staticEval - eval_margin;
+  if (depth < 3 && !pvNode && !inCheck && abs(beta - 1) > -INFINITY_CHESS + 100) {
+    int evalMargin = 120 * depth;
+    if (staticEval - evalMargin >= beta) {
+      return staticEval - evalMargin;
     }
   }
 
@@ -217,25 +217,25 @@ inline int negamax(int alpha, int beta, int depth) {
     }
   }
 
-  if (!pv_node && !inCheck && depth <= 3) {
+  if (!pvNode && !inCheck && depth <= 3) {
     score = staticEval + 125;
 
-    int new_score;
+    int newScore;
 
     if (score < beta) {
       if (depth == 1) {
-        new_score = quiescence(alpha, beta);
+        newScore = quiescence(alpha, beta);
 
-        return (new_score > score) ? new_score : score;
+        return (newScore > score) ? newScore : score;
       }
 
       score += 175;
 
       if (score < beta && depth <= 2) {
-        new_score = quiescence(alpha, beta);
+        newScore = quiescence(alpha, beta);
 
-        if (new_score < beta)
-          return (new_score > score) ? new_score : score;
+        if (newScore < beta)
+          return (newScore > score) ? newScore : score;
       }
     }
   }
@@ -261,7 +261,7 @@ inline int negamax(int alpha, int beta, int depth) {
     repetitionIndex++;
     repetitionTable[repetitionIndex] = hashKey;
 
-    if (makeMove(count, all_moves) == 0) {
+    if (makeMove(count, ALL_MOVES) == 0) {
       ply--;
 
       repetitionIndex--;
@@ -364,12 +364,12 @@ void searchPosition(int depth) {
   int alpha = -INFINITY_CHESS;
   int beta = INFINITY_CHESS;
 
-  for (int current_depth = 1; current_depth <= depth; current_depth++) {
+  for (int currentDepth = 1; currentDepth <= depth; currentDepth++) {
     if (stopped == 1) {
       break;
     }
     followPv = 1;
-    score = negamax(alpha, beta, current_depth);
+    score = negamax(alpha, beta, currentDepth);
 
     if ((score <= alpha) || (score >= beta)) {
       alpha = -INFINITY_CHESS;
@@ -384,17 +384,17 @@ void searchPosition(int depth) {
       if (score > -MATE_VALUE && score < -MATE_SCORE) {
         printf("info score mate %d depth %d nodes %lld time %d pv ",
                -(score + MATE_VALUE) / 2 - 1,
-               current_depth,
+               currentDepth,
                nodes,
                getTimeMs() - start);
       } else if (score > MATE_SCORE && score < MATE_VALUE) {
         printf("info score mate %d depth %d nodes %lld time %d pv ",
                (MATE_VALUE - score) / 2 + 1,
-               current_depth,
+               currentDepth,
                nodes,
                getTimeMs() - start);
       } else {
-        printf("info score cp %d depth %d nodes %lld time %d pv ", score, current_depth, nodes, getTimeMs() - start);
+        printf("info score cp %d depth %d nodes %lld time %d pv ", score, currentDepth, nodes, getTimeMs() - start);
       }
 
       for (int count = 0; count < pvLength[0]; count++) {

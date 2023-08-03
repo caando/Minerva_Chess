@@ -60,7 +60,7 @@ void initHashTable(int mb);
 
 int readHashEntry(int alpha, int beta, int* bestMove, int depth);
 
-void writeHashEntry(int score, int best_move, int depth, int hashFlag);
+void writeHashEntry(int score, int bestMove, int depth, int hashFlag);
 
 void enable_pv_scoring(moves &move_list);
 

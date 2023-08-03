@@ -14,25 +14,22 @@
 #include "perft.h"
 #include "debug.h"
 
-int parseMove(char *move_string) {
+int parseMove(char *moveString) {
   moves moveList;
-
   generateMoves(moveList);
-
-  int source_square = (move_string[0] - 'a') + (8 - (move_string[1] - '0')) * 8;
-  int target_square = (move_string[2] - 'a') + (8 - (move_string[3] - '0')) * 8;
-
+  int source_square = (moveString[0] - 'a') + (8 - (moveString[1] - '0')) * 8;
+  int target_square = (moveString[2] - 'a') + (8 - (moveString[3] - '0')) * 8;
   for (int move : moveList) {
     if (source_square == getMoveSource(move) && target_square == getMoveTarget(move)) {
-      int promoted_piece = getMovePromoted(move);
-      if (promoted_piece) {
-        if ((promoted_piece == WQueen || promoted_piece == BQueen) && move_string[4] == 'q') {
+      int promotedPiece = getMovePromoted(move);
+      if (promotedPiece) {
+        if ((promotedPiece == WQueen || promotedPiece == BQueen) && moveString[4] == 'q') {
           return move;
-        } else if ((promoted_piece == WRook || promoted_piece == BRook) && move_string[4] == 'r') {
+        } else if ((promotedPiece == WRook || promotedPiece == BRook) && moveString[4] == 'r') {
           return move;
-        } else if ((promoted_piece == WBishop || promoted_piece == BBishop) && move_string[4] == 'b') {
+        } else if ((promotedPiece == WBishop || promotedPiece == BBishop) && moveString[4] == 'b') {
           return move;
-        } else if ((promoted_piece == WKnight || promoted_piece == BKnight) && move_string[4] == 'n') {
+        } else if ((promotedPiece == WKnight || promotedPiece == BKnight) && moveString[4] == 'n') {
           return move;
         }
         continue;
@@ -100,9 +97,7 @@ void parseFen(char *fen) {
     }
     fen++;
   }
-
   fen++;
-
   if (*fen != '-') {
     int file = fen[0] - 'a';
     int rank = 8 - (fen[1] - '0');
@@ -110,29 +105,22 @@ void parseFen(char *fen) {
   } else {
     enpassant = no_sq;
   }
-
   fen++;
-
   fifty = atoi(fen);
-
   for (int piece = WPawn; piece <= WKing; piece++) {
     occupancies[White] |= bitboards[piece];
   }
   for (int piece = BPawn; piece <= BKing; piece++) {
     occupancies[Black] |= bitboards[piece];
   }
-
   occupancies[Both] |= occupancies[White];
   occupancies[Both] |= occupancies[Black];
-
   hashKey = generateHashkey();
 }
 
 void parsePosition(char *command) {
   command += 9;
-
   char *currentChar = command;
-
   if (strncmp(command, "startpos", 8) == 0) {
     parseFen(START_BOARD);
   } else {
@@ -144,24 +132,17 @@ void parsePosition(char *command) {
       parseFen(currentChar);
     }
   }
-
   currentChar = strstr(command, "moves");
-
   if (currentChar != nullptr) {
     currentChar += 6;
-
     while (*currentChar) {
       int move = parseMove(currentChar);
-
       if (move == 0) {
         break;
       }
       repetitionIndex++;
-
       repetitionTable[repetitionIndex] = hashKey;
-
-      makeMove(move, all_moves);
-
+      makeMove(move, ALL_MOVES);
       while (*currentChar && *currentChar != ' ') {
         currentChar++;
       }
@@ -184,82 +165,59 @@ void resetTimeControl() {
 
 void parseGo(char *command) {
   resetTimeControl();
-
   int depth = -1;
-
   char *argument = nullptr;
 
   if ((argument = strstr(command, "infinite"))) {}
-
   if ((argument = strstr(command, "binc")) && side == Black) {
     inc = atoi(argument + 5);
   }
-
   if ((argument = strstr(command, "winc")) && side == White) {
     inc = atoi(argument + 5);
   }
-
   if ((argument = strstr(command, "wtime")) && side == White) {
     timer = atoi(argument + 6);
   }
-
   if ((argument = strstr(command, "btime")) && side == Black) {
     timer = atoi(argument + 6);
   }
-
   if ((argument = strstr(command, "movestogo"))) {
     movestogo = atoi(argument + 10);
   }
-
   if ((argument = strstr(command, "movetime"))) {
     moveTime = atoi(argument + 9);
   }
-
   if ((argument = strstr(command, "depth"))) {
     depth = atoi(argument + 6);
   }
-
   if ((argument = strstr(command, "perft"))) {
     depth = atoi(argument + 6);
     perftTest(depth);
     return;
   }
-
   if (moveTime != -1) {
     timer = moveTime;
-
     movestogo = 1;
   }
-
   startTime = getTimeMs();
-
   if (timer != -1) {
     timeset = 1;
-
     timer /= movestogo;
-
     timer -= 50;
-
     if (timer < 0) {
       timer = 0;
-
       inc -= 50;
-
       if (inc < 0) {
         inc = 1;
       }
     }
-
     stopTime = startTime + timer + inc;
   }
-
   if (depth == -1) {
     depth = 64;
   }
-
   printf("time: %d  inc: %d  start: %u  stop: %u  depth: %d  timeset:%d\n",
          timer, inc, startTime, stopTime, depth, timeset);
-
   searchPosition(depth);
 }
 

@@ -36,6 +36,6 @@ Bitboard bishopAttacksNaive(Square square, Bitboard block);
 
 Bitboard rookAttacksNaive(Square square, Bitboard block);
 
-Bitboard setOccupancy(int index, int bits_in_mask, Bitboard attack_mask);
+Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask);
 
 #endif //MINERVA_CHESS_SRC_ATTACK_H_

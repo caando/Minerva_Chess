@@ -10,7 +10,7 @@
 #define version " - 1.0.0"
 #define INPUT_BUFFER 10000
 
-int parseMove(char *move_string);
+int parseMove(char *moveString);
 
 void resetBoard();
 

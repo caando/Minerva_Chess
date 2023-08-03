@@ -61,20 +61,20 @@ Bitboard getRookAttacks(Square square, Bitboard occupancy) {
 }
 
 Bitboard getQueenAttacks(Square square, Bitboard occupancy) {
-  U64 queen_attacks = 0ULL;
-  U64 bishop_occupancy = occupancy;
-  U64 rook_occupancy = occupancy;
+  U64 queenAttacks = 0ULL;
+  U64 bishopOccupancy = occupancy;
+  U64 rookOccupancy = occupancy;
 
-  bishop_occupancy &= bishopMasks[square];
-  bishop_occupancy *= bishopMagicNumbers[square];
-  bishop_occupancy >>= 64 - bishopRelevantBits[square];
+  bishopOccupancy &= bishopMasks[square];
+  bishopOccupancy *= bishopMagicNumbers[square];
+  bishopOccupancy >>= 64 - bishopRelevantBits[square];
 
-  queen_attacks = bishopAttacks[square][bishop_occupancy];
+  queenAttacks = bishopAttacks[square][bishopOccupancy];
 
-  rook_occupancy &= rookMasks[square];
-  rook_occupancy *= rookMagicNumbers[square];
-  rook_occupancy >>= 64 - rookRelevantBits[square];
+  rookOccupancy &= rookMasks[square];
+  rookOccupancy *= rookMagicNumbers[square];
+  rookOccupancy >>= 64 - rookRelevantBits[square];
 
-  queen_attacks |= rookAttacks[square][rook_occupancy];
-  return queen_attacks;
+  queenAttacks |= rookAttacks[square][rookOccupancy];
+  return queenAttacks;
 }

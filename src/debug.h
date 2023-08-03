@@ -7,10 +7,10 @@
 
 #include "types.h"
 
-void print_attacked_squares(Colour side);
+void printAttackedSquares(Colour side);
 
-void print_move_list(moves &move_list);
+void printMoveList(moves &move_list);
 
-void print_board();
+void printBoard();
 
 #endif //MINERVA_CHESS_SRC_DEBUG_H_

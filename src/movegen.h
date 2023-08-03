@@ -58,7 +58,7 @@
 
 #define getMoveCastling(move) ((move) & 0b100000000000000000000000)
 
-enum { all_moves, only_captures };
+enum { ALL_MOVES, ONLY_CAPTURES };
 
 void printMove(int move);
 

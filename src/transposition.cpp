@@ -15,12 +15,12 @@ int hashEntries = 0;
 TranspositionTable *hashTable = nullptr;
 
 void clearHashTable() {
-  TranspositionTable *hash_entry;
-  for (hash_entry = hashTable; hash_entry < hashTable + hashEntries; hash_entry++) {
-    hash_entry->hash_key = 0;
-    hash_entry->depth = 0;
-    hash_entry->flag = 0;
-    hash_entry->score = 0;
+  TranspositionTable *hashEntry;
+  for (hashEntry = hashTable; hashEntry < hashTable + hashEntries; hashEntry++) {
+    hashEntry->hash_key = 0;
+    hashEntry->depth = 0;
+    hashEntry->flag = 0;
+    hashEntry->score = 0;
   }
 }
 
@@ -67,7 +67,7 @@ int readHashEntry(int alpha, int beta, int *bestMove, int depth) {
   return NO_HASH_ENTRY;
 }
 
-void writeHashEntry(int score, int best_move, int depth, int hashFlag) {
+void writeHashEntry(int score, int bestMove, int depth, int hashFlag) {
   TranspositionTable *hashEntry = &hashTable[hashKey % hashEntries];
   if (score < -MATE_SCORE) score -= ply;
   if (score > MATE_SCORE) score += ply;
@@ -75,7 +75,7 @@ void writeHashEntry(int score, int best_move, int depth, int hashFlag) {
   hashEntry->score = score;
   hashEntry->flag = hashFlag;
   hashEntry->depth = depth;
-  hashEntry->best_move = best_move;
+  hashEntry->best_move = bestMove;
 }
 
 void enable_pv_scoring(moves &move_list) {
