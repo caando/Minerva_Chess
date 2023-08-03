@@ -67,7 +67,7 @@ inline int scoreMove(int move) {
 }
 
 inline int sortMoves(moves &moveList, int bestMove) {
-  std::array<int, 256> moveScores{};
+  std::vector<int> moveScores(moveList.size());
 
   for (int count = 0; count < moveList.size(); count++) {
     if (bestMove == moveList[count]) {
@@ -77,13 +77,16 @@ inline int sortMoves(moves &moveList, int bestMove) {
     }
   }
 
-  for (int curMove = 0; curMove < moveList.size(); curMove++) {
-    for (int next_move = curMove + 1; next_move < moveList.size(); next_move++) {
-      if (moveScores[curMove] < moveScores[next_move]) {
-        std::swap(moveScores[curMove], moveScores[next_move]);
-        std::swap(moveList[curMove], moveList[next_move]);
-      }
+  for (int curMove = 1; curMove < moveList.size(); curMove++) {
+    int score = moveScores[curMove];
+    int move = moveList[curMove];
+    int next_move = curMove - 1;
+    for (; next_move >= 0 && moveScores[next_move] < score; next_move--) {
+      moveList[next_move + 1] = moveList[next_move];
+      moveScores[next_move + 1] = moveScores[next_move];
     }
+    moveList[next_move + 1] = move;
+    moveScores[next_move + 1] = score;
   }
   return 0;
 }
