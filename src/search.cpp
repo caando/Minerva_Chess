@@ -120,7 +120,7 @@ inline int quiescence(int alpha, int beta) {
   sortMoves(moveList, 0);
 
   for (int move : moveList) {
-    saveBoard();
+    BoardState saveBoard = board;
     ply++;
     repetitionIndex++;
     repetitionTable[repetitionIndex] = board.hashKey;
@@ -134,7 +134,7 @@ inline int quiescence(int alpha, int beta) {
     int score = -quiescence(-beta, -alpha);
     ply--;
     repetitionIndex--;
-    takeBack();
+    board = saveBoard;
     if (stopped == 1) return 0;
     if (score > alpha) {
       alpha = score;
@@ -189,7 +189,7 @@ inline int negamax(int alpha, int beta, int depth) {
   }
 
   if (depth >= 3 && inCheck == 0 && ply) {
-    saveBoard();
+    BoardState saveBoard = board;
     ply++;
     repetitionIndex++;
     repetitionTable[repetitionIndex] = board.hashKey;
@@ -204,11 +204,8 @@ inline int negamax(int alpha, int beta, int depth) {
     score = -negamax(-beta, -beta + 1, depth - 1 - 2);
 
     ply--;
-
     repetitionIndex--;
-
-    takeBack();
-
+    board = saveBoard;
     if (stopped == 1) {
       return 0;
     }
@@ -242,20 +239,16 @@ inline int negamax(int alpha, int beta, int depth) {
 
   moves moveList;
   moveList.reserve(256);
-
   generateMoves(moveList);
-
   if (followPv) {
     enable_pv_scoring(moveList);
   }
-
   sortMoves(moveList, bestMove);
 
   int movesSearched = 0;
 
   for (int count : moveList) {
-    saveBoard();
-
+    BoardState saveBoard = board;
     ply++;
 
     repetitionIndex++;
@@ -295,15 +288,11 @@ inline int negamax(int alpha, int beta, int depth) {
     }
 
     ply--;
-
     repetitionIndex--;
-
-    takeBack();
-
+    board = saveBoard;
     if (stopped == 1) {
       return 0;
     }
-
     movesSearched++;
 
     if (score > alpha) {

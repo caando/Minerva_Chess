@@ -24,10 +24,6 @@
     ((enpassant) << 22) | \
     ((castling) << 23))    \
 
-#define saveBoard() BoardState prevBoard = board;
-
-#define takeBack() board = prevBoard;
-
 #define getMoveSource(move) ((move) & 0b111111)
 
 #define getMoveTarget(move) (((move) & 0b111111000000) >> 6)

@@ -44,7 +44,7 @@ void addMove(moves &moveList, int move) {
 
 int makeMove(int move, int moveFlag) {
   if (moveFlag == ALL_MOVES) {
-    saveBoard();
+    BoardState saveBoard = board;
 
     int sourceSquare = getMoveSource(move);
     int targetSquare = getMoveTarget(move);
@@ -183,7 +183,7 @@ int makeMove(int move, int moveFlag) {
 
     if (isSquareAttacked(static_cast<Square>((board.side == White) ? LSOneIdx(board.bitboards[BKing])
                                                                    : LSOneIdx(board.bitboards[WKing])), board.side)) {
-      takeBack();
+      board = saveBoard;
       return 0;
     } else {
       return 1;

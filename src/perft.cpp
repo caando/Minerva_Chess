@@ -16,12 +16,12 @@ void perftDriver(int depth) {
   generateMoves(moveList);
 
   for (int move : moveList) {
-    saveBoard();
+    BoardState saveBoard = board;
     if (!makeMove(move, ALL_MOVES)) {
       continue;
     }
     perftDriver(depth - 1);
-    takeBack();
+    board = saveBoard;
   }
 }
 
@@ -33,14 +33,14 @@ void perftTest(int depth) {
   long start = getTimeMs();
 
   for (auto move : moveList) {
-    saveBoard();
+    BoardState saveBoard = board;
     if (!makeMove(move, ALL_MOVES)) {
       continue;
     }
     long cummulativeNodes = nodes;
     perftDriver(depth - 1);
     long oldNodes = nodes - cummulativeNodes;
-    takeBack();
+    board = saveBoard;
     printf("     move: %s%s%c  nodes: %ld\n",
            squareToCoordinates[getMoveSource(move)],
            squareToCoordinates[getMoveTarget(move)],

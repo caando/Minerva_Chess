@@ -14,7 +14,7 @@
 #include "perft.h"
 #include "debug.h"
 
-int parseMove(char *moveString) {
+int parseMove(const char *moveString) {
   moves moveList;
   generateMoves(moveList);
   int source_square = (moveString[0] - 'a') + (8 - (moveString[1] - '0')) * 8;
