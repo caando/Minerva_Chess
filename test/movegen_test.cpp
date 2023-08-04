@@ -66,12 +66,12 @@ TEST(MakeMove, validMove) {
   initAll();
   parsePosition("position startpos");
   int move = encodeMove(e2, e4, WPawn, 0, 0, 1, 0, 0);
-  EXPECT_EQ(makeMove(move, all_moves), 1);
+  EXPECT_EQ(makeMove(move, ALL_MOVES), 1);
 }
 
 TEST(MakeMove, invalidMove) {
   initAll();
   parsePosition("position fen 8/8/3k4/8/3K4/8/8/8 w - - 0 1");
   int move = encodeMove(d4, d5, WKing, 0, 0, 0, 0, 0);
-  EXPECT_EQ(makeMove(move, all_moves), 0);
+  EXPECT_EQ(makeMove(move, ALL_MOVES), 0);
 }

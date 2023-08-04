@@ -108,7 +108,18 @@ typedef U64 Bitboard;
 #define getBit(bitboard, square) ((bitboard) & (1ULL << (square)))
 #define remBit(bitboard, square) ((bitboard) &= ~(1ULL << (square)))
 
-// move list structure
 typedef std::vector<int> moves;
+
+#pragma pack(push, 1)
+struct BoardState {
+  Bitboard bitboards[PieceCount];
+  Bitboard occupancies[ColourCount];
+  Colour side;
+  Square enpassant;
+  int castle;
+  int fifty;
+  U64 hashKey;
+};
+#pragma pack(pop)
 
 #endif //MINERVA_CHESS_SRC_CONSTANTS_H_
