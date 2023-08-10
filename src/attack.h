@@ -7,16 +7,13 @@
 
 #include "types.h"
 #include "magic_constants.h"
+#include <array>
 
-extern Bitboard pawnAttacks[2][SquareCount];
-
-extern Bitboard knightAttacks[SquareCount];
-
-extern Bitboard bishopAttacks[SquareCount][512];
-
-extern Bitboard rookAttacks[SquareCount][4096];
-
-extern Bitboard kingAttacks[SquareCount];
+extern const std::array<std::array<Bitboard, SquareCount>, 2> pawnAttacks;
+extern std::array<Bitboard, 64> knightAttacks;
+extern std::array<std::array<Bitboard, 512>, SquareCount> bishopAttacks;
+extern std::array<std::array<Bitboard, 4096>, SquareCount> rookAttacks;
+extern std::array<Bitboard, 64> kingAttacks;
 
 enum BishopRook { Rook, Bishop };
 
