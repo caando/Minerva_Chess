@@ -126,7 +126,7 @@ constexpr Bitboard maskRookAttacks(Square square) {
 }
 
 constexpr std::array<Bitboard, SquareCount> initBishopMasks(){
-  std::array<Bitboard, 64> bishopMasks;
+  std::array<Bitboard, 64> bishopMasks{};
   for (int square = 0; square < 64; square++) {
     bishopMasks[square] = maskBishopAttacks(static_cast<Square>(square));
   }
@@ -134,7 +134,7 @@ constexpr std::array<Bitboard, SquareCount> initBishopMasks(){
 }
 
 constexpr std::array<Bitboard, SquareCount> initRookMasks(){
-  std::array<Bitboard, 64> rookMasks;
+  std::array<Bitboard, 64> rookMasks{};
   for (int square = 0; square < 64; square++) {
     rookMasks[square] = maskRookAttacks(static_cast<Square>(square));
   }
@@ -227,24 +227,30 @@ void initLeapersAttacks() {
   }
 }
 
-void initSlidersAttacks(BishopRook isBishop) {
+void initBishopAttacks() {
   for (int square = 0; square < 64; square++) {
-    Bitboard attack_mask = isBishop == Bishop ? bishopMasks[square] : rookMasks[square];
-
+    Bitboard attack_mask = bishopMasks[square];
     int relevantBitsCount = std::popcount(attack_mask);
-
     int occupancyIndices = (1 << relevantBitsCount);
 
     for (int index = 0; index < occupancyIndices; index++) {
-      if (isBishop) {
-        U64 occupancy = setOccupancy(index, relevantBitsCount, attack_mask);
-        int magic_index = (occupancy * bishopMagicNumbers[square]) >> (64 - bishopRelevantBits[square]);
-        bishopAttacks[square][magic_index] = bishopAttacksNaive(static_cast<Square>(square), occupancy);
-      } else {
-        U64 occupancy = setOccupancy(index, relevantBitsCount, attack_mask);
-        int magic_index = (occupancy * rookMagicNumbers[square]) >> (64 - rookRelevantBits[square]);
-        rookAttacks[square][magic_index] = rookAttacksNaive(static_cast<Square>(square), occupancy);
-      }
+      U64 occupancy = setOccupancy(index, relevantBitsCount, attack_mask);
+      int magic_index = (occupancy * bishopMagicNumbers[square]) >> (64 - bishopRelevantBits[square]);
+      bishopAttacks[square][magic_index] = bishopAttacksNaive(static_cast<Square>(square), occupancy);
+    }
+  }
+}
+
+void initRookAttacks() {
+  for (int square = 0; square < 64; square++) {
+    Bitboard attack_mask = rookMasks[square];
+    int relevantBitsCount = std::popcount(attack_mask);
+    int occupancyIndices = (1 << relevantBitsCount);
+
+    for (int index = 0; index < occupancyIndices; index++) {
+      U64 occupancy = setOccupancy(index, relevantBitsCount, attack_mask);
+      int magic_index = (occupancy * rookMagicNumbers[square]) >> (64 - rookRelevantBits[square]);
+      rookAttacks[square][magic_index] = rookAttacksNaive(static_cast<Square>(square), occupancy);
     }
   }
 }

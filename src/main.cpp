@@ -11,8 +11,8 @@
 void initAll() {
   // TODO: move to compile time
   initLeapersAttacks();
-  initSlidersAttacks(Bishop);
-  initSlidersAttacks(Rook);
+  initBishopAttacks();
+  initRookAttacks();
 
   initialiseKeys();
 

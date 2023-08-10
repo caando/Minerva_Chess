@@ -22,7 +22,8 @@ enum BishopRook { Rook, Bishop };
 
 void initLeapersAttacks();
 
-void initSlidersAttacks(BishopRook isBishop);
+void initBishopAttacks();
+void initRookAttacks();
 
 Bitboard getBishopAttacks(Square square, Bitboard occupancy);
 
