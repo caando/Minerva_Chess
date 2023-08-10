@@ -4,15 +4,13 @@
 
 #include "attack.h"
 #include "util.h"
+#include <array>
 
 Bitboard pawnAttacks[2][SquareCount] = {{0}};
 Bitboard knightAttacks[SquareCount] = {0};
 Bitboard bishopAttacks[SquareCount][512] = {{0}};
 Bitboard rookAttacks[SquareCount][4096];
 Bitboard kingAttacks[SquareCount] = {0};
-
-Bitboard bishopMasks[SquareCount] = {0};
-Bitboard rookMasks[SquareCount] = {0};
 
 constexpr Bitboard maskPawnAttacks(Colour side, Square square) {
   Bitboard attacks = 0ULL;
@@ -127,6 +125,25 @@ constexpr Bitboard maskRookAttacks(Square square) {
   return attacks;
 }
 
+constexpr std::array<Bitboard, SquareCount> initBishopMasks(){
+  std::array<Bitboard, 64> bishopMasks;
+  for (int square = 0; square < 64; square++) {
+    bishopMasks[square] = maskBishopAttacks(static_cast<Square>(square));
+  }
+  return bishopMasks;
+}
+
+constexpr std::array<Bitboard, SquareCount> initRookMasks(){
+  std::array<Bitboard, 64> rookMasks;
+  for (int square = 0; square < 64; square++) {
+    rookMasks[square] = maskRookAttacks(static_cast<Square>(square));
+  }
+  return rookMasks;
+}
+
+std::array<Bitboard, SquareCount> bishopMasks = initBishopMasks();
+std::array<Bitboard, SquareCount> rookMasks = initRookMasks();
+
 constexpr Bitboard bishopAttacksNaive(Square square, Bitboard block) {
   Bitboard attacks = 0ULL;
   int r, f;
@@ -212,9 +229,6 @@ void initLeapersAttacks() {
 
 void initSlidersAttacks(BishopRook isBishop) {
   for (int square = 0; square < 64; square++) {
-    bishopMasks[square] = maskBishopAttacks(static_cast<Square>(square));
-    rookMasks[square] = maskRookAttacks(static_cast<Square>(square));
-
     Bitboard attack_mask = isBishop == Bishop ? bishopMasks[square] : rookMasks[square];
 
     int relevantBitsCount = std::popcount(attack_mask);
