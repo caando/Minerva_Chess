@@ -7,13 +7,14 @@
 
 Bitboard pawnAttacks[2][SquareCount] = {{0}};
 Bitboard knightAttacks[SquareCount] = {0};
-Bitboard kingAttacks[SquareCount] = {0};
-Bitboard bishopMasks[SquareCount] = {0};
-Bitboard rookMasks[SquareCount] = {0};
 Bitboard bishopAttacks[SquareCount][512] = {{0}};
 Bitboard rookAttacks[SquareCount][4096];
+Bitboard kingAttacks[SquareCount] = {0};
 
-Bitboard maskPawnAttacks(Colour side, Square square) {
+Bitboard bishopMasks[SquareCount] = {0};
+Bitboard rookMasks[SquareCount] = {0};
+
+constexpr Bitboard maskPawnAttacks(Colour side, Square square) {
   Bitboard attacks = 0ULL;
   Bitboard bitboard = 0ULL;
   setBit(bitboard, square);
@@ -27,7 +28,7 @@ Bitboard maskPawnAttacks(Colour side, Square square) {
   return attacks;
 }
 
-Bitboard maskKnightAttacks(Square square) {
+constexpr Bitboard maskKnightAttacks(Square square) {
   Bitboard attacks = 0ULL;
   Bitboard bitboard = 0ULL;
   setBit(bitboard, square);
@@ -60,7 +61,7 @@ Bitboard maskKnightAttacks(Square square) {
   return attacks;
 }
 
-Bitboard maskKingAttacks(Square square) {
+constexpr Bitboard maskKingAttacks(Square square) {
   Bitboard attacks = 0ULL;
   Bitboard bitboard = 0ULL;
   setBit(bitboard, square);
@@ -92,7 +93,7 @@ Bitboard maskKingAttacks(Square square) {
   return attacks;
 }
 
-Bitboard maskBishopAttacks(Square square) {
+constexpr Bitboard maskBishopAttacks(Square square) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -113,7 +114,7 @@ Bitboard maskBishopAttacks(Square square) {
   return attacks;
 }
 
-Bitboard maskRookAttacks(Square square) {
+constexpr Bitboard maskRookAttacks(Square square) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -126,7 +127,7 @@ Bitboard maskRookAttacks(Square square) {
   return attacks;
 }
 
-Bitboard bishopAttacksNaive(Square square, Bitboard block) {
+constexpr Bitboard bishopAttacksNaive(Square square, Bitboard block) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -155,7 +156,7 @@ Bitboard bishopAttacksNaive(Square square, Bitboard block) {
   return attacks;
 }
 
-Bitboard rookAttacksNaive(Square square, Bitboard block) {
+constexpr Bitboard rookAttacksNaive(Square square, Bitboard block) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -184,7 +185,7 @@ Bitboard rookAttacksNaive(Square square, Bitboard block) {
   return attacks;
 }
 
-Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
+constexpr Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
   Bitboard occupancy = 0ULL;
 
   for (int count = 0; count < bitsInMask; count++) {
