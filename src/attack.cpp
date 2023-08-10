@@ -212,13 +212,6 @@ constexpr Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) 
   return occupancy;
 }
 
-void initLeapersAttacks() {
-  iterSquare() {
-    knightAttacks[square] = maskKnightAttacks(static_cast<Square>(square));
-    kingAttacks[square] = maskKingAttacks(static_cast<Square>(square));
-  }
-}
-
 constexpr std::array<std::array<Bitboard, SquareCount>, 2> initPawnAttacks() {
   std::array<std::array<Bitboard, SquareCount>, 2> pawnAttacks{};
   iterSquare() {
@@ -228,9 +221,25 @@ constexpr std::array<std::array<Bitboard, SquareCount>, 2> initPawnAttacks() {
   return pawnAttacks;
 }
 
+constexpr std::array<Bitboard, SquareCount> initKnightAttacks() {
+  std::array<Bitboard, SquareCount> knightAttacks{};
+  iterSquare() {
+    knightAttacks[square] = maskKnightAttacks(static_cast<Square>(square));
+  }
+  return knightAttacks;
+}
+
+constexpr std::array<Bitboard, SquareCount> initKingAttacks() {
+  std::array<Bitboard, SquareCount> kingAttacks{};
+  iterSquare() {
+    kingAttacks[square] = maskKingAttacks(static_cast<Square>(square));
+  }
+  return kingAttacks;
+}
+
 constexpr std::array<std::array<Bitboard, SquareCount>, 2> pawnAttacks = initPawnAttacks();
-std::array<Bitboard, 64> knightAttacks = {0};
-std::array<Bitboard, 64> kingAttacks = {0};
+constexpr std::array<Bitboard, SquareCount> knightAttacks = initKnightAttacks();
+constexpr std::array<Bitboard, SquareCount> kingAttacks = initKingAttacks();
 
 void initBishopAttacks() {
   for (int square = 0; square < 64; square++) {

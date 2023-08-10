@@ -10,7 +10,6 @@
 
 void initAll() {
   // TODO: move to compile time
-  initLeapersAttacks();
   initBishopAttacks();
   initRookAttacks();
 
