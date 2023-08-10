@@ -3,7 +3,6 @@
 //
 
 #include "attack.h"
-#include "magic.h"
 #include "zobrist.h"
 #include "transposition.h"
 #include "nnue/nnue.h"

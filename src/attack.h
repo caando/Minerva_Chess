@@ -38,4 +38,16 @@ Bitboard rookAttacksNaive(Square square, Bitboard block);
 
 Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask);
 
+enum BishopRook { Rook, Bishop };
+
+void initLeapersAttacks();
+
+void initSlidersAttacks(BishopRook isBishop);
+
+Bitboard getBishopAttacks(Square square, Bitboard occupancy);
+
+Bitboard getRookAttacks(Square square, Bitboard occupancy);
+
+Bitboard getQueenAttacks(Square square, Bitboard occupancy);
+
 #endif //MINERVA_CHESS_SRC_ATTACK_H_
