@@ -71,7 +71,6 @@ We have deployed [@MinervaChessBot](https://t.me/MinervaChessBot) onto DigitalOc
 ## Engineering Notes
 
 - Pre-commit hooks have been setup using Husky to automatically format staged files to ensure consistent formatting across teammate commits
-- While the current bot uses Stockfish as the engine, once we've built Minerva Chess engine, we will only have to replace the process that's called per move as the bot uses a UCI that can be adapted to a custom engine like Minerva Chess
 
 ### System architecture
 
