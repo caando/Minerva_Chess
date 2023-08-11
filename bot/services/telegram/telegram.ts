@@ -54,7 +54,6 @@ export type CommandContext = NarrowedContext<
 >;
 
 export function connect() {
-  // TODO: Setup logger
   const bot: Telegraf<Context<Update>> = new Telegraf(
     process.env.TELEGRAM_BOT_TOKEN as string
   );
