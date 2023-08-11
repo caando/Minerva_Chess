@@ -129,7 +129,6 @@ export async function makeMove(username: string, move: string) {
 }
 
 export async function getUserCurrentGame(username: string) {
-  // TODO: replace this with join select
   const user = await getUser(username);
   const game = await getUserOngoingGame(user);
   return game;
@@ -282,7 +281,6 @@ export async function renderBoard(
   });
 }
 
-// TODO: Support history of more than 50 games
 export async function chunkSelectGamesAction(
   username: string,
   chunkSize: number,

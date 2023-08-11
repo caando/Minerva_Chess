@@ -14,7 +14,6 @@ export enum HistoryPlayer {
   BOT = "BOT"
 }
 
-// TODO: Store the move made to reach that FEN as well
 @Table({ tableName: "histories" })
 export class History extends Model {
   @Column({

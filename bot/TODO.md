@@ -1,11 +1,9 @@
 # TODO
 
-- [ ] Deploy to DigitalOcean
-- [ ] Display valid moves to make
-- [ ] Use library for board generation
+- [X] Deploy to DigitalOcean
 - [X] Use Stockfish backend instead of Lichess
-- [ ] Use Telegram button to forfeit matches
-- [ ] Backend endpoint to change FEN state of a game at any time
-- [ ] Feedback when the bot makes a move
-- [ ] Prompt to start a new game if the user has no games yet
-- [ ] More information on the overall structure of the bot
+- [X] Use Telegram button to forfeit matches
+- [X] Backend endpoint to change FEN state of a game at any time
+- [X] Feedback when the bot makes a move
+- [X] Prompt to start a new game if the user has no games yet
+- [X] More information on the overall structure of the bot
