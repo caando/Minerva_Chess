@@ -3,7 +3,6 @@
 //
 
 #include "attack.h"
-#include "magic.h"
 #include "zobrist.h"
 #include "transposition.h"
 #include "nnue/nnue.h"
@@ -11,9 +10,8 @@
 
 void initAll() {
   // TODO: move to compile time
-  initLeapersAttacks();
-  initSlidersAttacks(Bishop);
-  initSlidersAttacks(Rook);
+  initBishopAttacks();
+  initRookAttacks();
 
   initialiseKeys();
 

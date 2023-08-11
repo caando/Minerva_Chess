@@ -6,7 +6,6 @@ set(
         magic_constants.h
         attack.h attack.cpp
         perft.h perft.cpp
-        magic.h magic.cpp
         movegen.h movegen.cpp
         eval.h eval.cpp
         search.h search.cpp

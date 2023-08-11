@@ -5,15 +5,10 @@
 #include "attack.h"
 #include "util.h"
 
-Bitboard pawnAttacks[2][SquareCount] = {{0}};
-Bitboard knightAttacks[SquareCount] = {0};
-Bitboard kingAttacks[SquareCount] = {0};
-Bitboard bishopMasks[SquareCount] = {0};
-Bitboard rookMasks[SquareCount] = {0};
-Bitboard bishopAttacks[SquareCount][512] = {{0}};
-Bitboard rookAttacks[SquareCount][4096];
+std::array<std::array<Bitboard, 512>, SquareCount>  bishopAttacks = {{0}};
+std::array<std::array<Bitboard, 4096>, SquareCount> rookAttacks;
 
-Bitboard maskPawnAttacks(Colour side, Square square) {
+constexpr Bitboard maskPawnAttacks(Colour side, Square square) {
   Bitboard attacks = 0ULL;
   Bitboard bitboard = 0ULL;
   setBit(bitboard, square);
@@ -27,7 +22,7 @@ Bitboard maskPawnAttacks(Colour side, Square square) {
   return attacks;
 }
 
-Bitboard maskKnightAttacks(Square square) {
+constexpr Bitboard maskKnightAttacks(Square square) {
   Bitboard attacks = 0ULL;
   Bitboard bitboard = 0ULL;
   setBit(bitboard, square);
@@ -60,7 +55,7 @@ Bitboard maskKnightAttacks(Square square) {
   return attacks;
 }
 
-Bitboard maskKingAttacks(Square square) {
+constexpr Bitboard maskKingAttacks(Square square) {
   Bitboard attacks = 0ULL;
   Bitboard bitboard = 0ULL;
   setBit(bitboard, square);
@@ -92,7 +87,7 @@ Bitboard maskKingAttacks(Square square) {
   return attacks;
 }
 
-Bitboard maskBishopAttacks(Square square) {
+constexpr Bitboard maskBishopAttacks(Square square) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -113,7 +108,7 @@ Bitboard maskBishopAttacks(Square square) {
   return attacks;
 }
 
-Bitboard maskRookAttacks(Square square) {
+constexpr Bitboard maskRookAttacks(Square square) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -126,7 +121,26 @@ Bitboard maskRookAttacks(Square square) {
   return attacks;
 }
 
-Bitboard bishopAttacksNaive(Square square, Bitboard block) {
+constexpr std::array<Bitboard, SquareCount> initBishopMasks(){
+  std::array<Bitboard, 64> bishopMasks{};
+  for (int square = 0; square < 64; square++) {
+    bishopMasks[square] = maskBishopAttacks(static_cast<Square>(square));
+  }
+  return bishopMasks;
+}
+
+constexpr std::array<Bitboard, SquareCount> initRookMasks(){
+  std::array<Bitboard, 64> rookMasks{};
+  for (int square = 0; square < 64; square++) {
+    rookMasks[square] = maskRookAttacks(static_cast<Square>(square));
+  }
+  return rookMasks;
+}
+
+std::array<Bitboard, SquareCount> bishopMasks = initBishopMasks();
+std::array<Bitboard, SquareCount> rookMasks = initRookMasks();
+
+constexpr Bitboard bishopAttacksNaive(Square square, Bitboard block) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -155,7 +169,7 @@ Bitboard bishopAttacksNaive(Square square, Bitboard block) {
   return attacks;
 }
 
-Bitboard rookAttacksNaive(Square square, Bitboard block) {
+constexpr Bitboard rookAttacksNaive(Square square, Bitboard block) {
   Bitboard attacks = 0ULL;
   int r, f;
   int tr = square / 8;
@@ -184,7 +198,7 @@ Bitboard rookAttacksNaive(Square square, Bitboard block) {
   return attacks;
 }
 
-Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
+constexpr Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
   Bitboard occupancy = 0ULL;
 
   for (int count = 0; count < bitsInMask; count++) {
@@ -196,4 +210,96 @@ Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask) {
   }
 
   return occupancy;
+}
+
+constexpr std::array<std::array<Bitboard, SquareCount>, 2> initPawnAttacks() {
+  std::array<std::array<Bitboard, SquareCount>, 2> pawnAttacks{};
+  iterSquare() {
+    pawnAttacks[White][square] = maskPawnAttacks(White, static_cast<Square>(square));
+    pawnAttacks[Black][square] = maskPawnAttacks(Black, static_cast<Square>(square));
+  }
+  return pawnAttacks;
+}
+
+constexpr std::array<Bitboard, SquareCount> initKnightAttacks() {
+  std::array<Bitboard, SquareCount> knightAttacks{};
+  iterSquare() {
+    knightAttacks[square] = maskKnightAttacks(static_cast<Square>(square));
+  }
+  return knightAttacks;
+}
+
+constexpr std::array<Bitboard, SquareCount> initKingAttacks() {
+  std::array<Bitboard, SquareCount> kingAttacks{};
+  iterSquare() {
+    kingAttacks[square] = maskKingAttacks(static_cast<Square>(square));
+  }
+  return kingAttacks;
+}
+
+constexpr std::array<std::array<Bitboard, SquareCount>, 2> pawnAttacks = initPawnAttacks();
+constexpr std::array<Bitboard, SquareCount> knightAttacks = initKnightAttacks();
+constexpr std::array<Bitboard, SquareCount> kingAttacks = initKingAttacks();
+
+void initBishopAttacks() {
+  for (int square = 0; square < 64; square++) {
+    Bitboard attack_mask = bishopMasks[square];
+    int relevantBitsCount = std::popcount(attack_mask);
+    int occupancyIndices = (1 << relevantBitsCount);
+
+    for (int index = 0; index < occupancyIndices; index++) {
+      U64 occupancy = setOccupancy(index, relevantBitsCount, attack_mask);
+      int magic_index = (occupancy * bishopMagicNumbers[square]) >> (64 - bishopRelevantBits[square]);
+      bishopAttacks[square][magic_index] = bishopAttacksNaive(static_cast<Square>(square), occupancy);
+    }
+  }
+}
+
+void initRookAttacks() {
+  for (int square = 0; square < 64; square++) {
+    Bitboard attack_mask = rookMasks[square];
+    int relevantBitsCount = std::popcount(attack_mask);
+    int occupancyIndices = (1 << relevantBitsCount);
+
+    for (int index = 0; index < occupancyIndices; index++) {
+      U64 occupancy = setOccupancy(index, relevantBitsCount, attack_mask);
+      int magic_index = (occupancy * rookMagicNumbers[square]) >> (64 - rookRelevantBits[square]);
+      rookAttacks[square][magic_index] = rookAttacksNaive(static_cast<Square>(square), occupancy);
+    }
+  }
+}
+
+Bitboard getBishopAttacks(Square square, Bitboard occupancy) {
+  occupancy &= bishopMasks[square];
+  occupancy *= bishopMagicNumbers[square];
+  occupancy >>= 64 - bishopRelevantBits[square];
+
+  return bishopAttacks[square][occupancy];
+}
+
+Bitboard getRookAttacks(Square square, Bitboard occupancy) {
+  occupancy &= rookMasks[square];
+  occupancy *= rookMagicNumbers[square];
+  occupancy >>= 64 - rookRelevantBits[square];
+
+  return rookAttacks[square][occupancy];
+}
+
+Bitboard getQueenAttacks(Square square, Bitboard occupancy) {
+  U64 queenAttacks = 0ULL;
+  U64 bishopOccupancy = occupancy;
+  U64 rookOccupancy = occupancy;
+
+  bishopOccupancy &= bishopMasks[square];
+  bishopOccupancy *= bishopMagicNumbers[square];
+  bishopOccupancy >>= 64 - bishopRelevantBits[square];
+
+  queenAttacks = bishopAttacks[square][bishopOccupancy];
+
+  rookOccupancy &= rookMasks[square];
+  rookOccupancy *= rookMagicNumbers[square];
+  rookOccupancy >>= 64 - rookRelevantBits[square];
+
+  queenAttacks |= rookAttacks[square][rookOccupancy];
+  return queenAttacks;
 }

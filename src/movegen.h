@@ -9,7 +9,6 @@
 #include <cstring>
 #include <iostream>
 #include "attack.h"
-#include "magic.h"
 #include "variables.h"
 #include "zobrist.h"
 #include "debug.h"

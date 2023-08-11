@@ -16,7 +16,6 @@ set(
         ${CMAKE_SOURCE_DIR}/src/magic_constants.h
         ${CMAKE_SOURCE_DIR}/src/attack.h ${CMAKE_SOURCE_DIR}/src/attack.cpp
         ${CMAKE_SOURCE_DIR}/src/perft.h ${CMAKE_SOURCE_DIR}/src/perft.cpp
-        ${CMAKE_SOURCE_DIR}/src/magic.h ${CMAKE_SOURCE_DIR}/src/magic.cpp
         ${CMAKE_SOURCE_DIR}/src/movegen.h
         ${CMAKE_SOURCE_DIR}/src/eval.h
         ${CMAKE_SOURCE_DIR}/src/search.h ${CMAKE_SOURCE_DIR}/src/search.cpp

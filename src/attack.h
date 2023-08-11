@@ -7,35 +7,23 @@
 
 #include "types.h"
 #include "magic_constants.h"
+#include <array>
 
-extern Bitboard pawnAttacks[2][SquareCount];
+extern const std::array<std::array<Bitboard, SquareCount>, 2> pawnAttacks;
+extern const std::array<Bitboard, SquareCount> knightAttacks;
+extern std::array<std::array<Bitboard, 512>, SquareCount> bishopAttacks;
+extern std::array<std::array<Bitboard, 4096>, SquareCount> rookAttacks;
+extern const std::array<Bitboard, SquareCount> kingAttacks;
 
-extern Bitboard knightAttacks[SquareCount];
+enum BishopRook { Rook, Bishop };
 
-extern Bitboard kingAttacks[SquareCount];
+void initBishopAttacks();
+void initRookAttacks();
 
-extern Bitboard bishopMasks[SquareCount];
+Bitboard getBishopAttacks(Square square, Bitboard occupancy);
 
-extern Bitboard rookMasks[SquareCount];
+Bitboard getRookAttacks(Square square, Bitboard occupancy);
 
-extern Bitboard bishopAttacks[SquareCount][512];
-
-extern Bitboard rookAttacks[SquareCount][4096];
-
-Bitboard maskPawnAttacks(Colour side, Square square);
-
-Bitboard maskKnightAttacks(Square square);
-
-Bitboard maskKingAttacks(Square square);
-
-Bitboard maskBishopAttacks(Square square);
-
-Bitboard maskRookAttacks(Square square);
-
-Bitboard bishopAttacksNaive(Square square, Bitboard block);
-
-Bitboard rookAttacksNaive(Square square, Bitboard block);
-
-Bitboard setOccupancy(int index, int bitsInMask, Bitboard attackMask);
+Bitboard getQueenAttacks(Square square, Bitboard occupancy);
 
 #endif //MINERVA_CHESS_SRC_ATTACK_H_
